@@ -13,9 +13,13 @@ from bokeh.models.widgets import Button
 from bokeh.models.widgets import Dropdown
 from bokeh import events
 
+SelectedGraph = CustomJS(args=None, code="""
+    console.log("newGraph");
+    """)
 
 CurveList=[("Sin","C1"),("Polynomial","C2"),("abs","C2")]
 dropdown=Dropdown(label="Curve Lists",button_type="warning",menu=CurveList)
+
 button = Button(label="Run ", button_type="success")
 
 # Set up data
@@ -37,7 +41,7 @@ callback = CustomJS(args=dict(source=source), code="""
     var B = offset.value;
     x = data['x']
     y = data['y']
-    console.log("update")
+    console.log("update");
     for (i = 0; i < x.length; i++) {
         y[i] = B + A*Math.sin(x[i]);
     }
@@ -61,17 +65,24 @@ offset_slider = Slider(start=-5, end=5, value=0, step=.1,
 callback.args["offset"] = offset_slider
 
 div = Div(width=1000)
-
+#Run callback#
 def display_event(div):
     return CustomJS(args=dict(div=div), code="""
     console.log("run")
     """ )
-
+def function_to_call(new):
+##
+    return CustomJS(args=None, code="""
+    console.log("newGraph");
+    """) 
+##
+dropdown.js.on_event(function_to_call)
 
 layout = row(
     widgetbox(dropdown,amp_slider, freq_slider, phase_slider, offset_slider,button),plot
 )
 button.js_on_event(events.ButtonClick, display_event(div))
+
 output_file("slider.html", title="slider.py example")
 
 show(layout)
