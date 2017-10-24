@@ -1,19 +1,22 @@
 ''' Present an interactive function explorer with slider widgets.
-Scrub the sliders to change the properties of the ``sin`` curve, or
-type into the title text box to update the title of the plot.
+Scrub the sliders to change the properties of the defined curve, or
+type into the title text box to make an arbitary function.
 Use the ``bokeh serve`` command to run the example by executing:
-    bokeh serve sliders.py
+    bokeh serve slider2.py
 at your command prompt. Then navigate to the URL
     http://localhost:5006/sliders
 in your browser.
 '''
 import numpy as np
 import parser
+import serial
+import time
+
+
+
+
 from threading import Thread,Event
 from time import sleep
-
-
-
 from bokeh.io import curdoc
 from bokeh.layouts import row, widgetbox
 from bokeh.models import ColumnDataSource,Div,CustomJS, Circle
@@ -28,11 +31,12 @@ from bokeh import events
 
 # Set up data
 N = 500
-Del=100
+Del=20
 Sp=100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 source = ColumnDataSource(data=dict(x=x, y=y))
+ser =serial.Serial('COM4',9600,timeout=0.2)
 
 
 # Set up plot
@@ -45,8 +49,8 @@ plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
 # Set up widgets
 text = TextInput(title="Custom function", value='Enter f(x)')
-offset = Slider(title="offset", value=0.0, start=-5.0, end=5.0, step=0.1)
-amplitude = Slider(title="amplitude", value=1.0, start=-3.0, end=3.0, step=0.01)
+offset = Slider(title="Offset", value=0.0, start=-5.0, end=5.0, step=0.1)
+amplitude = Slider(title="Amplitude", value=1.0, start=-3.0, end=3.0, step=0.01)
 Speed= Slider(title="Speed", value=100, start=100, end=250)
 Delay = Slider(title="Delay", value=1, start=1, end=100)
 
@@ -56,7 +60,7 @@ dropdown=Dropdown(label="Curve Lists",button_type="warning",menu=CurveList)
 
 
 button = Button(label="Run ", button_type="success")
-button1 = Button(label="Stop ", button_type="success")
+button1 = Button(label="Stop ", button_type="danger")
 
 # Set up callbacks
 def update_title(attrname, old, new):
@@ -113,8 +117,8 @@ for w in [offset, amplitude]:
 for Z in [Delay,Speed]:
     Z.on_change('value',change_output)
 def stop():
-    global t1_stop
-    t1_stop.set()
+    global flag
+    flag=False
     print("stop the thread")
 
     
@@ -122,15 +126,54 @@ def function_to_call(attr, old, new):
     print(dropdown.value)
     update_data(attr, old, new)
 def run():
+        global flag
         print("run")
+        time.sleep(1)
+        flag=True
         dx=np.gradient(x)
         dy=np.gradient(y)
-##        source.data = dict(x=x, y=dy)
-        t1_stop= Event()
-        thread = Thread(target = threaded_function, args = (1,t1_stop))
-        thread.start()
-        thread.join()
+        scale=np.divide(dy,dx)
+        if np.amax(dy)>=np.amax(dx):
+            Scale_number=Sp/np.amax(dy)
+        else:
+            Scale_number=Sp/np.amax(dy)
+        source.data = dict(x=[], y=[])
+        for i in range(len(x)-1):
+            circle=Circle(x=x[i],y=y[i], fill_color='red',size=3)
+            initial_circle = Circle(x='x', y='y', fill_color='blue', size=50)
+            new_data={'x':[x[i],x[i+1]],'y':[y[i],y[i+1]]}
+##            source.stream(new_data)
+            #print(dx[i]*Scale_number,dy[i]*Scale_number)
+            my_int=int(round(dy[i]*Scale_number))
+            mx_int=int(round(dx[i]*Scale_number))
+            new_str = ''.join(['a',str('{:03d}'.format(my_int+256)),'b',str('{:03d}'.format(mx_int+256)),'\r','\n'])
+            ser.write(new_str .encode('ascii','replace'))
+            sleep(0.01)
+            print(ser.readline())
+            sleep(1/1000)
+
+        ser.flushInput()
+        ser.flushOutput()
+        new_str = ''.join(['a',str('{:03d}'.format(256)),'b',str('{:03d}'.format(256)),'\r','\n'])
+        ser.write(new_str .encode('ascii','replace'))
+        sleep(0.001)
+        print(ser.readline())
+        new_str = ''.join(['a',str('{:03d}'.format(256)),'b',str('{:03d}'.format(256)),'r','\n'])
+        ser.write(new_str .encode('ascii','replace'))
+        sleep(0.01)
+        print(ser.readline())
+        sleep(0.01)
         print ("Process finished...exiting")
+        
+
+
+
+
+
+
+
+
+        
 # Set up layouts and add to document
 inputs = widgetbox(dropdown,text, offset, amplitude, Speed, Delay,button,button1)
 button.js_on_event(events.ButtonClick, display_event(div))
@@ -142,21 +185,14 @@ button1.on_click(stop)
 
 
 
+# Set up Server
 
 curdoc().add_root(row(inputs, plot, width=1200))
 curdoc().title = "Sliders"
 
 
 
-def threaded_function(arg,stop_event):
-    while(not stop_event.is_set()):
-        for i in range(len(x)):
-            print (x[i])
-            circle=Circle(x=x[i],y=y[i], fill_color='red',size=3)
-##        initial_circle = Circle(x='x', y='y', fill_color='blue', size=50)
-##            plot.add_glyph(circle)
-            sleep(Del/1000)
-            stop_event.set()
+
 
 
 
