@@ -20,15 +20,15 @@ import processing.core.PVector;
  */
 public class OneDollar {
 
-	private final static String NAME = "OneDollar-Unistroke-Recognizer";
-	private final static String VERSION = "1.0.3";
+	public final static String NAME = "OneDollar-Unistroke-Recognizer";
+	private final static String VERSION = "1.0.4";
 	private final static String REPOSITORY = "https://github.com/nok/onedollar-unistroke-recognizer";
 	
-	private PApplet parent;
-	private HashMap<String,Callback> globalCallbacks;
-	private HashMap<Integer,HashMap<String,Callback>> localCallbacks;
+	public PApplet parent;
+	public HashMap<String,Callback> globalCallbacks;
+	public HashMap<Integer,HashMap<String,Callback>> localCallbacks;
 	
-	private Pia pia;
+	public Pia pia;
 	private boolean autoCheck;
 	private boolean verbose;
 	
@@ -186,24 +186,26 @@ public class OneDollar {
 	/**
 	 * Run gesture-recognition and check global callbacks.
 	 */
-	private void checkGlobalCallbacks() {
+	public String checkGlobalCallbacks() {
+  String template="";
 		if (this.hasGlobalCallbacks()) {
 			ArrayList<Result> results = this.pia.check();
 			if (results.size() > 0) {
 				Result result = results.get(0);
-				String template = result.getName();
+				 template = result.getName();
 				if (this.globalCallbacks.containsKey(template)) {
 					this.log(result.getTrackingId(), result);
 					this.globalCallbacks.get(template).fire(template, result);
 				}
 			}
 		}
+  return template;
 	}
 	
 	/**
 	 * Run gesture-recognition and check local callbacks.
 	 */
-	private void checkLocalCallbacks() {
+	public void checkLocalCallbacks() {
 		if (this.hasLocalCallbacks()) {
 			
 			Iterator<Integer> candidatesIterator = this.localCallbacks.keySet().iterator();
