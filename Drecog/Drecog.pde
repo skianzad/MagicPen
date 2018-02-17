@@ -1,4 +1,7 @@
 import de.voidplus.dollar.*;
+import processing.svg.*;
+import processing.pdf.*;
+//import geomerative.*;
 
 OneDollar one;
 // Training setup:
@@ -14,9 +17,28 @@ char lable='N';
 PVector po;
 Boolean trFlag;
 int[] candidate;
+/**********************************************************************************************************************/
+/*Definfing the sketching Env*/
+PGraphics pgDrawing;
+PShape SIM;
+ArrayList <PShape> bg;
+PShape tst;
+//RShape grp;
+int NP=1;
+float x=width/2;
+float y=height/2;
+boolean flag= true;
+int selected;
+
+
+
+
+/**********************************************************************************************************************/
+
+  
   
 void setup(){
-  size(500, 500);
+  size(1000, 800 );
   background(255);
   trFlag=true;
   table=loadTable("table.csv","header");
@@ -33,6 +55,17 @@ table.addColumn("X/Y");
 table.addColumn("Lable");
 candidate= new int[3];}
 // *************************
+ /*Making the drawing objects*/
+  pgDrawing = createGraphics(1057, 1057, SVG, "test1.svg");
+  pgDrawing.beginDraw();
+  pgDrawing.beginShape();
+  tst=createShape();
+  tst.beginShape();
+  bg=new ArrayList<PShape>();
+  //bg.add(new PShape());
+  //bg.get(0)=createShape();
+  SIM=createShape(GROUP);
+//***************************
   po= new PVector();
   Pointlist=new ArrayList();
   one = new OneDollar(this);
@@ -40,7 +73,7 @@ candidate= new int[3];}
   println(one);
   
   
-  one.setMinSimilarity(30);
+  one.setMinSimilarity(70);
 
   // Data-Pre-Processing:
   one.setMinDistance(100).enableMinDistance();  
@@ -80,8 +113,8 @@ void detected(String gesture, float percent, int startX, int startY, int centroi
 }
 
 void draw(){
-  background(255);  
-  one.draw();
+  //background(255);  
+  //one.draw();
 }
 //one.track
 void mouseDragged(){
@@ -89,6 +122,8 @@ void mouseDragged(){
   Pointlists.add(new PVector(mouseX,mouseY));
   xPoints.append(str(mouseX));
   xPoints.append(str(mouseY));
+  stroke(126);
+  tst.vertex(mouseX,mouseY);
 }
 void mouseReleased(){
   //println(Pointlist);
@@ -99,9 +134,33 @@ void mouseReleased(){
     one.track(po.x,po.y);
   }
    Pointlist.clear();
-   println("the result is",one.checkGlobalCallbacks());
-
-   
+   String res=one.checkGlobalCallbacks();
+   //println("the result is",res.charAt(0));
+   if(res!=""){ 
+       switch (res.charAt(0)){
+       case 'r':
+       println("A Mass is detected");
+       drawElement();
+       break;
+       case 'c':
+       println("A Charge is detected");
+       drawElement();
+       break;
+       case 's':
+       println("A Spring is detected");
+       drawElement();
+       break;
+       default:
+       tst.endShape();
+       tst=createShape();
+       tst.beginShape();
+       break;
+       }  
+       }else{
+         tst.endShape();
+         tst=createShape();
+         tst.beginShape();
+       };
 }else{
     String[] ResultX=xPoints.array();
     xPoints.clear();
@@ -172,3 +231,41 @@ lable=key;
     break;
   }
 } 
+
+
+void drawElement(){
+  bg.add(tst);
+ 
+     
+      flag=false;
+
+      //
+      //bg =loadShape("test1.svg");
+     
+    //for (int i=1;i<=NP;i++){
+    //  if (bg[NP]!=null) shape(bg[i],0,0); 
+    //    }
+   
+      SIM.addChild(tst);
+      tst.endShape();
+      //pgDrawing.shape(SIM);
+      //pgDrawing.endShape();
+      pgDrawing.endDraw();
+      pgDrawing.dispose();
+      pgDrawing.beginDraw();
+      pgDrawing.beginShape();
+     // shape(SIM);
+     println(bg.size());
+       for (int i=0;i<bg.size();i++)
+        {   shape(SIM.getChild(i),0,0); 
+      }////
+      //P++;
+      PVector v=new PVector (0,0);
+      for (int i = 0; i < SIM.getChild(0).getVertexCount(); i++) {
+      v = SIM.getChild(0).getVertex(i);
+      //println((v.x-(width/2))/4000-pos_ee.x, ((height/5)+v.y)/4000-pos_ee.y);
+       //println(pos_ee.x*4000,pos_ee.y*4000);
+      }
+     tst=createShape();
+     tst.beginShape();
+}
