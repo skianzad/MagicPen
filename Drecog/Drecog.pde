@@ -2,7 +2,11 @@ import de.voidplus.dollar.*;
 import processing.svg.*;
 import processing.pdf.*;
 //import geomerative.*;
-
+import fisica.*;
+//*******************************************************************************************************
+FWorld world;
+FPoly poly;
+//********************************************************************************************************
 OneDollar one;
 // Training setup:
 ArrayList <PVector> Pointlist;
@@ -38,7 +42,7 @@ int selected;
   
   
 void setup(){
-  size(1000, 800 );
+  size(1000, 750 );
   background(255);
   trFlag=true;
   table=loadTable("table.csv","header");
@@ -65,6 +69,18 @@ candidate= new int[3];}
   //bg.add(new PShape());
   //bg.get(0)=createShape();
   SIM=createShape(GROUP);
+  
+//*************************** making the phyiscal word
+Fisica.init(this);
+
+  world = new FWorld();
+  world.setGravity(0, 800);
+  world.setEdges();
+  world.remove(world.left);
+  world.remove(world.right);
+  world.remove(world.top);
+  
+  world.setEdgesRestitution(0.5);
 //***************************
   po= new PVector();
   Pointlist=new ArrayList();
@@ -73,7 +89,7 @@ candidate= new int[3];}
   println(one);
   
   
-  one.setMinSimilarity(70);
+  one.setMinSimilarity(80);
 
   // Data-Pre-Processing:
   one.setMinDistance(100).enableMinDistance();  
@@ -113,6 +129,10 @@ void detected(String gesture, float percent, int startX, int startY, int centroi
 }
 
 void draw(){
+  background(255); 
+  world.step();
+  world.draw(this);  
+
   //background(255);  
   //one.draw();
 }
@@ -140,11 +160,12 @@ void mouseReleased(){
        switch (res.charAt(0)){
        case 'r':
        println("A Mass is detected");
-       drawElement();
+       addMass();
+       //drawElement();
        break;
        case 'c':
        println("A Charge is detected");
-       drawElement();
+       addcharge();
        break;
        case 's':
        println("A Spring is detected");
@@ -225,6 +246,12 @@ lable=key;
       lable=key;
       trFlag=true;
       break;
+    case (BACKSPACE):
+        FBody hovered = world.getBody(mouseX, mouseY);
+        if ( hovered != null  ) {
+          world.remove(hovered);
+        } 
+      break;
     default: 
     lable=key;
     trFlag=true;
@@ -235,37 +262,70 @@ lable=key;
 
 void drawElement(){
   bg.add(tst);
- 
-     
-      flag=false;
-
-      //
-      //bg =loadShape("test1.svg");
-     
-    //for (int i=1;i<=NP;i++){
-    //  if (bg[NP]!=null) shape(bg[i],0,0); 
-    //    }
-   
-      SIM.addChild(tst);
-      tst.endShape();
-      //pgDrawing.shape(SIM);
-      //pgDrawing.endShape();
-      pgDrawing.endDraw();
-      pgDrawing.dispose();
-      pgDrawing.beginDraw();
-      pgDrawing.beginShape();
-     // shape(SIM);
-     println(bg.size());
-       for (int i=0;i<bg.size();i++)
-        {   shape(SIM.getChild(i),0,0); 
-      }////
-      //P++;
-      PVector v=new PVector (0,0);
-      for (int i = 0; i < SIM.getChild(0).getVertexCount(); i++) {
-      v = SIM.getChild(0).getVertex(i);
+  flag=false;
+  SIM.addChild(tst);
+  tst.endShape();
+  //pgDrawing.shape(SIM);
+  //pgDrawing.endShape();
+  pgDrawing.endDraw();
+  pgDrawing.dispose();
+  pgDrawing.beginDraw();
+  pgDrawing.beginShape();
+ // shape(SIM);
+ println(bg.size());
+   for (int i=0;i<bg.size();i++)
+    {   shape(SIM.getChild(i),0,0); 
+  }////
+  //P++;
+  PVector v=new PVector (0,0);
+    for (int i = 0; i < SIM.getChild(0).getVertexCount(); i++) {
+        v = SIM.getChild(0).getVertex(i);
       //println((v.x-(width/2))/4000-pos_ee.x, ((height/5)+v.y)/4000-pos_ee.y);
        //println(pos_ee.x*4000,pos_ee.y*4000);
       }
      tst=createShape();
      tst.beginShape();
 }
+
+void addMass(){
+
+ poly = new FPoly();
+ poly.setStrokeWeight(3);
+ poly.setFill(120, 30, 90);
+ poly.setDensity(10);
+ poly.setRestitution(0.5);
+ for (int i = 0; i < tst.getVertexCount(); i++) {
+     PVector v = tst.getVertex(i);
+     poly.vertex(v.x,v.y);
+}
+tst.endShape();
+ tst=createShape();
+ tst.beginShape();
+  if (poly!=null) {
+     world.add(poly);
+     poly = null;
+      }
+     }
+     
+void addcharge(){
+
+ poly = new FPoly();
+ poly.setStrokeWeight(3);
+  poly.setFill(255, 255, 255);
+ poly.setDensity(0);
+ poly.setRestitution(0.5);
+ for (int i = 0; i < tst.getVertexCount(); i++) {
+     PVector v = tst.getVertex(i);
+     poly.vertex(v.x,v.y);
+}
+tst.endShape();
+ tst=createShape();
+ tst.beginShape();
+  if (poly!=null) {
+     world.add(poly);
+     poly = null;
+      }
+     }
+     
+     
+          
