@@ -6,6 +6,13 @@ import fisica.*;
 //*******************************************************************************************************
 FWorld world;
 FPoly poly;
+FBlob blob;
+ArrayList<FBody> TouchBody;
+  //*****
+  float frequency = 5;
+  float damping = 10;
+  float puenteY;
+  int boxWidth=4;
 //********************************************************************************************************
 OneDollar one;
 // Training setup:
@@ -33,6 +40,7 @@ float x=width/2;
 float y=height/2;
 boolean flag= true;
 int selected;
+
 
 
 
@@ -74,13 +82,14 @@ candidate= new int[3];}
 Fisica.init(this);
 
   world = new FWorld();
+  TouchBody=new ArrayList();
   world.setGravity(0, 800);
   world.setEdges();
   world.remove(world.left);
   world.remove(world.right);
   world.remove(world.top);
-  
   world.setEdgesRestitution(0.5);
+
 //***************************
   po= new PVector();
   Pointlist=new ArrayList();
@@ -89,7 +98,7 @@ Fisica.init(this);
   println(one);
   
   
-  one.setMinSimilarity(80);
+  one.setMinSimilarity(70);
 
   // Data-Pre-Processing:
   one.setMinDistance(100).enableMinDistance();  
@@ -99,7 +108,7 @@ Fisica.init(this);
   // Algorithm settings:
   one.setFragmentationRate(100);
   one.setRotationStep(3);
-  one.setRotationAngle(180);
+  one.setRotationAngle(20);
   one.setBoundingBox(200);
   println(one);
   // All templates:
@@ -169,7 +178,7 @@ void mouseReleased(){
        break;
        case 's':
        println("A Spring is detected");
-       drawElement();
+       addSpring();
        break;
        default:
        tst.endShape();
@@ -249,7 +258,13 @@ lable=key;
     case (BACKSPACE):
         FBody hovered = world.getBody(mouseX, mouseY);
         if ( hovered != null  ) {
+          int gind;
+          gind=hovered.getGroupIndex();
+          if (gind==1){
+                println("Spring is removed");
+            }else{
           world.remove(hovered);
+            }
         } 
       break;
     default: 
@@ -292,27 +307,32 @@ void addMass(){
  poly = new FPoly();
  poly.setStrokeWeight(3);
  poly.setFill(120, 30, 90);
- poly.setDensity(10);
+ poly.setDensity(.001);
  poly.setRestitution(0.5);
  for (int i = 0; i < tst.getVertexCount(); i++) {
      PVector v = tst.getVertex(i);
      poly.vertex(v.x,v.y);
 }
+TouchBody=poly.getTouching();
+if(TouchBody!=null){ 
+println("Touching bodies",TouchBody);
+}
 tst.endShape();
- tst=createShape();
- tst.beginShape();
-  if (poly!=null) {
-     world.add(poly);
-     poly = null;
-      }
-     }
+tst=createShape();
+tst.beginShape();
+if (poly!=null) {
+   world.add(poly);
+   poly = null;
+  }
+}
      
 void addcharge(){
 
  poly = new FPoly();
  poly.setStrokeWeight(3);
+ poly.setStaticBody(true);
   poly.setFill(255, 255, 255);
- poly.setDensity(0);
+ poly.setDensity(1);
  poly.setRestitution(0.5);
  for (int i = 0; i < tst.getVertexCount(); i++) {
      PVector v = tst.getVertex(i);
@@ -326,6 +346,156 @@ tst.endShape();
      poly = null;
       }
      }
-     
+//**********************************************************************     
+void addSpring(){
+int verc=tst.getVertexCount();
+FBody[] steps = new FBody[floor(verc/10)];
+//**************Making the parts of the spring*************
+for (int i=0; i<steps.length; i++) {
+  PVector v = tst.getVertex(i*10);
+  steps[i] = new FBox(boxWidth, 2);
+  steps[i].setPosition(v.x,v.y);
+  steps[i].setNoStroke();
+  steps[i].setGroupIndex(1);
+  //steps[i].setStaticBody(true);
+  steps[i].setFill(120, 200, 190);
+  world.add(steps[i]);
+}
+//**************Making the hanging point 1*************
+FCircle hang = new FCircle(10);  
+hang.setStatic(true);
+hang.setPosition(tst.getVertex(0).x,tst.getVertex(0).y);
+hang.setDrawable(false);
+hang.setGroupIndex(1);
+world.add(hang);
+//**************connecting the first part of spring to the *************
+FDistanceJoint juntaPrincipio = new FDistanceJoint(steps[0], hang);
+juntaPrincipio.setAnchor1(-boxWidth/2, 0);
+juntaPrincipio.setAnchor2(0, 0);
+juntaPrincipio.setFrequency(frequency);
+juntaPrincipio.setDamping(damping);
+juntaPrincipio.calculateLength();
+juntaPrincipio.setFill(0);
+//juntaPrincipio.setGroupIndex(1);
+world.add(juntaPrincipio);  
+
+//**************connecting the the sequences of spring together *************
+
+for (int i=1; i<steps.length; i++) {
+    FDistanceJoint junta = new FDistanceJoint(steps[i-1], steps[i]);
+    junta.setAnchor1(boxWidth/2, 0);
+    junta.setAnchor2(-boxWidth/2, 0);
+    junta.setFrequency(frequency);
+    junta.setDamping(damping);
+    junta.setFill(1);
+    junta.calculateLength();
+    //junta.setGroupIndex(1);
+    world.add(junta);
+  }
+//**************connecting different points of spring to the hanger 1 *************
+
+    for (int i=0; i<steps.length; i++) {
+    FDistanceJoint junta = new FDistanceJoint(hang, steps[i]);
+    junta.setAnchor1(boxWidth/2, 0);
+    junta.setAnchor2(-boxWidth/2, 0);
+    junta.setFrequency(frequency);
+    junta.setDamping(damping);
+    junta.setFill(0);
+    junta.setDrawable(false);
+    junta.calculateLength();
+    //junta.setGroupIndex(1);
+    world.add(junta);
+  }
+  //**************Creating hanger 2 and connecting different points of spring to the hanger 1 *************
+
+  FCircle hanginv = new FCircle(10);
+  hanginv.setStatic(true);
+  hanginv.setPosition(tst.getVertex(0).x+30,tst.getVertex(0).y);
+  hanginv.setDrawable(false);
+  hanginv.setGroupIndex(1);
+
+  world.add(hanginv);
+  
+  for (int i=1; i<steps.length; i++) {
+    FDistanceJoint junta = new FDistanceJoint(hanginv, steps[i-1]);
+    junta.setAnchor1(boxWidth/2, 0);
+    junta.setAnchor2(-boxWidth/2, 0);
+    junta.setFrequency(frequency);
+    junta.setDamping(damping);
+    junta.setFill(0);
+    junta.setDrawable(false);
+    junta.calculateLength();
+    world.add(junta);
+  }
+int endv=(floor(verc/10))*10;
+ 
+ FCircle endpoint = new FCircle(10);
+ endpoint.setPosition(tst.getVertex(endv-10).x,tst.getVertex(endv-10).y);
+ endpoint.setDrawable(true);
+ endpoint.setFill(0,0,0);
+endpoint.setGroupIndex(1);
+world.add(endpoint);
+for (int i=1; i<steps.length; i++) {
+  FDistanceJoint junta = new FDistanceJoint(endpoint, steps[i]);
+  junta.setAnchor1(boxWidth/2, 0);
+  junta.setAnchor2(-boxWidth/2, 0);
+  junta.setFrequency(frequency);
+  junta.setDamping(damping);
+  junta.setFill(0);
+  junta.setDrawable(false);
+  junta.calculateLength();
+  world.add(junta);
+}
+FDistanceJoint junta = new FDistanceJoint(endpoint, steps[steps.length-1]);
+  junta.setAnchor1(boxWidth/2, 0);
+  junta.setAnchor2(-boxWidth/2, 0);
+  junta.setFrequency(frequency);
+  junta.setDamping(damping);
+  junta.setFill(0);
+  junta.setDrawable(true);
+  junta.calculateLength();
+  world.add(junta);
+  //hang.setStatic(true);
+  //hang.setPosition(tst.getVertex(0).x,tst.getVertex(0).y);
+  //hang.setDrawable(false);
+  //world.add(hang);
+  //FDistanceJoint juntaPrincipio = new FDistanceJoint(steps[0], hang);
+  //juntaPrincipio.setAnchor1(-boxWidth/2, 0);
+  //juntaPrincipio.setAnchor2(0, 0);
+  //juntaPrincipio.setFrequency(frequency);
+  //juntaPrincipio.setDamping(damping);
+  //juntaPrincipio.calculateLength();
+  //juntaPrincipio.setFill(0);
+  //world.add(juntaPrincipio);
+
+tst.endShape();
+ tst=createShape();
+ tst.beginShape();
+  if (poly!=null) {
+     world.add(poly);
+     poly = null;
+      }
+ }
+
+void addSpring1(){
+ blob = new FBlob();
+ blob.setStrokeWeight(3);
+ //blob.setNoStroke();
+ blob.setStaticBody(true);
+ blob.setDensity(1);
+ blob.setRestitution(0.5);
+ for (int i = 0; i < tst.getVertexCount(); i++) {
+     PVector v = tst.getVertex(i);
+     blob.vertex(v.x,v.y);
+}
+tst.endShape();
+tst=createShape();
+tst.beginShape();
+if (blob!=null)  {
+   world.add(blob);
+   blob = null;
+  }
+}
+  
      
           
