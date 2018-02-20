@@ -158,9 +158,11 @@ void mouseReleased(){
   //println(Pointlist);
   //println(Pointlist.size());
   if (trFlag==false){
-  for (int i=1;i<Pointlist.size();i++){
-    po=Pointlist.get(i);
-    one.track(po.x,po.y);
+  if (Pointlist.size()>=25){
+    for (int i=1;i<Pointlist.size();i++){
+      po=Pointlist.get(i);
+      one.track(po.x,po.y);
+      }
   }
    Pointlist.clear();
    String res=one.checkGlobalCallbacks();
@@ -256,16 +258,17 @@ lable=key;
       trFlag=true;
       break;
     case (BACKSPACE):
+      println("Backspace");
         FBody hovered = world.getBody(mouseX, mouseY);
         if ( hovered != null  ) {
-          int gind;
-          gind=hovered.getGroupIndex();
-          if (gind==1){
-                println("Spring is removed");
-            }else{
+         //int gind;
+          //gind=hovered.getGroupIndex();
+          //if (gind==1){
+          //      println("Spring is removed");
+          //  }else{
           world.remove(hovered);
-            }
-        } 
+            //}
+        }
       break;
     default: 
     lable=key;
@@ -365,7 +368,7 @@ for (int i=0; i<steps.length; i++) {
 FCircle hang = new FCircle(10);  
 hang.setStatic(true);
 hang.setPosition(tst.getVertex(0).x,tst.getVertex(0).y);
-hang.setDrawable(false);
+hang.setDrawable(true);
 hang.setGroupIndex(1);
 world.add(hang);
 //**************connecting the first part of spring to the *************
@@ -376,6 +379,7 @@ juntaPrincipio.setFrequency(frequency);
 juntaPrincipio.setDamping(damping);
 juntaPrincipio.calculateLength();
 juntaPrincipio.setFill(0);
+juntaPrincipio.setStrokeWeight(5);
 //juntaPrincipio.setGroupIndex(1);
 world.add(juntaPrincipio);  
 
@@ -388,6 +392,8 @@ for (int i=1; i<steps.length; i++) {
     junta.setFrequency(frequency);
     junta.setDamping(damping);
     junta.setFill(1);
+    junta.setStrokeWeight(5);
+    junta.setNoFill();
     junta.calculateLength();
     //junta.setGroupIndex(1);
     world.add(junta);
@@ -429,7 +435,7 @@ for (int i=1; i<steps.length; i++) {
   }
 int endv=(floor(verc/10))*10;
  
- FCircle endpoint = new FCircle(10);
+ FCircle endpoint = new FCircle(15);
  endpoint.setPosition(tst.getVertex(endv-10).x,tst.getVertex(endv-10).y);
  endpoint.setDrawable(true);
  endpoint.setFill(0,0,0);
@@ -453,21 +459,9 @@ FDistanceJoint junta = new FDistanceJoint(endpoint, steps[steps.length-1]);
   junta.setDamping(damping);
   junta.setFill(0);
   junta.setDrawable(true);
+  junta.setStrokeWeight(5);
   junta.calculateLength();
   world.add(junta);
-  //hang.setStatic(true);
-  //hang.setPosition(tst.getVertex(0).x,tst.getVertex(0).y);
-  //hang.setDrawable(false);
-  //world.add(hang);
-  //FDistanceJoint juntaPrincipio = new FDistanceJoint(steps[0], hang);
-  //juntaPrincipio.setAnchor1(-boxWidth/2, 0);
-  //juntaPrincipio.setAnchor2(0, 0);
-  //juntaPrincipio.setFrequency(frequency);
-  //juntaPrincipio.setDamping(damping);
-  //juntaPrincipio.calculateLength();
-  //juntaPrincipio.setFill(0);
-  //world.add(juntaPrincipio);
-
 tst.endShape();
  tst=createShape();
  tst.beginShape();
