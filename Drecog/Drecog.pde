@@ -102,7 +102,7 @@ Fisica.init(this);
   println(one);
   
   
-  one.setMinSimilarity(65);
+  one.setMinSimilarity(70);
 
   // Data-Pre-Processing:
   one.setMinDistance(100).enableMinDistance();  
@@ -279,7 +279,9 @@ lable=key;
       break;
     default: 
     lable=key;
-    trFlag=true;
+    trFlag=false;
+
+    //trFlag=true;
     break;
   }
 } 
