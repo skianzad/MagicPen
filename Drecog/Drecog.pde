@@ -361,5 +361,26 @@ void contactEnded(FContact c) {
       jp.setFill(0);
       jp.setDrawable(false);;
       world.add(jp);
+  }else if((a.getName()=="pin")&&(b.getName()=="EndF")){
+      a.setName("Joint");
+      b.setName("Joint");
+      a.setStatic(false);
+      FRevoluteJoint jp= new FRevoluteJoint(a, b);
+
+      jp.setAnchor(mouseX,mouseY);
+      jp.setFill(0);
+      jp.setDrawable(false);;
+      world.add(jp);
   }
+ //} else if((a.getName()=="pin")&&(b.getName()=="Joint")){
+ //     a.setName("Joint");
+ //     b.setName("Joint");
+ //     a.setStatic(false);
+ //     FRevoluteJoint jp= new FRevoluteJoint(a, b);
+
+ //     jp.setAnchor(mouseX,mouseY);
+ //     jp.setFill(0);
+ //     jp.setDrawable(false);;
+ //     world.add(jp);
+ //}
  }

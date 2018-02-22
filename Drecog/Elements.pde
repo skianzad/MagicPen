@@ -4,7 +4,8 @@ void addMass(){
  poly.setStrokeWeight(3);
  poly.setFill(120, 30, 90);
  poly.setBullet(true);
- poly.setDensity(0.04);
+ poly.setDensity(0.02);
+ poly.setRotatable(false);
  poly.setName("Mass");
  poly.setRestitution(0.3);
  for (int i = 0; i < tst.getVertexCount(); i++) {
@@ -163,16 +164,7 @@ for (int i=1; i<steps.length; i++) {
   junta.setDrawable(true);
   junta.calculateLength();
   world.add(junta);
-//FDistanceJoint junta = new FDistanceJoint(endpoint, steps[steps.length-1]);
-//  junta.setAnchor1(boxWidth/2, 0);
-//  junta.setAnchor2(-boxWidth/2, 0);
-//  junta.setFrequency(frequency);
-//  junta.setDamping(damping);
-//  junta.setFill(0);
-//  junta.setDrawable(true);
-//  junta.setStrokeWeight(5);
-//  junta.calculateLength();
-//  world.add(junta);
+
 tst.endShape();
  tst=createShape();
  tst.beginShape();
@@ -192,10 +184,7 @@ for (int i = 0; i < tst.getVertexCount(); i++) {
    sppointsx.append(vx);
    sppointsy.append(vy);
   }
-  //
- //FBox b = new FBox(600, 600);
- // b.setFillColor(color(#1F716B));
- // b.setNoStroke();
+
  float FLength=sppointsy.max()-sppointsy.min();
  float FWidth=sppointsx.max()-sppointsx.min();
 FBox hang = new FBox(FLength,FWidth);  
@@ -213,6 +202,9 @@ hanger.setStatic(true);
 hanger.setPosition(tst.getVertex(0).x,tst.getVertex(0).y-5);
 hanger.setDrawable(true);
 hanger.setGroupIndex(1);
+hanger.setName("pin");
+hanger.setDensity(0.01);
+hanger.setBullet(true);
 world.add(hanger);
 //**************connecting the first part of spring to the *************
 FRevoluteJoint juntaPrincipio = new FRevoluteJoint(hanger, hang);
