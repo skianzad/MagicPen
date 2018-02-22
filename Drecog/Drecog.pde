@@ -11,6 +11,7 @@ PImage spring;
 FloatList sppointsx;
 FloatList sppointsy;
 ArrayList<FBody> TouchBody;
+ArrayList<FJoint> Joints;
   //*****
   float frequency = 5;
   float damping = 10;
@@ -362,10 +363,17 @@ void contactEnded(FContact c) {
       jp.setDrawable(false);;
       world.add(jp);
   }else if((a.getName()=="pin")&&(b.getName()=="EndF")){
+      
+      println("two joint");
+      Joints=a.getJoints();
+      println(Joints.get(1).getBody1().getName());
+      println("spring",Joints.get(1).getBody2().getName());
       a.setName("Joint");
       b.setName("Joint");
-      a.setStatic(false);
-      FRevoluteJoint jp= new FRevoluteJoint(a, b);
+      //if (a.isStatic()){
+      world.remove(a);
+      //}
+      FRevoluteJoint jp= new FRevoluteJoint(Joints.get(1).getBody2(), b);
 
       jp.setAnchor(mouseX,mouseY);
       jp.setFill(0);
