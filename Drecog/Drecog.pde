@@ -169,7 +169,7 @@ void mouseReleased(){
     FBody hovered = world.getBody(mouseX, mouseY);
      if ( hovered == null  ) {
     
-        if (Pointlist.size()>=50){
+        if (Pointlist.size()>=25){
           for (int i=1;i<Pointlist.size();i++){
             po=Pointlist.get(i);
             one.track(po.x,po.y);
@@ -368,10 +368,26 @@ void contactEnded(FContact c) {
       Joints=a.getJoints();
       println(Joints.get(1).getBody1().getName());
       println("spring",Joints.get(1).getBody2().getName());
-      a.setName("Joint");
-      b.setName("Joint");
       //if (a.isStatic()){
       world.remove(a);
+      //}
+      FRevoluteJoint jp= new FRevoluteJoint(Joints.get(1).getBody2(), b);
+
+      jp.setAnchor(mouseX,mouseY);
+      jp.setFill(0);
+      jp.setDrawable(false);;
+      world.add(jp);
+  }else if((a.getName()=="pin")&&(b.getName()=="Joint")){
+      
+      println("two joint");
+      //b.setName("MCenter");
+      Joints=a.getJoints();
+      a.setName("null");
+      world.remove(a);
+     // println(Joints.get(1).getBody1().getName());
+      println("spring",Joints.get(1).getBody2().getName());
+      //if (a.isStatic()){
+      
       //}
       FRevoluteJoint jp= new FRevoluteJoint(Joints.get(1).getBody2(), b);
 
