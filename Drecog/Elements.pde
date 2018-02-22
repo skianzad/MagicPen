@@ -3,7 +3,8 @@ void addMass(){
  poly = new FPoly();
  poly.setStrokeWeight(3);
  poly.setFill(120, 30, 90);
- poly.setDensity(0.05);
+ poly.setBullet(true);
+ poly.setDensity(0.04);
  poly.setName("Mass");
  poly.setRestitution(0.3);
  for (int i = 0; i < tst.getVertexCount(); i++) {
@@ -64,6 +65,7 @@ hang.setStatic(true);
 hang.setPosition(tst.getVertex(0).x,tst.getVertex(0).y-10);
 hang.setDrawable(true);
 hang.setGroupIndex(1);
+hang.setBullet(true);
 world.add(hang);
 //**************connecting the first part of spring to the *************
 FDistanceJoint juntaPrincipio = new FDistanceJoint(steps[0], hang);
@@ -112,6 +114,7 @@ for (int i=1; i<steps.length; i++) {
   hanginv.setStatic(true);
   hanginv.setPosition(tst.getVertex(0).x+30,tst.getVertex(0).y);
   hanginv.setDrawable(false);
+  hanginv.setDensity(1);
   hanginv.setGroupIndex(1);
 
   world.add(hanginv);
@@ -133,7 +136,8 @@ int endv=(floor(verc/10))*10;
  endpoint.setPosition(tst.getVertex(verc-1).x,tst.getVertex(endv-10).y+20);
  endpoint.setDrawable(true);
  endpoint.setFill(120, 30, 0);
- endpoint.setDensity(.001);
+ endpoint.setDensity(.02);
+ endpoint.setBullet(true);
 //endpoint.setGroupIndex(1);
 endpoint.setName("EndF");
 //endpoint.setStatic(true);
@@ -199,7 +203,7 @@ hang.setStatic(false);
 hang.setPosition(tst.getVertex(0).x,tst.getVertex(0).y+FLength/2);
 hang.setDrawable(true);
 hang.setGroupIndex(1);
-hang.setDensity(.0001);
+hang.setDensity(.0001*FWidth);
 spring = loadImage("zigzag.png");
 spring.resize(int(FWidth),int(FLength));
 hang.attachImage(spring);
@@ -222,7 +226,7 @@ world.add(juntaPrincipio);
  endpoint.setPosition(hang.getX(),sppointsy.max());
  endpoint.setDrawable(true);
  endpoint.setFill(120, 30, 0);
- endpoint.setDensity(.01);
+ endpoint.setDensity(0.01);
 //endpoint.setGroupIndex(1);
 endpoint.setName("EndF");
 //endpoint.setStatic(true);

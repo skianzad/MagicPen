@@ -53,7 +53,7 @@ int selected;
   
   
 void setup(){
-  size(1200, 900 );
+  size(1000, 750 );
   background(255);
   trFlag=true;
   table=loadTable("table.csv","header");
@@ -102,7 +102,7 @@ Fisica.init(this);
   println(one);
   
   
-  one.setMinSimilarity(70);
+  one.setMinSimilarity(65);
 
   // Data-Pre-Processing:
   one.setMinDistance(100).enableMinDistance();  
@@ -165,16 +165,12 @@ void mouseReleased(){
   //println(Pointlist);
   //println(Pointlist.size());
   if (trFlag==false){
-    FBody hovered = world.getBody(mouseX, mouseY);
-     if ( hovered == null  ) {
-    
-        if (Pointlist.size()>=50){
-          for (int i=1;i<Pointlist.size();i++){
-            po=Pointlist.get(i);
-            one.track(po.x,po.y);
-            }
-        }
-     }
+  if (Pointlist.size()>=25){
+    for (int i=1;i<Pointlist.size();i++){
+      po=Pointlist.get(i);
+      one.track(po.x,po.y);
+      }
+  }
    Pointlist.clear();
    String res=one.checkGlobalCallbacks();
    //println("the result is",res.charAt(0));
@@ -283,9 +279,7 @@ lable=key;
       break;
     default: 
     lable=key;
-    trFlag=false;
-
-    //trFlag=true;
+    trFlag=true;
     break;
   }
 } 
@@ -331,7 +325,6 @@ void contactEnded(FContact c) {
       jp.setFill(0);
       jp.setDrawable(false);;
       world.add(jp);
-
       //FCompound result = new FCompound();
       
       //result.addBody(a);
@@ -353,7 +346,7 @@ void contactEnded(FContact c) {
       //result=null;
   
   }else if((a.getName()=="EndF")&&(b.getName()=="Joint")){
-     b.setName("Joint");
+       b.setName("Joint");
       a.setName("Joint");
       FRevoluteJoint jp= new FRevoluteJoint(a, b);
 
