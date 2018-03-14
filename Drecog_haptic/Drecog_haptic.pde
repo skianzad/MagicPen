@@ -3,35 +3,73 @@ import processing.svg.*;
 import processing.pdf.*;
 //import geomerative.*;
 import fisica.*;
+/* library imports *****************************************************************************************************/ //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+
+import processing.serial.*;
+import com.dhchoi.CountdownTimer;
+import com.dhchoi.CountdownTimerService;
+
+/* Device block definitions ********************************************************************************************/
+Device            haply_2DoF;
+byte              deviceID                   = 5;
+Board             haply_board;
+DeviceType        degreesOfFreedom;
+boolean           rendering_force                 = false;
+
+
+/* Simulation Speed Parameters ****************************************************************************************/
+final long        SIMULATION_PERIOD          = 1; //ms
+final long        HOUR_IN_MILLIS             = 36000000;
+CountdownTimer    haptic_timer;
+float             dt                        = SIMULATION_PERIOD/1000.0; 
+
+
+/* generic data for a 2DOF device */
+/* joint space */
+PVector           angles                    = new PVector(0, 0);
+PVector           torques                   = new PVector(0, 0);
+
+/* task space */
+PVector           pos_ee                    = new PVector(0, 0);
+PVector           pos_ee_last               = new PVector(0, 0); 
+PVector           f_ee                      = new PVector(0, 0); 
+float             offsetX                   =0;
+float             offsetY                   =0;
 //*******************************************************************************************************
 FWorld world;
 FPoly poly;
+FBody ava;
 FBlob blob;
 PImage spring;
-FloatList sppointsx;
-FloatList sppointsy;
-ArrayList<FBody> TouchBody;
+HVirtualCoupling s;
+FloatList         sppointsx;
+FloatList         sppointsy;
+ArrayList<FBody>  TouchBody;
 ArrayList<FJoint> Joints;
   //*****
-  float frequency = 5;
-  float damping = 10;
-  float puenteY;
-  int boxWidth=4;
+float            frequency                  = 5;
+float            damping                    = 10;
+float            puenteY;
+int              boxWidth                   =4;
+float edgeTopLeftX = 0.0; 
+float edgeTopLeftY = 0.0; 
+float edgeBottomRightX =width; 
+float edgeBottomRightY = height; 
 //********************************************************************************************************
 OneDollar one;
 // Training setup:
 ArrayList <PVector> Pointlist;
 ArrayList <PVector> Pointlists;
-StringList xPoints;
-StringList yPoints;
-PVector Po;
-String pointSave;
-Table table;
-Table train;
-char lable='N';
-PVector po;
-Boolean trFlag;
-int[] candidate;
+StringList       xPoints;
+StringList       yPoints;
+PVector          Po;
+String           pointSave;
+Table            table;
+Table            train;
+char             lable='N';
+PVector          po;
+Boolean          trFlag;
+int[]            candidate;
 /**********************************************************************************************************************/
 /*Definfing the sketching Env*/
 PGraphics pgDrawing;
@@ -44,10 +82,7 @@ float x=width/2;
 float y=height/2;
 boolean flag= true;
 int selected;
-
-
-
-
+boolean avatar=false;
 
 /**********************************************************************************************************************/
 
@@ -85,15 +120,42 @@ candidate= new int[3];}
   
 //*************************** making the phyiscal word
 Fisica.init(this);
-
+FBody ava;
+s= new HVirtualCoupling((1)); 
+  //s.h_avatar.setDensity(2); 
+  //s.h_avatar.setFill(255,0,0); 
   world = new FWorld();
+  
+
   TouchBody=new ArrayList();
-  world.setGravity(0, 800);
+  world.setGravity(0, 500);
+  world.setEdgesRestitution(0.01);
   world.setEdges();
   //world.remove(world.left);
   //world.remove(world.right);
   //world.remove(world.top);
-  world.setEdgesRestitution(0.5);
+  
+//***************************
+ /* Initialization of the Board, Device, and Device Components */
+  
+  /* BOARD */
+  /* BOARD */
+  haply_board = new Board(this, "COM6", 0); //Put your COM# port here
+
+  /* DEVICE */
+  haply_2DoF = new Device(degreesOfFreedom.HaplyTwoDOF, deviceID, haply_board);
+
+  /* Initialize graphical simulation components */
+  
+  /* set device in middle of frame on the x-axis and in the fifth on the y-axis */
+  //device_origin.add((width/2), (height/5) );
+  
+  /* create pantograph graphics */
+  //createpantograph();
+  
+  /* haptics event timer, create and start a timer that has been configured to trigger onTickEvents */
+  /* every TICK (1ms or 1kHz) and run for HOUR_IN_MILLIS (1hr), then resetting */
+  haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
 
 //***************************
   po= new PVector();
@@ -143,13 +205,18 @@ void detected(String gesture, float percent, int startX, int startY, int centroi
 }
 
 void draw(){
-  background(255); 
-  world.step();
+  
+  if(!rendering_force){
+  background(255);
   world.draw(this);
   shape(tst);
+   if ( ava != null  ) {
+       //println("force in x",ava.getX(),"Force in Y direction",ava.getY());
+ }
 
   //background(255);  
   //one.draw();
+  }
 }
 //one.track
 void mouseDragged(){
@@ -409,3 +476,100 @@ void contactEnded(FContact c) {
  //     world.add(jp);
  //}
  }
+ void mouseClicked(){
+ if (mouseButton == RIGHT) {
+  ava = world.getBody(mouseX, mouseY);
+      if ( ava != null  ) {
+       println("avatar is being selected");
+         //s= new HVirtualCoupling(ava); 
+        //s.h_avatar.setDensity(2); 
+        //s.h_avatar.setFill(255,0,0); 
+       // haply_avatar = loadImage("../img/Haply_avatar.png"); 
+        //haply_avatar.resize((int)(hAPI_Fisica.worldToScreen(1)), (int)(hAPI_Fisica.worldToScreen(1)));
+       // s.h_avatar.attachImage(haply_avatar); 
+
+       if (haply_board.data_available()) {
+        //  /* GET END-EFFECTOR STATE (TASK SPACE) */
+        
+        angles.set(haply_2DoF.get_device_angles()); 
+        pos_ee.set( haply_2DoF.get_device_position(angles.array()));
+        pos_ee.set(pos_ee.copy().mult(100)); 
+        offsetX=-ava.getX()-((pos_ee.x*20));
+        offsetY=-ava.getY()+((pos_ee.y*20));
+    
+  }
+     }
+   }
+ }
+ 
+ 
+ /**********************************************************************************************************************
+ * Haptics simulation event, engages state of physical mechanism, calculates and updates physics simulation conditions
+ **********************************************************************************************************************/ 
+
+void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
+  
+  rendering_force = true;
+if (ava!=null){   
+  //  /* GET END-EFFECTOR STATE (TASK SPACE) */
+  if (haply_board.data_available()) {
+    /* GET END-EFFECTOR STATE (TASK SPACE) */
+        
+    angles.set(haply_2DoF.get_device_angles()); 
+    pos_ee.set( haply_2DoF.get_device_position(angles.array()));
+    pos_ee.set(pos_ee.copy().mult(500)); 
+    //println(ava.getX(),ava.getY());
+    
+   
+  //s.updateCouplingForce();
+  }
+  f_ee.set(-(ava.getX()+(pos_ee.x*20)+offsetX)*1000, +(ava.getY()-(pos_ee.y*20)+offsetY)*1000);
+   //f_ee.set(0,0);
+  f_ee.div(200); //
+  haply_2DoF.set_device_torques(f_ee.array());
+  torques.set(haply_2DoF.mechanisms.get_torque());
+  haply_2DoF.device_write_torques();
+  ava.setPosition(-(pos_ee.x*20)-offsetX, (pos_ee.y*20)-offsetY); 
+    
+  }
+  else{
+  //f_ee.set(0,0);
+  }
+world.step(1.0f/25.0f);
+rendering_force = false;
+//world.step(1.0f/1000.0f);
+
+/////  s.setToolPosition(edgeTopLeftX+width/2-(pos_ee).x+1.0, edgeTopLeftY+(pos_ee).y); 
+  //s.updateCouplingForce();
+ 
+  //f_ee.set(-s.getVCforceX(), s.getVCforceY());
+ 
+  //f_ee.div(100000); //
+  //haply_2DoF.set_device_torques(f_ee.array());
+  //torques.set(haply_2DoF.mechanisms.get_torque());
+  //haply_2DoF.device_write_torques();        
+    //angles.set(haply_2DoF.get_device_angles()); 
+    //pos_ee.set( haply_2DoF.get_device_position(angles.array()));
+    //pos_ee.set(pos_ee.copy().mult(100)); 
+    ////println(pos_ee.x,pos_ee.y);
+    
+//  }
+//  //if ( ava != null  ) {
+
+  
+  
+  
+
+}
+
+
+/* Timer control event functions **************************************************************************************/
+
+/**
+ * haptic timer reset
+ */
+void onFinishEvent(CountdownTimer t){
+  println("Resetting timer...");
+  haptic_timer.reset();
+  haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
+}

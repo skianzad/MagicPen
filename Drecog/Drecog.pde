@@ -6,6 +6,7 @@ import fisica.*;
 //*******************************************************************************************************
 FWorld world;
 FPoly poly;
+FBody ava;
 FBlob blob;
 PImage spring;
 FloatList sppointsx;
@@ -44,6 +45,7 @@ float x=width/2;
 float y=height/2;
 boolean flag= true;
 int selected;
+boolean avatar=false;
 
 
 
@@ -85,7 +87,7 @@ candidate= new int[3];}
   
 //*************************** making the phyiscal word
 Fisica.init(this);
-
+FBody ava;
   world = new FWorld();
   TouchBody=new ArrayList();
   world.setGravity(0, 800);
@@ -147,6 +149,9 @@ void draw(){
   world.step();
   world.draw(this);
   shape(tst);
+   if ( ava != null  ) {
+       println("force in x",ava.getX(),"Force in Y direction",ava.getY());
+ }
 
   //background(255);  
   //one.draw();
@@ -408,4 +413,12 @@ void contactEnded(FContact c) {
  //     jp.setDrawable(false);;
  //     world.add(jp);
  //}
+ }
+ void mouseClicked(){
+ if (mouseButton == RIGHT) {
+  ava = world.getBody(mouseX, mouseY);
+      if ( ava != null  ) {
+       println("avatar is being selected");
+       }
+   }
  }

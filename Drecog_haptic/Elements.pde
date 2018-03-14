@@ -3,11 +3,11 @@ void addMass(){
  poly = new FPoly();
  poly.setStrokeWeight(3);
  poly.setFill(120, 30, 90);
- poly.setBullet(true);
+ poly.setBullet(false);
  poly.setDensity(0.005);
  poly.setRotatable(false);
  poly.setName("Mass");
- poly.setRestitution(0.7);
+ poly.setRestitution(0.1);
  for (int i = 0; i < tst.getVertexCount(); i++) {
      PVector v = tst.getVertex(i);
      poly.vertex(v.x,v.y);
