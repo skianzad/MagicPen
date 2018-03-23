@@ -203,9 +203,9 @@ hanger.setStatic(true);
 hanger.setPosition(tst.getVertex(0).x,tst.getVertex(0).y-5);
 hanger.setDrawable(true);
 hanger.setGroupIndex(1);
-hanger.setName("pin");
-hanger.setDensity(0.001);
-hanger.setBullet(false);
+hanger.setName("pin"); 
+hanger.setDensity(0.01);
+hanger.setBullet(true);
 world.add(hanger);
 //**************connecting the first part of spring to the *************
 FRevoluteJoint juntaPrincipio = new FRevoluteJoint(hanger, hang);

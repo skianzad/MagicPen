@@ -128,7 +128,7 @@ s= new HVirtualCoupling((1));
   
 
   TouchBody=new ArrayList();
-  world.setGravity(0, 500);
+  world.setGravity(0, 200);
   world.setEdgesRestitution(0.01);
   world.setEdges();
   //world.remove(world.left);
@@ -207,12 +207,13 @@ void detected(String gesture, float percent, int startX, int startY, int centroi
 void draw(){
   
   if(!rendering_force){
-  background(255);
-  world.draw(this);
-  shape(tst);
+    background(255);
+    //world.step(1.0f/25.0f);
+    world.draw(this);
+    shape(tst);
    if ( ava != null  ) {
        //println("force in x",ava.getX(),"Force in Y direction",ava.getY());
- }
+             }
 
   //background(255);  
   //one.draw();
@@ -535,8 +536,9 @@ if (ava!=null){
   else{
   //f_ee.set(0,0);
   }
-world.step(1.0f/25.0f);
+ world.step(1.0f/25.0f);
 rendering_force = false;
+
 //world.step(1.0f/1000.0f);
 
 /////  s.setToolPosition(edgeTopLeftX+width/2-(pos_ee).x+1.0, edgeTopLeftY+(pos_ee).y); 
