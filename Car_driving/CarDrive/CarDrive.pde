@@ -100,7 +100,7 @@ void setup() {
 stroke(126);
   /* Setup for the graphic display window and drawing objects */
   /* 20 cm x 15 cm */
-  size(1057, 1057, P2D); //px/m*m_d = px
+  size(700, 750, P2D); //px/m*m_d = px
   background(0);
   frameRate(baseFrameRate);
   
@@ -124,7 +124,7 @@ stroke(126);
   /* Initialization of the Board, Device, and Device Components */
   
   /* BOARD */
-  haply_board = new Board(this, "COM5", 0);
+  haply_board = new Board(this, "/dev/cu.usbmodem1421", 0);
 
   /* DEVICE */
   haply_2DoF = new Device(device_type.HaplyTwoDOF, deviceID, haply_board);
@@ -208,7 +208,7 @@ void mouseP(){
       
       //pgDrawing.beginShape();
      // pgDrawing.vertex(mouseX, mouseY);
-      stroke(126);
+      stroke(75);
       tst.vertex(mouseX,mouseY);
       //line(mouseX,mouseY,pmouseX,pmouseY);
       
@@ -259,7 +259,7 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     vel_ee.set(pos_ee.copy().sub(pos_ee_last)).div(dt); 
     pos_ee_last.set(pos_ee.copy()); 
     //pos_ee.mult(1000); 
-    
+    //println(pos_ee);
     /*** PHYSICS OF THE SIMULATION ****/
     f_wall.set(0, 0); 
 
@@ -383,7 +383,7 @@ void update_animation(float th1, float th2, float x_E, float y_E,boolean contact
  
   pushMatrix(); 
   translate(device_origin.x, device_origin.y); 
-  shape(car, x_E-40, y_E-10, 1.5*r_ee*pixelsPerMeter, 2*r_ee*pixelsPerMeter); 
+  shape(car, x_E-30, y_E, 1*r_ee*pixelsPerMeter, 1.5*r_ee*pixelsPerMeter); 
 
   if (contact){ shape(accident,x_E, y_E, 2*r_ee*pixelsPerMeter, 3*r_ee*pixelsPerMeter);}
     

@@ -68,7 +68,7 @@ void setup() {
   size(700, 750); // (worldWidth*pixelsPerCentimeter, worldHeight*pixelsPerCentimeter) must input as number
 
   /* BOARD */
-  haply_board = new Board(this, "COM6", 0); //Put your COM# port here
+  haply_board = new Board(this, "/dev/tty.usbmodem1421", 0); //Put your COM# port here
 
   /* DEVICE */
   haply_2DoF = new Device(degreesOfFreedom.HaplyTwoDOF, deviceID, haply_board);
@@ -100,7 +100,7 @@ void setup() {
   e2.setPosition(5, 5); 
   e2.setStatic(true);
   e2.setFill(random(255),random(255),random(255));
-  circle=loadImage("../img/circle.png"); 
+  circle=loadImage("circle.png"); 
   circle.resize((int)(hAPI_Fisica.worldToScreen(1))*3, (int)(hAPI_Fisica.worldToScreen(1))*3);
   e2.attachImage(circle);
   world.add(e2); 
@@ -152,7 +152,7 @@ void setup() {
   s.h_avatar.setDensity(2); 
   s.h_avatar.setFill(255,0,0); 
   s.init(world, edgeTopLeftX+worldWidth/2, edgeTopLeftY+2); 
-  haply_avatar = loadImage("../img/car.png"); 
+  haply_avatar = loadImage("car.png"); 
   haply_avatar.resize((int)(hAPI_Fisica.worldToScreen(1)+10), (int)(hAPI_Fisica.worldToScreen(1))+30);
   s.h_avatar.attachImage(haply_avatar); 
 
@@ -242,18 +242,12 @@ void mouseReleased(){
   //println(Pointlist.size());
   PVector v1=new PVector (0,0);
   PVector v2=new PVector (0,0);
-  for (int i=1;i<tst.getVertexCount();i++){
+  for (int i=1;i<tst.getVertexCount()-1;i=i+2){
     v1=(tst.getVertex(i-1));
     v2=(tst.getVertex(i));
-    FLine myLine = new FLine(v1.x/40,v1.y/40+.01, v2.x/40,v2.y/40+.01);
+    FLine myLine = new FLine(v1.x/40,v1.y/40, v2.x/40,v2.y/40);
     world.add(myLine);
   }
-   //for (int i=1;i<tst.getVertexCount();i++){
-   // v1=(tst.getVertex(i-1));
-   // v2=(tst.getVertex(i));
-   // FLine myLine = new FLine(v2.x/40-.01,v2.y/40, v1.x/40-.01,v1.y/40);
-   // world.add(myLine);
-//  }//
    tst.endShape();
    
    tst=createShape();
