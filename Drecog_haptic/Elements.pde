@@ -4,7 +4,7 @@ void addMass(){
  poly.setStrokeWeight(3);
  poly.setFill(120, 30, 90);
  poly.setBullet(false);
- poly.setDensity(0.005);
+ poly.setDensity(1.05);
  poly.setRotatable(false);
  poly.setName("Mass");
  poly.setRestitution(0.1);

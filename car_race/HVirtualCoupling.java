@@ -19,8 +19,8 @@ public class HVirtualCoupling {
     protected ArrayList<FContact> avatarContact;
     protected float vc_stiffness = 250000.0F;
     protected float vc_damping = 700.0F;
-    protected float vc_free_mass = 0.25F;
-    protected float vc_contact_mass = 1.0F;
+    protected float vc_free_mass = 0.00525F;
+    protected float vc_contact_mass = 1.10F;
 
     public HVirtualCoupling(float size) {
         this.h_tool = new HTool(size);

@@ -23,7 +23,7 @@ PGraphics pgDrawing;
 PShape SIM;
 ArrayList <PShape> bg;
 PShape tst;
-
+ 
 /* generic data for a 2DOF device */
 /* joint space */
 PVector           angles                    = new PVector(0, 0);
@@ -49,6 +49,9 @@ FBox b;
 FPoly p; 
 FCircle g; 
 FCircle e; 
+int gindx=1;  //group index for drawing
+FBody hovered ;
+ArrayList <FBody> WorldBodies;
 HVirtualCoupling s; 
 PImage haply_avatar; 
 PImage circle; 
@@ -149,7 +152,7 @@ void setup() {
 // Setup the Virtual Coupling Contact Rendering Technique
 
   s= new HVirtualCoupling((1.75)); 
-  s.h_avatar.setDensity(2); 
+  s.h_avatar.setDensity(0.0001); 
   s.h_avatar.setFill(255,0,0); 
   s.init(world, edgeTopLeftX+worldWidth/2, edgeTopLeftY+2); 
   haply_avatar = loadImage("car.png"); 
@@ -238,6 +241,7 @@ void mouseDragged(){
 }
 
 void mouseReleased(){
+<<<<<<< Updated upstream
   //println(Pointlist);
   //println(Pointlist.size());
   PVector v1=new PVector (0,0);
@@ -249,8 +253,49 @@ void mouseReleased(){
     world.add(myLine);
   }
    tst.endShape();
+=======
+  gindx++;                          // increase the group index
+  PVector v1=new PVector (0,0);     // location of first vertex
+  PVector v2=new PVector (0,0);     // location of second vertex
+  FCircle e2 = new FCircle(0.175);  // Make a circle body to select the line in order to delete it
+  v1=(tst.getVertex(0));
+  e2.setPosition(v1.x/40,v1.y/40); 
+  e2.setStatic(true);
+  e2.setFill(random(0),random(0),random(0));
+  e2.setGroupIndex(gindx);
+  world.add(e2); 
+  for (int i=1;i<tst.getVertexCount();i++){ // Draw the line
+    v1=(tst.getVertex(i-1));
+    v2=(tst.getVertex(i));
+    FLine myLine = new FLine(v1.x/40,v1.y/40, v2.x/40,v2.y/40);
+    myLine.setGroupIndex(gindx);
+    world.add(myLine); // add the line into the world
+  }
+   tst.endShape();     
+>>>>>>> Stashed changes
    
    tst=createShape();
    tst.beginShape();
    
+  }
+  
+  
+  
+  void keyPressed() {
+  float x=mouseX/40.000; // Changing the mouse poition to the world framing
+  float y=mouseY/40.000; // Changing the mouse poition to the world framing
+  FBody hovered = world.getBody(x,y); // get the hovered body position
+  if ( hovered != null  ) {
+  int selectedLine= hovered.getGroupIndex();  // find the hovered group index
+  WorldBodies=world.getBodies();              // get all the bodies of the world
+  for (FBody tempbody : WorldBodies) {
+      if (tempbody.getGroupIndex()==selectedLine){ // check if the temp body has the same index
+        world.remove(tempbody);                    // delete the body
+      }
+    }
+    println();
+    }else{
+    println("No line is being selected");
+    }
+      
   }

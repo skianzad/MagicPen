@@ -89,7 +89,7 @@ boolean avatar=false;
   
   
 void setup(){
-  size(1200, 700 );
+  size(1200, 700,P2D );
   background(255);
   trFlag=true;
   table=loadTable("table.csv","header");
@@ -128,7 +128,7 @@ s= new HVirtualCoupling((1));
   
 
   TouchBody=new ArrayList();
-  world.setGravity(0, 200);
+  world.setGravity(0, 50);
   world.setEdgesRestitution(0.01);
   world.setEdges();
   //world.remove(world.left);

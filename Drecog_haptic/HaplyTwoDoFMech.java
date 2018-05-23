@@ -69,8 +69,10 @@ public class HaplyTwoDoFMech extends Mechanisms{
       tau1 = f_x ;
       tau2 = f_y;
 		
-		tau1 = tau1*gain*50;
-    tau2 = - tau2*gain*50;
+		tau1 = tau1*gain*100;
+    tau2 = - tau2*gain*100;
+    //println(tau1);
+   // println("tau2",tau2);
 		
 	}
 	
