@@ -1,4 +1,4 @@
-/* library imports *****************************************************************************************************/ //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+/* library imports *****************************************************************************************************/ //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
 
 import processing.serial.*;
 import com.dhchoi.CountdownTimer;
@@ -68,7 +68,7 @@ void setup() {
   size(700, 750); // (worldWidth*pixelsPerCentimeter, worldHeight*pixelsPerCentimeter) must input as number
 
   /* BOARD */
-  haply_board = new Board(this, "/dev/tty.usbmodem1421", 0); //Put your COM# port here
+  haply_board = new Board(this, "COM3", 0); //Put your COM# port here
 
   /* DEVICE */
   haply_2DoF = new Device(degreesOfFreedom.HaplyTwoDOF, deviceID, haply_board);
@@ -87,7 +87,7 @@ void setup() {
   b = new FBox(2.0, 2.0);  //<>// //<>//
   b.setPosition(edgeTopLeftX+worldWidth/3.0, edgeTopLeftY+worldHeight/2.0); 
   b.setDensity(5); 
-  b.setFill(random(255),random(255),random(255));
+  b.setFill(random(255),random(255),random(255)); //<>//
   world.add(b);
 
   // Insert Different sized circle objects
