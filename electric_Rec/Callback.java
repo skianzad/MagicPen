@@ -71,10 +71,7 @@ public class Callback {
 	
 	protected String getCallbackString(){
 		return this.callback;
-	}
+    }
+
+}
 	
-<<<<<<< Updated upstream
-}
-=======
-}
->>>>>>> Stashed changes

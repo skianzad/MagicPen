@@ -140,7 +140,7 @@ s= new HVirtualCoupling((1));
   
   /* BOARD */
   /* BOARD */
-  haply_board = new Board(this, "COM6", 0); //Put your COM# port here
+  haply_board = new Board(this, "COM4", 0); //Put your COM# port here
 
   /* DEVICE */
   haply_2DoF = new Device(degreesOfFreedom.HaplyTwoDOF, deviceID, haply_board);
@@ -538,6 +538,8 @@ if (ava!=null){
   }
  world.step(1.0f/25.0f);
 rendering_force = false;
+
+/************************************************************/
 
 //world.step(1.0f/1000.0f);
 
