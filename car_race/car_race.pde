@@ -241,19 +241,7 @@ void mouseDragged(){
 }
 
 void mouseReleased(){
-<<<<<<< Updated upstream
-  //println(Pointlist);
-  //println(Pointlist.size());
-  PVector v1=new PVector (0,0);
-  PVector v2=new PVector (0,0);
-  for (int i=1;i<tst.getVertexCount()-1;i=i+2){
-    v1=(tst.getVertex(i-1));
-    v2=(tst.getVertex(i));
-    FLine myLine = new FLine(v1.x/40,v1.y/40, v2.x/40,v2.y/40);
-    world.add(myLine);
-  }
-   tst.endShape();
-=======
+
   gindx++;                          // increase the group index
   PVector v1=new PVector (0,0);     // location of first vertex
   PVector v2=new PVector (0,0);     // location of second vertex
@@ -272,7 +260,7 @@ void mouseReleased(){
     world.add(myLine); // add the line into the world
   }
    tst.endShape();     
->>>>>>> Stashed changes
+
    
    tst=createShape();
    tst.beginShape();
