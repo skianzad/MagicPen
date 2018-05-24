@@ -44,13 +44,7 @@ public class Device{
 		
 		switch(device_type){
   
-			case HaplyOneDOF:
-				motors = new Actuator[1];
-				encoders = new Sensor[1];
-				mechanisms = new HaplyOneDoFMech();
-        device_component_auto_setup();
-				params = new float[1];
-				break;
+
 			case HaplyTwoDOF:
 				motors = new Actuator[2];
 				encoders = new Sensor[2];
@@ -58,27 +52,6 @@ public class Device{
         device_component_auto_setup(); 
         params = new float[2];
 				break;
-			case HaplyThreeDOF:
-				motors = new Actuator[3];
-				encoders = new Sensor[3];
-				mechanisms = new HaplyThreeDoFMech();
-        device_component_auto_setup(); 
-				params = new float[3];
-				break;
-			case HaplyFourDOF:
-				motors = new Actuator[4];
-				encoders = new Sensor[4];
-				mechanisms = new HaplyFourDoFMech();
-        device_component_auto_setup(); 
-				params = new float[4];
-				break;
-     case HapticPaddle:
-        motors = new Actuator[2];
-        encoders = new Sensor[2];
-        mechanisms = new HapticPaddle();
-        device_component_auto_setup();
-        params = new float[2];
-        break;
      
 			default:
 				System.err.println("Error: Undefined device type!");

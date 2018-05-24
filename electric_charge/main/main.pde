@@ -99,11 +99,11 @@ void setup() {
   /* Initialization of the Board, Device, and Device Components */
   
   /* BOARD */
-     haply_board =new Board(this, "COM3", 0); //Put your COM# port here
+     haply_board =new Board(this, "COM4", 0); //Put your COM# port here
 
   /* DEVICE */
   haply_2DoF = new Device(device_type.HaplyTwoDOF, deviceID, haply_board);
-  device_origin.add((width/2), (height/5) );
+//  device_origin.add((width/2), (height/5) );
    /* haptics event timer, create and start a timer that has been configured to trigger onTickEvents */
   /* every TICK (1ms or 1kHz) and run for HOUR_IN_MILLIS (1hr), then resetting */
   //haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
@@ -271,8 +271,8 @@ void mousePressed() {
     draw_sign = 0;
   }
   else if(selected_obj == 3){
-    current_charge = hovered_charge;
-
+    current_charge = hovered_charge; //if offset is not set, then the offset defaults to the previous charge's offset
+    offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter);
     //assign this charge to Haply
   }
   else if (charges.size() < 5){
@@ -293,11 +293,13 @@ void addCharge(int sign){
    if (haply_board.data_available()) {
         //  /* GET END-EFFECTOR STATE (TASK SPACE) */
         
-        angles.set(haply_2DoF.get_device_angles()); 
+        angles.set(haply_2DoF.get_device_angles());
         pos_ee.set( haply_2DoF.get_device_position(angles.array()));
    }
-offset.set(float(mouseX- int(( pos_ee.x)*pixelsPerMeter + 400)),float(mouseY-int((pos_ee.y )*pixelsPerMeter - 200)));
-println("Ofsset",offset);
+//offset.set(float(mouseX- int(( pos_ee.x)*pixelsPerMeter )),float(mouseY-int((pos_ee.y )*pixelsPerMeter)));
+//offset.set(0.0,0.0);
+offset.set(mouseX + (pos_ee.x)*pixelsPerMeter, mouseY -(pos_ee.y)*pixelsPerMeter);
+println("Offset ",offset);
 
   ElectricCharge c = new ElectricCharge(10, 100, mouseX, mouseY, sign);
   charges.add(c); 
@@ -331,7 +333,7 @@ ArrayList<PVector> computeEachForce() {
        float dy = c.y_pos - current_charge.y_pos;
        float dd = sqrt( dx*dx + dy*dy);
        
-       float ft = -K* current_charge.q * c.q/(dd*dd); // current_charge.q * c.q = qp*qn    
+       float ft = K* current_charge.q * c.q/(dd*dd); // current_charge.q * c.q = qp*qn    
        PVector vector = new PVector(ft*dx/dd, ft*dy/dd);
        vectors.add(vector);
      }
@@ -460,11 +462,12 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     //current_charge.x_pos=int((pos_ee.x-lastpos_ee.x)*pixelsPerMeter+400);
     //current_charge.y_pos=int((pos_ee.y-lastpos_ee.y)*pixelsPerMeter-200);
     
-    current_charge.x_pos =  int(( pos_ee.x)*pixelsPerMeter + 400  )+int(offset.x);
-    current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter - 200)+int( offset.y);
+    current_charge.x_pos =  int((pos_ee.x)*pixelsPerMeter)+int(offset.x); //which coord system are these in?
+    current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter)+int(offset.y);
     
-    println(current_charge.x_pos,current_charge.y_pos);
-    
+    println("current charge position: ", current_charge.x_pos, ", " ,current_charge.y_pos);
+    println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", " ,pos_ee.y*pixelsPerMeter);
+
         ArrayList<PVector> v_list = computeEachForce();
     computeTotalForce(v_list);
     }
