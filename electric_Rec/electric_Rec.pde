@@ -339,8 +339,18 @@ void mouseReleased(){
 }
 
 void keyPressed() {
+    
+  
+    if (key == SHIFT) { // when the mouse hovers over a charge and backspace is pressed, the charge is deleted.  
+        println("hovered charge pos: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
+        println("mouse: ", mouseX, ", ", mouseY);
+        hovered_charge.sign = -hovered_charge.sign;
+        }
+  
+  
 lable=key;
   switch(key){
+
     case 32:
      trFlag=true;
      train=loadTable("table.csv","header");
@@ -402,12 +412,25 @@ lable=key;
             //}
         }
       break;
-    default: 
-    lable=key;
-    trFlag=false;
+      case (TAB):         
+        println("hovered charge pos: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
+        println("mouse: ", mouseX, ", ", mouseY);
+        hovered_charge.sign = -hovered_charge.sign;
+        if (hovered_charge.sign != 1) {
+        hovered_charge.colour = #0070FF; //blue
+        hovered_charge.q = -120;
+        }
+        else {
+          hovered_charge.colour = #FF0000; //red
+          hovered_charge.q = 120;
+        }
+      break;
+    //default: 
+    //lable=key;
+    //trFlag=false;
 
-    //trFlag=true;
-    break;
+    ////trFlag=true;
+    //break;
   }
 } 
 
@@ -543,6 +566,7 @@ void contactEnded(FContact c) {
 void drawing() {
   
   //btnPanel();
+    onHover();
   
   //Drawing the fluid dynamics
   flow();
@@ -566,7 +590,7 @@ void drawing() {
     particles.add(p); 
   }
 
-  if (frameCount % 0.5 == 0) {
+  if (frameCount % 0.8 == 0) {
     noStroke();
     //fill(#3c4677, 10);
     fill(255,8);
@@ -654,6 +678,7 @@ void btnPanel(){
 //1) change the current object under control
 //2) highlight the selected object
 void onHover(){
+  //println("onHover called");
   selected_obj = 0;
   
   if( inCircle(pos_btn.x, pos_btn.y, mouseX, mouseY, btn_width) ) {
@@ -718,15 +743,16 @@ void mousePressed() {
 
 }
 
-void addCharge(int sign){
+ElectricCharge addCharge(int sign){
    if (haply_board.data_available()) {
         //  /* GET END-EFFECTOR STATE (TASK SPACE) */
         
         angles.set(haply_2DoF.get_device_angles()); 
         pos_ee.set( haply_2DoF.get_device_position(angles.array()));
    }
-offset.set(float(mouseX- int(( pos_ee.x)*pixelsPerMeter + 400)),float(mouseY-int((pos_ee.y )*pixelsPerMeter - 200)));
-println("Ofsset",offset);
+//offset.set(0, 0);
+offset.set(mouseX + (pos_ee.x)*pixelsPerMeter, mouseY -(pos_ee.y)*pixelsPerMeter);
+//println("Ofsset",offset);
 
   ElectricCharge c = new ElectricCharge(10, 100, mouseX, mouseY, sign);
   charges.add(c); 
@@ -734,6 +760,8 @@ println("Ofsset",offset);
   current_charge = c;
   ArrayList<PVector> v_list = computeEachForce();
   computeTotalForce(v_list);
+  
+  return current_charge;
   
   
   
@@ -889,10 +917,11 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     //current_charge.x_pos=int((pos_ee.x-lastpos_ee.x)*pixelsPerMeter+400);
     //current_charge.y_pos=int((pos_ee.y-lastpos_ee.y)*pixelsPerMeter-200);
     
-    current_charge.x_pos =  int(( pos_ee.x)*pixelsPerMeter + 400  )+int(offset.x);
-    current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter - 200)+int( offset.y);
+    current_charge.x_pos =  int(( pos_ee.x)*pixelsPerMeter)+int(offset.x);
+    current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter)+int( offset.y);
     
-    println(current_charge.x_pos,current_charge.y_pos);
+    println("curr charge: ", current_charge.x_pos, ", ", current_charge.y_pos);
+    println("pos_ee: ", pos_ee.x, ", ", pos_ee.y);
     
         ArrayList<PVector> v_list = computeEachForce();
     computeTotalForce(v_list);
