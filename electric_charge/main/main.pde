@@ -20,7 +20,7 @@ DeviceType        device_type;
 
 
 /* Animation Speed Parameters *****************************************************************************************/
-long              baseFrameRate        = 120; 
+long              baseFrameRate        = 200; 
 long              count                = 0; 
 int               pixelsPerMeter       = 10000; 
 PVector           offset               =new PVector(0, 0);
@@ -37,10 +37,9 @@ PVector           angles               = new PVector(0, 0);
 PVector           torques              = new PVector(0, 0);
 PVector           device_origin        = new PVector (0, 0) ; 
 /* task space */
-PVector           pos_ee               = new PVector(0, 0);
+PVector           pos_ee               = new PVector(0, 0); // intrinsic position of the haptic device
 PVector           lastpos_ee           = new PVector(0, 0);
 PVector           f_ee                 = new PVector(0, 0); 
-
 
 
 int qp=120, qn=-120;
@@ -83,11 +82,13 @@ ArrayList <ElectricCharge> charges = new ArrayList <ElectricCharge> ();
 
 void setup() {
   minim = new Minim(this);
+
   player = minim.loadFile("fl1.mp3", 2048);
   player.loop();
   player.setGain(-60);
   //player.play();
-  size(1200, 800, P2D);
+  //size(1200, 800, P2D);
+  size(1350, 950, P2D);
   smooth(16);
   background(255);
   strokeWeight(0.75);
@@ -109,6 +110,7 @@ void setup() {
   //haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
   haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
 
+  graphSetup(); //sets up the torque graphs
 }
 
 void draw() {
@@ -186,6 +188,11 @@ void draw() {
 
  // graph.drawPoints();
   //graph.endDraw();
+  if (charges.size() == 1) {
+     taus[0] = 0.0f;
+     taus[1] = 0.0f;
+  }
+  graphDraw(); // draws the torque graphs
   
 }
 
@@ -270,9 +277,9 @@ void mousePressed() {
   else if(selected_obj == 2){
     draw_sign = 0;
   }
-  else if(selected_obj == 3){
-    current_charge = hovered_charge; //if offset is not set, then the offset defaults to the previous charge's offset
-    offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter);
+  else if(selected_obj == 3){ // clicking selection of charge
+    current_charge = hovered_charge;
+    offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter); //whenever you change the current charge, you need to change the offset too
     //assign this charge to Haply
   }
   else if (charges.size() < 5){
@@ -296,10 +303,8 @@ void addCharge(int sign){
         angles.set(haply_2DoF.get_device_angles());
         pos_ee.set( haply_2DoF.get_device_position(angles.array()));
    }
-//offset.set(float(mouseX- int(( pos_ee.x)*pixelsPerMeter )),float(mouseY-int((pos_ee.y )*pixelsPerMeter)));
-//offset.set(0.0,0.0);
-offset.set(mouseX + (pos_ee.x)*pixelsPerMeter, mouseY -(pos_ee.y)*pixelsPerMeter);
-println("Offset ",offset);
+  offset.set(mouseX + (pos_ee.x)*pixelsPerMeter, mouseY -(pos_ee.y)*pixelsPerMeter);
+  //println("Offset ",offset);
 
   ElectricCharge c = new ElectricCharge(10, 100, mouseX, mouseY, sign);
   charges.add(c); 
@@ -307,12 +312,6 @@ println("Offset ",offset);
   current_charge = c;
   ArrayList<PVector> v_list = computeEachForce();
   computeTotalForce(v_list);
-  
-  
-  
-  
- 
-
 }
 
 void flow(){
@@ -388,18 +387,21 @@ void computeTotalForce(ArrayList<PVector> vectors){
 }
 
 void drawVector() {
-  x2=(force_vector.x*10);
-  y2=(force_vector.y*10);
+  x2=-(force_vector.x*10);
+  y2=-(force_vector.y*10);
 
+  if (current_charge != null) {
   stroke(#000000);
   line(current_charge.x_pos, current_charge.y_pos, current_charge.x_pos+x2,current_charge.y_pos+y2);
   pushMatrix();
   translate(current_charge.x_pos+x2,current_charge.y_pos+y2);
+  
   float a = atan2(-x2, y2);
   rotate(a);
   line(0, 0, -10, -10);
   line(0, 0, 10, -10);
   popMatrix();
+  }
 }
 
 void createGraph(){
@@ -465,13 +467,17 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     current_charge.x_pos =  int((pos_ee.x)*pixelsPerMeter)+int(offset.x); //which coord system are these in?
     current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter)+int(offset.y);
     
-    println("current charge position: ", current_charge.x_pos, ", " ,current_charge.y_pos);
-    println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", " ,pos_ee.y*pixelsPerMeter);
+    //println("current charge position: ", current_charge.x_pos, ", " ,current_charge.y_pos);
+    //println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", " ,pos_ee.y*pixelsPerMeter);
 
         ArrayList<PVector> v_list = computeEachForce();
     computeTotalForce(v_list);
     }
     
+   if (haply_2DoF != null) {
+      taus = haply_2DoF.mechanisms.get_torque();
+      println("taus: ", taus[0], ", ", taus[1]);
+   }
 
   }
   
@@ -491,4 +497,126 @@ void onFinishEvent(CountdownTimer t){
   println("Resetting timer...");
   haptic_timer.reset();
   haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
+}
+
+void keyPressed() {
+  boolean found = false;
+  int index = 0;
+  
+  if (key == BACKSPACE) { // when the mouse hovers over a charge and backspace is pressed, the charge is deleted.  
+    
+     for (int i = 0; i < charges.size(); i++) { //find charge
+        ElectricCharge temp = charges.get(i);
+        if (found == false && hovered_charge.x_pos == temp.x_pos && hovered_charge.y_pos == temp.y_pos) {
+           index = i;
+           found = true;
+        }
+     }
+     if (found == true) { //if found
+        if (current_charge == hovered_charge) { // removing avatar charge does nothing. you can't do that, because then force rendering messes up
+            //if (charges.size() == 1) { //if there is only the avatar left, then remove that charge and the arrow too?
+            //    force_vector = null;
+            //    current_charge = null;
+            //}
+            //else { //2 or more charges
+            //current_charge = charges.get((index + 1) % charges.size());
+            //offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter);
+            //}
+        }
+        
+          else {
+        
+          charges.remove(index);
+          ArrayList<PVector> v_list = computeEachForce();
+          computeTotalForce(v_list);
+          
+           }
+     }
+  }
+            
+     //println("hovered charge position: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
+  }
+  
+  
+/* Graph Stuff ************************************************************************************** Copy-paste this, and Dot.java into any file */
+
+// Fields //
+
+color red = color(255, 0, 0);
+color green = color(0, 255, 0);
+color blue = color(0, 0, 255);
+color hotpink = color(255,182,193);
+color white = color(255, 255, 255);
+
+ArrayList<Dot> tau1List = new ArrayList(); // list of dots
+ArrayList<Dot> tau2List = new ArrayList(); 
+
+int graphwidth = 150;
+int screenWidth = 2000; //input your initial screen width and height here
+int screenHeight = 800;
+int centrex = graphwidth/2;
+int centrey = screenHeight+graphwidth/2;
+
+float[] taus = new float[2];
+int tauConst = 60; //constant factor to multiply the raw torques by, so that they are visible on the screen
+
+// Call this function in setup() //
+public void graphSetup() {
+   if (haply_2DoF != null) {
+      taus = haply_2DoF.mechanisms.get_torque();
+   }
+}
+// Call this function in draw(), right after world.draw() //
+public void graphDraw() {
+    
+  fill(0);
+  stroke(0);
+  rect(0, 0, graphwidth, screenHeight+graphwidth); // vertical graph
+  rect(0, screenHeight, screenWidth+graphwidth, graphwidth); //horizontal graph
+  
+  stroke(red);
+  line(graphwidth/2, 0, graphwidth/2, screenHeight+graphwidth);
+  stroke(0);
+  
+  stroke(red);
+  line(0, screenHeight+graphwidth/2, screenWidth+graphwidth, screenHeight+graphwidth/2);
+  stroke(0);
+  
+  // Drawing the dots //
+  
+  tau2List.add(new Dot(centrex, centrey + floor(taus[1]*tauConst), false)); //make a new dot for the current torque
+  tau1List.add(new Dot(centrex + floor(taus[0]*tauConst), centrey, true)); //make a new dot for the current torque
+  
+  for (Dot dot : tau2List) { //update the two lists
+    dot.update(screenWidth);
+  } 
+  for (Dot dot : tau1List) {
+    dot.update(screenWidth);
+  } 
+  
+  for (Dot each : tau1List) { //draw the dot in each list
+    drawDot(each, white);
+  }
+  
+  for (Dot each : tau2List) {
+    drawDot(each, white);
+  }
+  
+  fill(white); // TODO the dimensions here aren't right
+  textSize(32);
+  text("Horizontal", 10, 30);
+  text("Torque", 30, 62);
+  fill(0);
+  
+  fill(white); // TODO the dimensions here aren't right
+  textSize(32);
+  text("Vertical Torque", 580, screenWidth+graphwidth/10);
+  fill(0);
+
+}
+
+public void drawDot(Dot d, color c) {
+    stroke(c);
+    point(d.x, d.y);
+    stroke(0);
 }
