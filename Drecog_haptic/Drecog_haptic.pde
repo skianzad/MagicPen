@@ -89,7 +89,7 @@ boolean avatar=false;
   
   
 void setup(){
-  size(1200, 700,P2D );
+  size(1200, 700);
   background(255);
   trFlag=true;
   table=loadTable("table.csv","header");

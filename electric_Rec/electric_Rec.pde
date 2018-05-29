@@ -25,7 +25,7 @@ DeviceType        device_type;
 
 
 /* Animation Speed Parameters *****************************************************************************************/
-long              baseFrameRate        = 120; 
+long              baseFrameRate        = 250; 
 long              count                = 0; 
 int               pixelsPerMeter       = 10000; 
 PVector           offset               =new PVector(0, 0);
@@ -89,6 +89,7 @@ ArrayList <ElectricCharge> charges = new ArrayList <ElectricCharge> ();
 //*******************************************************************************************************
 FWorld world;
 FPoly poly;
+FCircle circle;
 FBody ava;
 FBlob blob;
 PImage spring;
@@ -133,13 +134,13 @@ boolean avatar=false;
 
 void setup() {
   
-  size(1200, 800,P2D );
+  size(1200, 800);
   background(255);
   minim = new Minim(this);
   player = minim.loadFile("fl1.mp3", 2048);
   player.loop();
   player.setGain(-60);
-  //player.play();
+  player.play();
   //size(1200, 800, P2D);
   smooth(16);
   background(255);
@@ -281,10 +282,12 @@ void mouseDragged(){
   stroke(126);
   tst.vertex(mouseX,mouseY);
       }
+  //if (current_charge != null) {
+  //   current_charge.x_pos = round(current_charge.body.getX());
+  //   current_charge.y_pos = round(current_charge.body.getY());
+  //}
 }
 void mouseReleased(){
-  //println(Pointlist);
-  //println(Pointlist.size());
   if (trFlag==false){
     FBody hovered = world.getBody(mouseX, mouseY);
      if ( hovered == null  ) {
@@ -304,11 +307,13 @@ void mouseReleased(){
        case 'r':
        println("A Mass is detected");
        addMass();
-       //drawElement();
+       //addElement(); //we're trying to make it so if a mass or charge is detected, a generic object is drawn, and then the person can decide which one they want. To reverse, comment in addMass
+                     //and addcharge, and comment out addElement()
        break;
        case 'c':
        println("A Charge is detected");
        addcharge();
+       //addElement();
        break;
        case 's':
        println("A Spring is detected");
@@ -319,13 +324,15 @@ void mouseReleased(){
        tst=createShape();
        tst.beginShape();
        break;
-       }  
-       }else{
+         }  
+       }
+       else{
          tst.endShape();
          tst=createShape();
          tst.beginShape();
        };
-}else{
+}
+else {
     String[] ResultX=xPoints.array();
     xPoints.clear();
     pointSave=join(ResultX,",");
@@ -339,13 +346,6 @@ void mouseReleased(){
 }
 
 void keyPressed() {
-    
-  
-    if (key == SHIFT) { // when the mouse hovers over a charge and backspace is pressed, the charge is deleted.  
-        println("hovered charge pos: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
-        println("mouse: ", mouseX, ", ", mouseY);
-        hovered_charge.sign = -hovered_charge.sign;
-        }
   
   
 lable=key;
@@ -412,7 +412,7 @@ lable=key;
             //}
         }
       break;
-      case (TAB):         
+      case (TAB):         // this changes the colour of the hovered charge
         println("hovered charge pos: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
         println("mouse: ", mouseX, ", ", mouseY);
         hovered_charge.sign = -hovered_charge.sign;
@@ -425,12 +425,17 @@ lable=key;
           hovered_charge.q = 120;
         }
       break;
-    //default: 
-    //lable=key;
-    //trFlag=false;
+      case (UP): //increase q of charge (and size of charge)
+      break;
+      case (DOWN): //decrease q of charge (and size of charge)
+      break;
+      
+    default: 
+    lable=key;
+    trFlag=false;
 
-    ////trFlag=true;
-    //break;
+    //trFlag=true;
+    break;
   }
 } 
 
@@ -592,12 +597,12 @@ void drawing() {
 
   if (frameCount % 0.8 == 0) {
     noStroke();
-    //fill(#3c4677, 10);
-    fill(255,8);
+    fill(#3c4677, 10);
+    //fill(255,8);
     rect(0, 0, width, height);
    }
    
-     if (frameCount % 50 == 0) {
+     if (frameCount % 10 == 0) {
 
     ArrayList<Particle> temp = new ArrayList<Particle>();
    for (int i = particles.size()/2; i < particles.size(); i++){
@@ -610,7 +615,8 @@ void drawing() {
   ArrayList<Particle> temp = new ArrayList<Particle>(); 
   
   //stroke(#9cadb5);
-  stroke(0,128);
+  //stroke(0,128);
+  stroke(0);
   for (Particle p : particles) {
      if(!stuck(p.loc)){
        p.run();
@@ -620,13 +626,22 @@ void drawing() {
   
   particles = temp;
   
+  for (ElectricCharge e : charges) { //update the x_position and y_pos of each charge that's not the current charge so that it is where its body is
+    if (!e.equals(current_charge)) {
+       e.x_pos = round(e.body.getX());
+       println("e.body: ", round(e.body.getX()), ", ", round(e.body.getY()));
+       e.y_pos = round(e.body.getY());
+    }
+  }
+  
+  
   for( ElectricCharge e : charges) {
-   
     for (int i = 0; i < e.c_radius; i+=5) {
-      fill(e.colour, i/10); //change to color of its sign
+      fill(e.colour, 3*i/4); //change to color of its sign
       stroke(#000000);
       noStroke();
       ellipse(e.x_pos, e.y_pos, e.c_radius - i, e.c_radius - i);
+
     }
   }
   
@@ -725,9 +740,10 @@ void mousePressed() {
     draw_sign = 0;
   }
   else if(selected_obj == 3){
-    current_charge = hovered_charge;
+    //current_charge = hovered_charge;
+    
 
-    //assign this charge to Haply
+
   }
   else if (charges.size() < 5){
     
@@ -750,16 +766,57 @@ ElectricCharge addCharge(int sign){
         angles.set(haply_2DoF.get_device_angles()); 
         pos_ee.set( haply_2DoF.get_device_position(angles.array()));
    }
-//offset.set(0, 0);
+
 offset.set(mouseX + (pos_ee.x)*pixelsPerMeter, mouseY -(pos_ee.y)*pixelsPerMeter);
-//println("Ofsset",offset);
 
-  ElectricCharge c = new ElectricCharge(10, 100, mouseX, mouseY, sign);
-  charges.add(c); 
+// FCircle (FBody) attached to the electric charge
+  circle = new FCircle(60);
+  circle.setStrokeWeight(1);
+  circle.setFill(0, 0, 0);
+  circle.setBullet(true);
+  circle.setDensity(0.005);
+  circle.setRotatable(false);
+  circle.setName("charge");
+  circle.setRestitution(0.7);
+  circle.setStatic(true);
+  circle.setGrabbable(false); //upon creation the charge cannot be dragged, because it is the avatar charge.
 
-  current_charge = c;
+  ElectricCharge c = new ElectricCharge(10, 100, mouseX, mouseY, sign, circle); //make the charge
+  charges.add(c); // add to list of charges
+
+  current_charge = c; //set the current charge
+  
+      // Here, update the "grabbable" fields of all other charges (so that they are grabbable and the current charge isn't
+    
+    for (ElectricCharge e : charges) { 
+      if (!e.equals(current_charge)) {
+        e.body.setGrabbable(true);
+      }
+      else {
+          e.body.setGrabbable(false);
+      }
+    }
+    
   ArrayList<PVector> v_list = computeEachForce();
   computeTotalForce(v_list);
+  
+
+TouchBody=  circle.getTouching();
+if(TouchBody!=null){ 
+println("Touching bodies",TouchBody);
+}
+tst.endShape();
+tst=createShape();
+tst.beginShape();
+if (  circle!=null) {
+     circle.setPosition(current_charge.x_pos, current_charge.y_pos);
+     //circle.setPosition(0, -30);
+   //println("curr charge: ", current_charge.x_pos, ", ", current_charge.y_pos);
+     world.add(  circle);
+     circle = null;
+  }
+  
+
   
   return current_charge;
   
@@ -891,7 +948,7 @@ boolean stuck(PVector position) {
 
 
   /* Timer control event functions **************************************************************************************/
-void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
+void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){    //this gets called when the haptic device moves
   
   /* check if new data is available from physical device */
   if (haply_board.data_available()) {
@@ -920,21 +977,32 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     current_charge.x_pos =  int(( pos_ee.x)*pixelsPerMeter)+int(offset.x);
     current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter)+int( offset.y);
     
-    println("curr charge: ", current_charge.x_pos, ", ", current_charge.y_pos);
-    println("pos_ee: ", pos_ee.x, ", ", pos_ee.y);
+    //println("curr charge: ", current_charge.x_pos, ", ", current_charge.y_pos);
+    //println("pos_ee: ", pos_ee.x, ", ", pos_ee.y);
     
-        ArrayList<PVector> v_list = computeEachForce();
+    ArrayList<PVector> v_list = computeEachForce();
     computeTotalForce(v_list);
+    
+    }
+    
+    }
+    
+    //update the position of the FCircle of the current charge to match the current charge's position
+    
+    //current_charge.body.setPosition(current_charge.x_pos, current_charge.y_pos);
+    if (current_charge != null) {
+       current_charge.body.setPosition(current_charge.x_pos, current_charge.y_pos);
     }
     
 
-  }
+  
   
 //f_ee.set(-10,-10);
       haply_2DoF.set_device_torques(f_ee.array());
     torques.set(haply_2DoF.mechanisms.get_torque());
     haply_2DoF.device_write_torques();
 }
+
 PVector device2graphics(PVector deviceFrame){
    
   return deviceFrame.set(-deviceFrame.x, deviceFrame.y);  

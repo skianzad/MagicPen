@@ -10,6 +10,7 @@ import ddf.minim.*;
 import ddf.minim.ugens.*;
 AudioPlayer player;
 Minim minim;//audio context
+import websockets.*;
 
 
 /* Device block definitions ********************************************************************************************/
@@ -476,7 +477,7 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     
    if (haply_2DoF != null) {
       taus = haply_2DoF.mechanisms.get_torque();
-      println("taus: ", taus[0], ", ", taus[1]);
+      //println("taus: ", taus[0], ", ", taus[1]);
    }
 
   }
@@ -551,47 +552,64 @@ color white = color(255, 255, 255);
 ArrayList<Dot> tau1List = new ArrayList(); // list of dots
 ArrayList<Dot> tau2List = new ArrayList(); 
 
-int graphwidth = 150;
-int screenWidth = 2000; //input your initial screen width and height here
-int screenHeight = 800;
-int centrex = graphwidth/2;
-int centrey = screenHeight+graphwidth/2;
+int graphwidth;
+int screenWidth; //input your initial screen width and height here
+int screenHeight;
+int centrex;
+int centrey;
+
 
 float[] taus = new float[2];
 int tauConst = 60; //constant factor to multiply the raw torques by, so that they are visible on the screen
 
 // Call this function in setup() //
 public void graphSetup() {
+ 
    if (haply_2DoF != null) {
       taus = haply_2DoF.mechanisms.get_torque();
    }
+   //println("width: ", width);
+   //println("height: ", height);
+   //println("centrey: ", centrey);
 }
 // Call this function in draw(), right after world.draw() //
 public void graphDraw() {
+  
+  // intialising vars //
+  graphwidth = 150; //change this as needed
+  screenWidth = width-graphwidth;
+  screenHeight = height-graphwidth;
+  centrex = graphwidth/2;
+  centrey = height-graphwidth/2;
+  
     
   fill(0);
   stroke(0);
-  rect(0, 0, graphwidth, screenHeight+graphwidth); // vertical graph
-  rect(0, screenHeight, screenWidth+graphwidth, graphwidth); //horizontal graph
+  rect(0, 0, graphwidth, height); // vertical graph
+  rect(0, height-graphwidth, width, graphwidth); //horizontal graph
   
   stroke(red);
-  line(graphwidth/2, 0, graphwidth/2, screenHeight+graphwidth);
+  line(graphwidth/2, 0, graphwidth/2, height);
   stroke(0);
   
   stroke(red);
-  line(0, screenHeight+graphwidth/2, screenWidth+graphwidth, screenHeight+graphwidth/2);
+  line(0, height-graphwidth/2, width, height-graphwidth/2);
   stroke(0);
+  
+  addText();
+  
+  //println("centre: ", centrex, ", ", centrey);
   
   // Drawing the dots //
   
   tau2List.add(new Dot(centrex, centrey + floor(taus[1]*tauConst), false)); //make a new dot for the current torque
   tau1List.add(new Dot(centrex + floor(taus[0]*tauConst), centrey, true)); //make a new dot for the current torque
-  
+
   for (Dot dot : tau2List) { //update the two lists
-    dot.update(screenWidth);
+    dot.update(width);
   } 
   for (Dot dot : tau1List) {
-    dot.update(screenWidth);
+    dot.update(width);
   } 
   
   for (Dot each : tau1List) { //draw the dot in each list
@@ -601,17 +619,6 @@ public void graphDraw() {
   for (Dot each : tau2List) {
     drawDot(each, white);
   }
-  
-  fill(white); // TODO the dimensions here aren't right
-  textSize(32);
-  text("Horizontal", 10, 30);
-  text("Torque", 30, 62);
-  fill(0);
-  
-  fill(white); // TODO the dimensions here aren't right
-  textSize(32);
-  text("Vertical Torque", 580, screenWidth+graphwidth/10);
-  fill(0);
 
 }
 
@@ -620,3 +627,97 @@ public void drawDot(Dot d, color c) {
     point(d.x, d.y);
     stroke(0);
 }
+
+public void addText() {
+  fill(white); // TODO the dimensions here aren't right
+  textSize(24);
+  text("Horizontal", 10, 30);
+  text("Torque", 30, 62);
+  fill(0);
+  
+  fill(white); // TODO the dimensions here aren't right
+  textSize(32);
+  text("Vertical Torque", height - 30, height-8*graphwidth/10);
+  fill(0);
+}
+
+/* Connection to the smartpen ***************** Copy paste this into the bottom of a file. Be sure to write "import websockets.*;" at the top **********/
+/* HOW TO USE: open the Sample App in Visual studio. Deploy the app. Run this sketch. Then run the Sample App on Local Machine */
+
+// Fields //
+
+WebsocketServer ws;
+int xFakeMouse;
+int yFakeMouse;
+ArrayList<PVector> Pointlist;
+
+// Methods //
+
+//void webSocketServerEvent(String msg){
+  
+//if (!msg.equals("pen-up") && mousePressed) {
+  
+//   String[] parts = msg.split(" ");
+
+//   xFakeMouse = round(Float.parseFloat(parts[0])*10)+graphwidth; // 004
+//   yFakeMouse = round(Float.parseFloat(parts[1])*10); // 034556
+   
+//   PVector fakemouse = new PVector(xFakeMouse,yFakeMouse);
+ 
+//      //xPoints.append(str(yFakeMouse));
+//      if (!contains(Pointlist, fakemouse)) {
+//         stroke(126);
+//         tst.vertex(xFakeMouse,yFakeMouse);
+//     }
+
+//  }
+//  else {
+//    endStroke();
+ 
+//}
+//}
+
+///**
+// * Ends the pen/mouse stroke
+// */
+ 
+//public void endStroke() {
+// if (tst != null && tst.getVertexCount() > 0) { //check for if tst is null
+      
+//  PVector v1=new PVector (0,0);
+//  PVector v2=new PVector (0,0);
+  
+//  PVector v = new PVector (0, 0);
+//  v = (tst.getVertex(0));
+  
+      
+//  for (int i=1;i<tst.getVertexCount();i=i+1){ //this is the part that adds the lines to the world
+//    v1=(tst.getVertex(i));
+//    if (PVector.dist(v, v1) > C ) {
+//       FLine myLine = new FLine(v1.x/40,v1.y/40, v.x/40,v.y/40);
+//       world.add(myLine);
+//       v = v1;
+//    }
+//    }
+    
+//   tst.endShape(); //tst is a placeholder thing for a shape
+//  }
+   
+//   tst=createShape();
+//   tst.beginShape();
+//}
+
+//public boolean contains(ArrayList<PVector> list, PVector v) {
+//  for (PVector p : list) {
+//    if ((p.x == v.x) && (p.y == v.y)) {
+//       return true;
+//    }
+//  }
+//  return false;
+//}
+
+//public void websocketSetup() { // Call this in setup //
+//    //Initiates the websocket server, and listens for incoming connections on ws://localhost:8025/john
+//  ws= new WebsocketServer(this, 8080,"/WebsocketHttpListenerDemo"); //ws://Localhost:8080/WebsocketHttpListenerDemo
+//  Pointlist = new ArrayList();
+//}
