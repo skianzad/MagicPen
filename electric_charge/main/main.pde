@@ -10,6 +10,7 @@ import ddf.minim.*;
 import ddf.minim.ugens.*;
 AudioPlayer player;
 Minim minim;//audio context
+import websockets.*;
 
 
 /* Device block definitions ********************************************************************************************/
@@ -20,7 +21,7 @@ DeviceType        device_type;
 
 
 /* Animation Speed Parameters *****************************************************************************************/
-long              baseFrameRate        = 120; 
+long              baseFrameRate        = 200; 
 long              count                = 0; 
 int               pixelsPerMeter       = 10000; 
 PVector           offset               =new PVector(0, 0);
@@ -37,10 +38,9 @@ PVector           angles               = new PVector(0, 0);
 PVector           torques              = new PVector(0, 0);
 PVector           device_origin        = new PVector (0, 0) ; 
 /* task space */
-PVector           pos_ee               = new PVector(0, 0);
+PVector           pos_ee               = new PVector(0, 0); // intrinsic position of the haptic device
 PVector           lastpos_ee           = new PVector(0, 0);
 PVector           f_ee                 = new PVector(0, 0); 
-
 
 
 int qp=120, qn=-120;
@@ -83,11 +83,13 @@ ArrayList <ElectricCharge> charges = new ArrayList <ElectricCharge> ();
 
 void setup() {
   minim = new Minim(this);
+
   player = minim.loadFile("fl1.mp3", 2048);
   player.loop();
   player.setGain(-60);
   //player.play();
-  size(1200, 800, P2D);
+  //size(1200, 800, P2D);
+  size(1350, 950, P2D);
   smooth(16);
   background(255);
   strokeWeight(0.75);
@@ -99,16 +101,17 @@ void setup() {
   /* Initialization of the Board, Device, and Device Components */
   
   /* BOARD */
-     haply_board =new Board(this, "COM3", 0); //Put your COM# port here
+     haply_board =new Board(this, "COM4", 0); //Put your COM# port here
 
   /* DEVICE */
   haply_2DoF = new Device(device_type.HaplyTwoDOF, deviceID, haply_board);
-  device_origin.add((width/2), (height/5) );
+//  device_origin.add((width/2), (height/5) );
    /* haptics event timer, create and start a timer that has been configured to trigger onTickEvents */
   /* every TICK (1ms or 1kHz) and run for HOUR_IN_MILLIS (1hr), then resetting */
   //haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
   haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
 
+  graphSetup(); //sets up the torque graphs
 }
 
 void draw() {
@@ -186,6 +189,11 @@ void draw() {
 
  // graph.drawPoints();
   //graph.endDraw();
+  if (charges.size() == 1) {
+     taus[0] = 0.0f;
+     taus[1] = 0.0f;
+  }
+  graphDraw(); // draws the torque graphs
   
 }
 
@@ -270,9 +278,9 @@ void mousePressed() {
   else if(selected_obj == 2){
     draw_sign = 0;
   }
-  else if(selected_obj == 3){
+  else if(selected_obj == 3){ // clicking selection of charge
     current_charge = hovered_charge;
-
+    offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter); //whenever you change the current charge, you need to change the offset too
     //assign this charge to Haply
   }
   else if (charges.size() < 5){
@@ -293,11 +301,11 @@ void addCharge(int sign){
    if (haply_board.data_available()) {
         //  /* GET END-EFFECTOR STATE (TASK SPACE) */
         
-        angles.set(haply_2DoF.get_device_angles()); 
+        angles.set(haply_2DoF.get_device_angles());
         pos_ee.set( haply_2DoF.get_device_position(angles.array()));
    }
-offset.set(float(mouseX- int(( pos_ee.x)*pixelsPerMeter + 400)),float(mouseY-int((pos_ee.y )*pixelsPerMeter - 200)));
-println("Ofsset",offset);
+  offset.set(mouseX + (pos_ee.x)*pixelsPerMeter, mouseY -(pos_ee.y)*pixelsPerMeter);
+  //println("Offset ",offset);
 
   ElectricCharge c = new ElectricCharge(10, 100, mouseX, mouseY, sign);
   charges.add(c); 
@@ -305,12 +313,6 @@ println("Ofsset",offset);
   current_charge = c;
   ArrayList<PVector> v_list = computeEachForce();
   computeTotalForce(v_list);
-  
-  
-  
-  
- 
-
 }
 
 void flow(){
@@ -331,7 +333,7 @@ ArrayList<PVector> computeEachForce() {
        float dy = c.y_pos - current_charge.y_pos;
        float dd = sqrt( dx*dx + dy*dy);
        
-       float ft = -K* current_charge.q * c.q/(dd*dd); // current_charge.q * c.q = qp*qn    
+       float ft = K* current_charge.q * c.q/(dd*dd); // current_charge.q * c.q = qp*qn    
        PVector vector = new PVector(ft*dx/dd, ft*dy/dd);
        vectors.add(vector);
      }
@@ -386,18 +388,21 @@ void computeTotalForce(ArrayList<PVector> vectors){
 }
 
 void drawVector() {
-  x2=(force_vector.x*10);
-  y2=(force_vector.y*10);
+  x2=-(force_vector.x*10);
+  y2=-(force_vector.y*10);
 
+  if (current_charge != null) {
   stroke(#000000);
   line(current_charge.x_pos, current_charge.y_pos, current_charge.x_pos+x2,current_charge.y_pos+y2);
   pushMatrix();
   translate(current_charge.x_pos+x2,current_charge.y_pos+y2);
+  
   float a = atan2(-x2, y2);
   rotate(a);
   line(0, 0, -10, -10);
   line(0, 0, 10, -10);
   popMatrix();
+  }
 }
 
 void createGraph(){
@@ -460,15 +465,20 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     //current_charge.x_pos=int((pos_ee.x-lastpos_ee.x)*pixelsPerMeter+400);
     //current_charge.y_pos=int((pos_ee.y-lastpos_ee.y)*pixelsPerMeter-200);
     
-    current_charge.x_pos =  int(( pos_ee.x)*pixelsPerMeter + 400  )+int(offset.x);
-    current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter - 200)+int( offset.y);
+    current_charge.x_pos =  int((pos_ee.x)*pixelsPerMeter)+int(offset.x); //which coord system are these in?
+    current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter)+int(offset.y);
     
-    println(current_charge.x_pos,current_charge.y_pos);
-    
+    //println("current charge position: ", current_charge.x_pos, ", " ,current_charge.y_pos);
+    //println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", " ,pos_ee.y*pixelsPerMeter);
+
         ArrayList<PVector> v_list = computeEachForce();
     computeTotalForce(v_list);
     }
     
+   if (haply_2DoF != null) {
+      taus = haply_2DoF.mechanisms.get_torque();
+      //println("taus: ", taus[0], ", ", taus[1]);
+   }
 
   }
   
@@ -489,3 +499,225 @@ void onFinishEvent(CountdownTimer t){
   haptic_timer.reset();
   haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
 }
+
+void keyPressed() {
+  boolean found = false;
+  int index = 0;
+  
+  if (key == BACKSPACE) { // when the mouse hovers over a charge and backspace is pressed, the charge is deleted.  
+    
+     for (int i = 0; i < charges.size(); i++) { //find charge
+        ElectricCharge temp = charges.get(i);
+        if (found == false && hovered_charge.x_pos == temp.x_pos && hovered_charge.y_pos == temp.y_pos) {
+           index = i;
+           found = true;
+        }
+     }
+     if (found == true) { //if found
+        if (current_charge == hovered_charge) { // removing avatar charge does nothing. you can't do that, because then force rendering messes up
+            //if (charges.size() == 1) { //if there is only the avatar left, then remove that charge and the arrow too?
+            //    force_vector = null;
+            //    current_charge = null;
+            //}
+            //else { //2 or more charges
+            //current_charge = charges.get((index + 1) % charges.size());
+            //offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter);
+            //}
+        }
+        
+          else {
+        
+          charges.remove(index);
+          ArrayList<PVector> v_list = computeEachForce();
+          computeTotalForce(v_list);
+          
+           }
+     }
+  }
+            
+     //println("hovered charge position: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
+  }
+  
+  
+/* Graph Stuff ************************************************************************************** Copy-paste this, and Dot.java into any file */
+
+// Fields //
+
+color red = color(255, 0, 0);
+color green = color(0, 255, 0);
+color blue = color(0, 0, 255);
+color hotpink = color(255,182,193);
+color white = color(255, 255, 255);
+
+ArrayList<Dot> tau1List = new ArrayList(); // list of dots
+ArrayList<Dot> tau2List = new ArrayList(); 
+
+int graphwidth;
+int screenWidth; //input your initial screen width and height here
+int screenHeight;
+int centrex;
+int centrey;
+
+
+float[] taus = new float[2];
+int tauConst = 60; //constant factor to multiply the raw torques by, so that they are visible on the screen
+
+// Call this function in setup() //
+public void graphSetup() {
+ 
+   if (haply_2DoF != null) {
+      taus = haply_2DoF.mechanisms.get_torque();
+   }
+   //println("width: ", width);
+   //println("height: ", height);
+   //println("centrey: ", centrey);
+}
+// Call this function in draw(), right after world.draw() //
+public void graphDraw() {
+  
+  // intialising vars //
+  graphwidth = 150; //change this as needed
+  screenWidth = width-graphwidth;
+  screenHeight = height-graphwidth;
+  centrex = graphwidth/2;
+  centrey = height-graphwidth/2;
+  
+    
+  fill(0);
+  stroke(0);
+  rect(0, 0, graphwidth, height); // vertical graph
+  rect(0, height-graphwidth, width, graphwidth); //horizontal graph
+  
+  stroke(red);
+  line(graphwidth/2, 0, graphwidth/2, height);
+  stroke(0);
+  
+  stroke(red);
+  line(0, height-graphwidth/2, width, height-graphwidth/2);
+  stroke(0);
+  
+  addText();
+  
+  //println("centre: ", centrex, ", ", centrey);
+  
+  // Drawing the dots //
+  
+  tau2List.add(new Dot(centrex, centrey + floor(taus[1]*tauConst), false)); //make a new dot for the current torque
+  tau1List.add(new Dot(centrex + floor(taus[0]*tauConst), centrey, true)); //make a new dot for the current torque
+
+  for (Dot dot : tau2List) { //update the two lists
+    dot.update(width);
+  } 
+  for (Dot dot : tau1List) {
+    dot.update(width);
+  } 
+  
+  for (Dot each : tau1List) { //draw the dot in each list
+    drawDot(each, white);
+  }
+  
+  for (Dot each : tau2List) {
+    drawDot(each, white);
+  }
+
+}
+
+public void drawDot(Dot d, color c) {
+    stroke(c);
+    point(d.x, d.y);
+    stroke(0);
+}
+
+public void addText() {
+  fill(white); // TODO the dimensions here aren't right
+  textSize(24);
+  text("Horizontal", 10, 30);
+  text("Torque", 30, 62);
+  fill(0);
+  
+  fill(white); // TODO the dimensions here aren't right
+  textSize(32);
+  text("Vertical Torque", height - 30, height-8*graphwidth/10);
+  fill(0);
+}
+
+/* Connection to the smartpen ***************** Copy paste this into the bottom of a file. Be sure to write "import websockets.*;" at the top **********/
+/* HOW TO USE: open the Sample App in Visual studio. Deploy the app. Run this sketch. Then run the Sample App on Local Machine */
+
+// Fields //
+
+WebsocketServer ws;
+int xFakeMouse;
+int yFakeMouse;
+ArrayList<PVector> Pointlist;
+
+// Methods //
+
+//void webSocketServerEvent(String msg){
+  
+//if (!msg.equals("pen-up") && mousePressed) {
+  
+//   String[] parts = msg.split(" ");
+
+//   xFakeMouse = round(Float.parseFloat(parts[0])*10)+graphwidth; // 004
+//   yFakeMouse = round(Float.parseFloat(parts[1])*10); // 034556
+   
+//   PVector fakemouse = new PVector(xFakeMouse,yFakeMouse);
+ 
+//      //xPoints.append(str(yFakeMouse));
+//      if (!contains(Pointlist, fakemouse)) {
+//         stroke(126);
+//         tst.vertex(xFakeMouse,yFakeMouse);
+//     }
+
+//  }
+//  else {
+//    endStroke();
+ 
+//}
+//}
+
+///**
+// * Ends the pen/mouse stroke
+// */
+ 
+//public void endStroke() {
+// if (tst != null && tst.getVertexCount() > 0) { //check for if tst is null
+      
+//  PVector v1=new PVector (0,0);
+//  PVector v2=new PVector (0,0);
+  
+//  PVector v = new PVector (0, 0);
+//  v = (tst.getVertex(0));
+  
+      
+//  for (int i=1;i<tst.getVertexCount();i=i+1){ //this is the part that adds the lines to the world
+//    v1=(tst.getVertex(i));
+//    if (PVector.dist(v, v1) > C ) {
+//       FLine myLine = new FLine(v1.x/40,v1.y/40, v.x/40,v.y/40);
+//       world.add(myLine);
+//       v = v1;
+//    }
+//    }
+    
+//   tst.endShape(); //tst is a placeholder thing for a shape
+//  }
+   
+//   tst=createShape();
+//   tst.beginShape();
+//}
+
+//public boolean contains(ArrayList<PVector> list, PVector v) {
+//  for (PVector p : list) {
+//    if ((p.x == v.x) && (p.y == v.y)) {
+//       return true;
+//    }
+//  }
+//  return false;
+//}
+
+//public void websocketSetup() { // Call this in setup //
+//    //Initiates the websocket server, and listens for incoming connections on ws://localhost:8025/john
+//  ws= new WebsocketServer(this, 8080,"/WebsocketHttpListenerDemo"); //ws://Localhost:8080/WebsocketHttpListenerDemo
+//  Pointlist = new ArrayList();
+//}

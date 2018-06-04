@@ -175,9 +175,9 @@ tst.endShape();
  }
 
 void addSpring(){
-FloatList sppointsx= new FloatList();
-FloatList sppointsy= new FloatList();
-for (int i = 0; i < tst.getVertexCount(); i++) {
+FloatList sppointsx= new FloatList(); //x-points
+FloatList sppointsy= new FloatList(); //y-points
+for (int i = 0; i < tst.getVertexCount(); i++) { //puts the dots in the mouse-drawn line into two lists
    PVector v = tst.getVertex(i);
    float vx=(v.x);
    float vy=v.y;
@@ -185,9 +185,9 @@ for (int i = 0; i < tst.getVertexCount(); i++) {
    sppointsy.append(vy);
   }
 
- float FLength=sppointsy.max()-sppointsy.min();
- float FWidth=sppointsx.max()-sppointsx.min();
-FBox hang = new FBox(FLength,FWidth);  
+ float FLength=sppointsy.max()-sppointsy.min(); //length of spring
+ float FWidth=sppointsx.max()-sppointsx.min();  // width of spring
+FBox hang = new FBox(FLength,FWidth);  //makes a box (that's the body of the spring)
 hang.setStatic(false);
 hang.setPosition(tst.getVertex(0).x,tst.getVertex(0).y+FLength/2);
 hang.setDrawable(true);
@@ -197,23 +197,25 @@ spring = loadImage("zigzag.png");
 spring.resize(int(FWidth),int(FLength));
 hang.attachImage(spring);
 hang.setName("spring");
-world.add(hang);
+world.add(hang); //add the spring itself to the world
 FCircle hanger = new FCircle(30);  
-hanger.setStatic(true);
+hanger.setStatic(true);                                //this is the topmost thingy
 hanger.setPosition(tst.getVertex(0).x,tst.getVertex(0).y-5);
 hanger.setDrawable(true);
 hanger.setGroupIndex(1);
 hanger.setName("pin"); 
 hanger.setDensity(0.01);
 hanger.setBullet(true);
-world.add(hanger);
-//**************connecting the first part of spring to the *************
+world.add(hanger);                    // add the topmost thingy to the world
+//************** connecting the top of the spring to the pin *************
 FRevoluteJoint juntaPrincipio = new FRevoluteJoint(hanger, hang);
 
-juntaPrincipio.setAnchor(tst.getVertex(0).x,tst.getVertex(0).y);
+juntaPrincipio.setAnchor(tst.getVertex(0).x,tst.getVertex(0).y);       
 juntaPrincipio.setFill(0);
-juntaPrincipio.setDrawable(false);;
-world.add(juntaPrincipio);
+juntaPrincipio.setDrawable(false);
+world.add(juntaPrincipio);              //seems like everything works right up to this point
+
+//************** making the mass *************
  int verc=tst.getVertexCount();
  FCircle endpoint = new FCircle(30);
  endpoint.setPosition(hang.getX(),sppointsy.max());
@@ -223,12 +225,15 @@ world.add(juntaPrincipio);
 //endpoint.setGroupIndex(1);
 endpoint.setName("EndF");
 //endpoint.setStatic(true);
-world.add(endpoint);
+world.add(endpoint); //add the mass to the world
+
+////**************** attaching mass to end of spring
+
 FRevoluteJoint jp= new FRevoluteJoint(endpoint, hang);
 
 jp.setAnchor(hang.getX(),sppointsy.max());
 jp.setFill(0);
-jp.setDrawable(false);;
+jp.setDrawable(false);
 world.add(jp);
 //FDistanceJoint junta = new FDistanceJoint(hang, endpoint);
 //  junta.setAnchor1(boxWidth/2, 0);
@@ -245,6 +250,7 @@ world.add(jp);
 tst.endShape();
 tst=createShape();
 tst.beginShape();
+
 }
   
      

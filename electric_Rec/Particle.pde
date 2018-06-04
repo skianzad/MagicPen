@@ -1,6 +1,6 @@
 class Particle {
 
-  float ll = 0.5;
+  float ll = 1;
   float deltax, deltay;
   
   PVector loc;
@@ -21,6 +21,7 @@ ArrayList <PVector> centers = new ArrayList <PVector> ();
       loc.add(getDirection(loc));
       }
       point(loc.x, loc.y);
+      //ellipse(loc.x, loc.y, 2, 2);
     }
   }
  

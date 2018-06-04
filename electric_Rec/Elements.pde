@@ -1,3 +1,31 @@
+void addElement() {
+  
+poly = new FPoly();
+poly.setStrokeWeight(3);
+poly.setFill(0, 30, 90);
+poly.setBullet(true);
+poly.setDensity(0.005);
+poly.setRotatable(false);
+poly.setName("Mass");
+poly.setRestitution(0.7);
+poly.setStatic(true);
+ for (int i = 0; i < tst.getVertexCount(); i++) {
+     PVector v = tst.getVertex(i);
+     poly.vertex(v.x,v.y);
+}
+TouchBody=poly.getTouching();
+if(TouchBody!=null){ 
+println("Touching bodies",TouchBody);
+}
+tst.endShape();
+tst=createShape();
+tst.beginShape();
+if (poly!=null) {
+   world.add(poly);
+   poly = null;
+  }
+}
+
 void addMass(){
 
 poly = new FPoly();

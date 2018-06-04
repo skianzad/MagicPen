@@ -89,7 +89,7 @@ boolean avatar=false;
   
   
 void setup(){
-  size(1200, 700,P2D );
+  size(1200, 700);
   background(255);
   trFlag=true;
   table=loadTable("table.csv","header");
@@ -140,7 +140,7 @@ s= new HVirtualCoupling((1));
   
   /* BOARD */
   /* BOARD */
-  haply_board = new Board(this, "COM6", 0); //Put your COM# port here
+  haply_board = new Board(this, "COM4", 0); //Put your COM# port here
 
   /* DEVICE */
   haply_2DoF = new Device(degreesOfFreedom.HaplyTwoDOF, deviceID, haply_board);
@@ -206,18 +206,30 @@ void detected(String gesture, float percent, int startX, int startY, int centroi
 
 void draw(){
   
+    background(255); 
+  world.step();
+  world.draw(this);
+  shape(tst);
+   if ( ava != null  ) {
+       println("force in x",ava.getX(),"Force in Y direction",ava.getY());
+ }
+  /*
   if(!rendering_force){
     background(255);
     //world.step(1.0f/25.0f);
+
     world.draw(this);
     shape(tst);
+    
    if ( ava != null  ) {
        //println("force in x",ava.getX(),"Force in Y direction",ava.getY());
              }
 
   //background(255);  
   //one.draw();
+  
   }
+  */
 }
 //one.track
 void mouseDragged(){
@@ -510,34 +522,36 @@ void contactEnded(FContact c) {
 
 void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
   
-  rendering_force = true;
-if (ava!=null){   
-  //  /* GET END-EFFECTOR STATE (TASK SPACE) */
-  if (haply_board.data_available()) {
-    /* GET END-EFFECTOR STATE (TASK SPACE) */
+//  rendering_force = true;
+//if (ava!=null){   
+//  //  /* GET END-EFFECTOR STATE (TASK SPACE) */
+//  if (haply_board.data_available()) {
+//    /* GET END-EFFECTOR STATE (TASK SPACE) */
         
-    angles.set(haply_2DoF.get_device_angles()); 
-    pos_ee.set( haply_2DoF.get_device_position(angles.array()));
-    pos_ee.set(pos_ee.copy().mult(500)); 
-    //println(ava.getX(),ava.getY());
+//    angles.set(haply_2DoF.get_device_angles()); 
+//    pos_ee.set( haply_2DoF.get_device_position(angles.array()));
+//    pos_ee.set(pos_ee.copy().mult(500)); 
+//    //println(ava.getX(),ava.getY());
     
    
-  //s.updateCouplingForce();
-  }
-  f_ee.set(-(ava.getX()+(pos_ee.x*20)+offsetX)*1000, +(ava.getY()-(pos_ee.y*20)+offsetY)*1000);
-   //f_ee.set(0,0);
-  f_ee.div(200); //
-  haply_2DoF.set_device_torques(f_ee.array());
-  torques.set(haply_2DoF.mechanisms.get_torque());
-  haply_2DoF.device_write_torques();
-  ava.setPosition(-(pos_ee.x*20)-offsetX, (pos_ee.y*20)-offsetY); 
+//  //s.updateCouplingForce();
+//  }
+//  f_ee.set(-(ava.getX()+(pos_ee.x*20)+offsetX)*1000, +(ava.getY()-(pos_ee.y*20)+offsetY)*1000);
+//   //f_ee.set(0,0);
+//  f_ee.div(200); //
+//  haply_2DoF.set_device_torques(f_ee.array());
+//  torques.set(haply_2DoF.mechanisms.get_torque());
+//  haply_2DoF.device_write_torques();
+//  ava.setPosition(-(pos_ee.x*20)-offsetX, (pos_ee.y*20)-offsetY); 
     
-  }
-  else{
-  //f_ee.set(0,0);
-  }
+//  }
+//  else{
+//  //f_ee.set(0,0);
+//  }
  world.step(1.0f/25.0f);
-rendering_force = false;
+//rendering_force = false;
+
+/************************************************************/
 
 //world.step(1.0f/1000.0f);
 
