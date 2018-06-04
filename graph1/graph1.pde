@@ -6,9 +6,8 @@ import grafica.*;
 ControlP5  cp5;
 DropdownList d1,d2,d3;
 Slider     S1,S2,S3;
-int        cnt=0;
 int        NumberPoints=400; //Number of points
-float      Xintital=-10.0;
+float      Xintital=-2.0;
 float      Delta=1.0;                        //linespace between each point
 float[]    X=new float[NumberPoints];       
 float[]    Y=new float[NumberPoints];
@@ -23,15 +22,12 @@ boolean    flag=false;
 boolean    run=false;
 float      scale=          5;
 int lastStepTime=          0;    
-boolean    clockwise=      true;
 // Graph details
 static final float RADIUS=15;      // Size of animated discs in pixels.
 static final int graphSize = 400;  // Width and height of graph in pixels.
-float      px=0.1, py=0.1;
 GPlot      lineChart;
-int        ChartOffset=0;
 PVector    origin = new PVector(0,0);
-Slider     abc;
+Slider     Speed;
 int        step=0;
 int        stepsPerCycle=100;
 
@@ -50,7 +46,8 @@ void setup(){
   d1=cp5.addDropdownList("Graph lists")
        .setPosition(100,100);
        customize(d1); // customize the first list
-       
+       //ControlFont cf1 = new ControlFont(createFont("Arial",20));
+   
   S1=cp5.addSlider("sliderValue")
      .setPosition(100,200)
      .setRange(0,255)
@@ -87,37 +84,33 @@ void customize(DropdownList d1) {
   d1.setItemHeight(60);
   d1.setBarHeight(30);
   d1.setWidth(200);
-  //.captionLabel().set("dropdown");
-  //ddl.captionLabel().style().marginTop = 3;
+  d1.setOpen(false);
+  //d1.setLabel("Hi",10);
+  //d1.setLabel();
+  //d1.CaptionLabel().style().marginTop = 3;
   //ddl.captionLabel().style().marginLeft = 3;
-  //ddl.valueLabel().style().marginTop = 3;
-  for (int i=1;i<6;i++) {
-    d1.addItem("item "+i, i);
-  }
+  //d1.valueLabel().style().marginTop = 3;
+    d1.addItem("Absolute ", 0);
+    d1.addItem("Quadratic",1);
+    d1.addItem("Sin",2);
   //ddl.scroll(0);
   d1.setColorBackground(color(204,102,40));
   d1.setColorActive(color(80, 220,100));
 }
 
 void keyPressed() {
-  // some key events to change the properties of DropdownList d1
 
 }
 
 void controlEvent(ControlEvent theEvent) {
-  // DropdownList is of type ControlGroup.
-  // A controlEvent will be triggered from inside the ControlGroup class.
-  // therefore you need to check the originator of the Event with
-  // if (theEvent.isGroup())
-  // to avoid an error message thrown by controlP5.
-  //println(S1.getValue());
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
+    
   } 
   else if (theEvent.isController()) {
     println("event from controller : "+theEvent.getController().getValue()+" from "+theEvent.getController());
-  }
+}
 }
 
 void draw() {
@@ -135,61 +128,28 @@ void draw() {
 
   if (run){
       if (millis() - lastStepTime > Delaytime) {
-        if (clockwise) {
           if (step<NumberPoints){
           // Add the point at the end of the array
-              lineChart.addPoint(0,calculatePoint(X[step],Y[step]));
+              lineChart.addPoint(0,calculatePoint(X[step]));
+              if(step>=1){
+                
+              }
               println(step,X[step],Y[step]);
-    
               step++;
-          }
           // Remove the first point
           //lineChart.removePoint(0);
-        }
-        else {
-         // if (step>0&&step<400){
-          // Add the point at the beginning of the array
-         // lineChart.addPoint(0, calculatePoint(X[step],Y[step]));
-            step--;
-            if (step>0){
-              println(step);
-            }
-          //}
-          // Remove the last point
+           }
+         // Remove the last point
          // lineChart.removePoint(lineChart.getPointsRef().getNPoints() - 1);
-        }
-    
         lastStepTime = millis();
       }
   }
-      //lineChart.getLayer("surface").drawFilledContour(GPlot.HORIZONTAL, 0);
-  //}
-     //if (run){
-     //  step=0;
-     //  run=false;
-     //}
-     //Graphing(X,Y);
 }
 
-//void mouseClicked() {
-  // Change the movement sense
-//  clockwise = !clockwise;
 
-//  if (clockwise) {
-  //  step=0;
-//    //step += lineChart.getPointsRef().getNPoints() + 1;
-//    lineChart.setTitleText("Clockwise movement");
-//  } 
-//  else {
-//    step=400;
-//    //step -= lineChart.getPointsRef().getNPoints() + 1;
-//    lineChart.setTitleText("Anti-clockwise movement");
-//  }
-//}
-
-GPoint calculatePoint(float i, float n) {
-//  float delta = 0.1*cos(TWO_PI*10*i/n);
-//  float ang = TWO_PI*i/n;
+GPoint calculatePoint(float i) {
+  float n=0.0;
+  n=Yvalues(i);
   return new GPoint(i, n);
 }
 
@@ -234,23 +194,49 @@ void Xvalues(){
 }
 
 
-void Yvalues(float[] X){
+float[] Yvalues(float[] X){
  for (int x = 0; x < X.length; x++) {
-   Y[x]=sin(2*3.4*X[x]);
+   Y[x]=cos(2*3.4*X[x]);
  }
+ return Y;
 }
 
+float Yvalues(float temPointx){
+   int graphNumber=int(d1.getValue());
+   float temPointy;
+   switch (graphNumber){
+       case 0:
+             temPointy=abs(temPointx);
+       break;
+       case 1:
+            temPointy=(temPointx*temPointx);
+       break;
+       case 2:
+            temPointy=(sin(2*3.4*temPointx));
+       break;
+       default:
+            temPointy=(sin(2*3.4*temPointx));
+       break;
+   }
+   
+   return temPointy;
+}
 public void RUN(){
-
   if (flag){
-        delay(100);
-        Graphing(X,Y);
-        step=0;
-        run=true;
+    delay(100);
+    Graphing(X,Y);
+    step=0;
+    run=true;
    }
 }
 
 public void STOP(){
   Graphing(X,Y);
   run=false;
+}
+
+public float tangent(float y_b,float y,float y_a,float h){ 
+  float Ygradiant=0; 
+  Ygradiant=((y_a-y/h)+(y-y_b)/h)/2;
+  return Ygradiant;
 }
