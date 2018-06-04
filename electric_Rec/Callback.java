@@ -73,8 +73,4 @@ public class Callback {
 		return this.callback;
 	}
 	
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes
