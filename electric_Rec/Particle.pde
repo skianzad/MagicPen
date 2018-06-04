@@ -20,8 +20,8 @@ ArrayList <PVector> centers = new ArrayList <PVector> ();
       if (centers.size() != 0){
       loc.add(getDirection(loc));
       }
-      point(loc.x, loc.y);
-      //ellipse(loc.x, loc.y, 2, 2);
+      //point(loc.x, loc.y);
+      ellipse(loc.x, loc.y, 1, 1);
     }
   }
  
