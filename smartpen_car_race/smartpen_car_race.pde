@@ -426,7 +426,7 @@ if (!msg.equals("pen-up") && mousePressed) { //TODO only react to left button
    String[] parts = msg.split(" ");
 
    xFakeMouse = round(Float.parseFloat(parts[0])*10)+graphwidth; // 004
-   yFakeMouse = round(Float.parseFloat(parts[1])*10); // 034556
+   yFakeMouse = round(Float.parseFloat(parts[1])*10); // 034556f
    boolean toAdd = false;
    
    PVector fakemouse = new PVector(xFakeMouse,yFakeMouse);

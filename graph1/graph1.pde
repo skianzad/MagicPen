@@ -1,5 +1,8 @@
+import org.quark.jasmine.*;
+
 import controlP5.*;
 import grafica.*;
+import java.util.regex.Pattern;
 
 
 
@@ -17,7 +20,7 @@ FloatList  yPoints;
 int        sliderValue = 100;
 int        sliderTicks1 = 100;
 int        sliderTicks2 = 30;
-int        Delaytime=40;
+int        Delaytime=10;
 boolean    flag=false;
 boolean    run=false;
 float      scale=          5;
@@ -31,11 +34,17 @@ Slider     Speed;
 int        step=0;
 int        stepsPerCycle=100;
 
+// Text box fields//
+
+int state = 0; 
+String result=""; 
+
 
 void setup(){
   size(1000,600,P2D);
   origin.set(width/3,height/8);
   textFont(loadFont("Crimson-Italic-24.vlw"));
+ // textSize(30);
   textAlign(RIGHT,TOP);
   cp5=new ControlP5(this);
   xPoints=new FloatList();
@@ -62,17 +71,19 @@ void setup(){
   cp5.addButton("RUN")
      .setValue(0)
      .setPosition(100,300)
-     .setSize(200,19)
+     .setSize(200,50)
      .setColorBackground(color(20,200,0))
      ;
   
   // and add another 2 buttons
   cp5.addButton("STOP")
      .setValue(100)
-     .setPosition(100,320)
-     .setSize(200,19)
+     .setPosition(100,370)
+     .setSize(200,50)
      .setColorBackground(color(200,12,0))
      ;
+     
+    // cp5.setControlFont(new ControlFont(createFont("Arial", 20), 20));
   Xvalues();
   Yvalues(X);
   Graphing(X,Y);
@@ -99,17 +110,33 @@ void customize(DropdownList d1) {
 }
 
 void keyPressed() {
+ 
+  if (key==ENTER||key==RETURN) {
+ 
+    state = 1;
+    RUN();
+  } 
+  if (key== BACKSPACE && result != null && result.length() > 0) {
+    result = result.substring(0, result.length() - 1);
+    if (result.equals("")) {
+      state = 0;
+    }
+  }
+  
+}
 
+void keyTyped() {
+  result = result + key;
 }
 
 void controlEvent(ControlEvent theEvent) {
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
-    println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
+    //println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
     
   } 
   else if (theEvent.isController()) {
-    println("event from controller : "+theEvent.getController().getValue()+" from "+theEvent.getController());
+    //println("event from controller : "+theEvent.getController().getValue()+" from "+theEvent.getController());
 }
 }
 
@@ -127,6 +154,8 @@ void draw() {
   lineChart.endDraw();
 
   if (run){
+   // println("let's run -- draw");
+    
       if (millis() - lastStepTime > Delaytime) {
           if (step<NumberPoints){
           // Add the point at the end of the array
@@ -134,7 +163,7 @@ void draw() {
               if(step>=1){
                 
               }
-              println(step,X[step],Y[step]);
+              //println(step,X[step],Y[step]);
               step++;
           // Remove the first point
           //lineChart.removePoint(0);
@@ -144,19 +173,39 @@ void draw() {
         lastStepTime = millis();
       }
   }
+  
+  
+  
+  switch (state) {
+  case 0:
+    fill(0); 
+    text ("Custom function f(x): \n"+result, width/5, height/5+15); 
+    break;
+ 
+  case 1:
+    fill(255, 2, 2); 
+    text ("Thanks \n"+result, width/5, height/5+15); 
+    //println(result);
+    
+    //run = true;
+    //flag = true;
+     //RUN();
+    
+    break;
+  }
 }
 
 
 GPoint calculatePoint(float i) {
   float n=0.0;
-  n=Yvalues(i);
+  n=Yvalues(new Function(i));
   return new GPoint(i, n);
 }
 
 public void Graphing(float[] X,float[] Y)
 {
   lineChart = new GPlot(this);
-  println(origin.x);
+  //println(origin.x);
   lineChart.setPos(origin.x, origin.y);
   lineChart.setDim(graphSize*1.3, graphSize);
   // or all in one go
@@ -221,8 +270,21 @@ float Yvalues(float temPointx){
    
    return temPointy;
 }
+
+float Yvalues(Function f) {
+  if (!result.equals("")) {
+   return f.computeY(result);
+  }
+  else {
+    return Yvalues(f.x);
+  }
+}
+
+
 public void RUN(){
+  println("RUN called");
   if (flag){
+    println("flag is true");
     delay(100);
     Graphing(X,Y);
     step=0;
@@ -233,6 +295,9 @@ public void RUN(){
 public void STOP(){
   Graphing(X,Y);
   run=false;
+  
+  //result = "";
+  state = 0;
 }
 
 public float tangent(float y_b,float y,float y_a,float h){ 
