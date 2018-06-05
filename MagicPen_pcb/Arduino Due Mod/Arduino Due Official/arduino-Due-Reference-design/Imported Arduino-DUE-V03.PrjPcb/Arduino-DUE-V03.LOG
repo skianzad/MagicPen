@@ -1,0 +1,116 @@
+Importer Log Report
+Project : Arduino-DUE-V03.PrjPcb
+
+Section : Analyze Document - C:\Users\spin\Documents\Arduino Due Official\arduino-Due-Reference-design\Arduino-DUE-V03.brd
+    Analyzing data of C:\Users\spin\Documents\Arduino Due Official\arduino-Due-Reference-design\Arduino-DUE-V03.brd
+    Load settings
+    Load layers 123
+    Load Library "rcl"
+    Load Packages 3
+    Load Library "diode"
+    Load Packages 1
+    Load Library "led"
+    Load Packages 1
+    Load Library "linear"
+    Load Packages 2
+    Load Library "SmartPrj"
+    Load Packages 21
+    Load Library "zetex"
+    Load Packages 1
+    Load Library "resistor-dil"
+    Load Packages 2
+    Load Library "Arduino_Wifi_shield_v018_tG"
+    Load Packages 2
+    Load Library "varistor"
+    Load Packages 1
+    Load Library "wuerth-elektronik"
+    Load Packages 1
+    Load Library "bibaja"
+    Load Packages 1
+    Load Library "transistor-npn"
+    Load Packages 1
+    Load Library "pinhead"
+    Load Packages 1
+    Load Library "74xx-little-us"
+    Load Packages 1
+EndSection
+
+Section : Analyze Document - C:\Users\spin\Documents\Arduino Due Official\arduino-Due-Reference-design\Arduino-DUE-V03.sch
+    Analyzing data of C:\Users\spin\Documents\Arduino Due Official\arduino-Due-Reference-design\Arduino-DUE-V03.sch
+    Load settings
+    Load layers 123
+    Load schematic
+    Load Libraries 16
+    Load Library "supply1"
+    Load Packages 0
+    Load Symbols 3
+    Load DeviceSets 3
+    Load Library "rcl"
+    Load Packages 238
+    Load Symbols 2
+    Load DeviceSets 2
+    Load Library "diode"
+    Load Packages 62
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "led"
+    Load Packages 34
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "linear"
+    Load Packages 3
+    Load Symbols 3
+    Load DeviceSets 2
+    Load Library "SmartPrj"
+    Load Packages 224
+    Load Symbols 19
+    Load DeviceSets 19
+    Load Library "zetex"
+    Load Packages 1
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "resistor-dil"
+    Load Packages 12
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "Arduino_Wifi_shield_v018_tG"
+    Load Packages 3
+    Load Symbols 2
+    Load DeviceSets 2
+    Load Library "varistor"
+    Load Packages 34
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "wuerth-elektronik"
+    Load Packages 7
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "bibaja"
+    Load Packages 1
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "transistor-npn"
+    Load Packages 1
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "supply2"
+    Load Packages 0
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "pinhead"
+    Load Packages 2
+    Load Symbols 1
+    Load DeviceSets 1
+    Load Library "74xx-little-us"
+    Load Packages 2
+    Load Symbols 2
+    Load DeviceSets 1
+    Load Attributes 0
+    Load Classes 5
+    Load Parts 199
+    Load Sheets 1
+EndSection
+
+Section : Import Document - C:\Users\spin\Documents\Arduino Due Official\arduino-Due-Reference-design\Arduino-DUE-V03.brd
+    ERROR: Exception raised! TV7_Layer with ID = 82 not IsBoardWarehouseLayer!
+EndSection

@@ -1,0 +1,401 @@
+Removed Pin From Net: NetName=XUSB Pin=U1-39
+Change Component DesignItemId : Designator=DEBUG Old DesignItemId=1X04 New DesignItemId=PINHD-1X4
+Change Component DesignItemId : Designator=ADCH Old DesignItemId=1X08 New DesignItemId=PINHD-1X8
+Change Component DesignItemId : Designator=ADCL Old DesignItemId=1X08 New DesignItemId=PINHD-1X8
+Change Component DesignItemId : Designator=COMMUNICATION Old DesignItemId=1X08 New DesignItemId=PINHD-1X8
+Change Component DesignItemId : Designator=POWER Old DesignItemId=1X08 New DesignItemId=PINHD-1X8
+Change Component DesignItemId : Designator=PWML Old DesignItemId=1X08 New DesignItemId=PINHD-1X8
+Change Component DesignItemId : Designator=PWMH Old DesignItemId=1X10 New DesignItemId=PINHD-1X10
+Change Component DesignItemId : Designator=JP5 Old DesignItemId=2X02 New DesignItemId=PINHD-2X2
+Change Component DesignItemId : Designator=ICSP1 Old DesignItemId=2X03 New DesignItemId=PINHD-2X3
+Change Component DesignItemId : Designator=SPI Old DesignItemId=2X03 New DesignItemId=PINHD-2X3
+Change Component DesignItemId : Designator=XIO Old DesignItemId=2X18 New DesignItemId=PINHD-2X18
+Change Component DesignItemId : Designator=L1 Old DesignItemId=0805 New DesignItemId=WE-CBF_0805
+Change Component DesignItemId : Designator=L2 Old DesignItemId=0805 New DesignItemId=WE-CBF_0805
+Change Component DesignItemId : Designator=L3 Old DesignItemId=0805 New DesignItemId=WE-CBF_0805
+Change Component DesignItemId : Designator=L5 Old DesignItemId=0805 New DesignItemId=WE-CBF_0805
+Change Component DesignItemId : Designator=L6 Old DesignItemId=0805 New DesignItemId=WE-CBF_0805
+Change Component DesignItemId : Designator=C4 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C5 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C6 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C7 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C8 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C9 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C10 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C12 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C13 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C14 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C15 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C16 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C17 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C18 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C19 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C20 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C21 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C22 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C23 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C24 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C25 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C26 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C28 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C30 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C31 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C32 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C34 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C36 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C37 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C38 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C39 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C40 Old DesignItemId=C0402 New DesignItemId=C-EUC0402
+Change Component DesignItemId : Designator=C42 Old DesignItemId=C0603-ROUND New DesignItemId=C-EUC0603
+Change Component DesignItemId : Designator=RN1 Old DesignItemId=CAT16 New DesignItemId=4R-NCAT16
+Change Component DesignItemId : Designator=RN2 Old DesignItemId=CAT16 New DesignItemId=4R-NCAT16
+Change Component DesignItemId : Designator=RN4 Old DesignItemId=CAT16 New DesignItemId=4R-NCAT16
+Change Component DesignItemId : Designator=RN5 Old DesignItemId=CAT16 New DesignItemId=4R-NCAT16
+Change Component DesignItemId : Designator=RN3 Old DesignItemId=CAY16 New DesignItemId=4R-NCAY16
+Change Component DesignItemId : Designator=L Old DesignItemId=CHIP-LED0805 New DesignItemId=LEDCHIP-LED0805
+Change Component DesignItemId : Designator=ON Old DesignItemId=CHIP-LED0805 New DesignItemId=LEDCHIP-LED0805
+Change Component DesignItemId : Designator=RX1 Old DesignItemId=CHIP-LED0805 New DesignItemId=LEDCHIP-LED0805
+Change Component DesignItemId : Designator=RX Old DesignItemId=CHIP-LED0805 New DesignItemId=LEDCHIP-LED0805
+Change Component DesignItemId : Designator=TX1 Old DesignItemId=CHIP-LED0805 New DesignItemId=LEDCHIP-LED0805
+Change Component DesignItemId : Designator=TX Old DesignItemId=CHIP-LED0805 New DesignItemId=LEDCHIP-LED0805
+Change Component DesignItemId : Designator=J3 Old DesignItemId=CON2_USB_MICRO_B_AT New DesignItemId=MYCON2_USB-MINI-B
+Change Component DesignItemId : Designator=Z1 Old DesignItemId=CT/CN0603 New DesignItemId=VARISTORCN0603
+Change Component DesignItemId : Designator=Z2 Old DesignItemId=CT/CN0603 New DesignItemId=VARISTORCN0603
+Change Component DesignItemId : Designator=Z3 Old DesignItemId=CT/CN0603 New DesignItemId=VARISTORCN0603
+Change Component DesignItemId : Designator=Z4 Old DesignItemId=CT/CN0603 New DesignItemId=VARISTORCN0603
+Change Component DesignItemId : Designator=Z5 Old DesignItemId=CT/CN0603 New DesignItemId=VARISTORCN0603
+Change Component DesignItemId : Designator=D4 Old DesignItemId=DO220AAL New DesignItemId=SS1P3L
+Change Component DesignItemId : Designator=D5 Old DesignItemId=DO220AAL New DesignItemId=SS1P3L
+Change Component DesignItemId : Designator=FID1 Old DesignItemId=FIDUCIA-MOUNT New DesignItemId=FIDUCIALMOUNT
+Change Component DesignItemId : Designator=FID2 Old DesignItemId=FIDUCIA-MOUNT New DesignItemId=FIDUCIALMOUNT
+Change Component DesignItemId : Designator=FID3 Old DesignItemId=FIDUCIA-MOUNT New DesignItemId=FIDUCIALMOUNT
+Change Component DesignItemId : Designator=FID4 Old DesignItemId=FIDUCIA-MOUNT New DesignItemId=FIDUCIALMOUNT
+Change Component DesignItemId : Designator=F1 Old DesignItemId=L1812 New DesignItemId=L-EUL1812
+Change Component DesignItemId : Designator=F2 Old DesignItemId=L1812 New DesignItemId=L-EUL1812
+Change Component DesignItemId : Designator=U1 Old DesignItemId=LQFP144 New DesignItemId=ATSAM3X/AAU
+Change Component DesignItemId : Designator=USB1 Old DesignItemId=MCR-AB1-S-RA-SMT New DesignItemId=MICRO_USB
+Change Component DesignItemId : Designator=D2 Old DesignItemId=MINIMELF New DesignItemId=DIODE-MINIMELF
+Change Component DesignItemId : Designator=D3 Old DesignItemId=MINIMELF New DesignItemId=DIODE-MINIMELF
+Change Component DesignItemId : Designator=IC6 Old DesignItemId=MLF32 New DesignItemId=ATMEGA16U2-MU
+Change Component DesignItemId : Designator=IC1 Old DesignItemId=MSOP08 New DesignItemId=LMV358?*MM
+Change Component DesignItemId : Designator=PC1 Old DesignItemId=PANASONIC_D New DesignItemId=CPOL-EUD
+Change Component DesignItemId : Designator=PC2 Old DesignItemId=PANASONIC_D New DesignItemId=CPOL-EUD
+Change Component DesignItemId : Designator=JTAG Old DesignItemId=PINHEAD_2X05_127 New DesignItemId=PINHEAD_PINHD-2X5PASSO127
+Change Component DesignItemId : Designator=X2 Old DesignItemId=POWERSUPPLY_DC-21MM New DesignItemId=POWERSUPPLY_DC21MMX
+Change Component DesignItemId : Designator=JR1 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R1 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R2 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R3 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R4 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R5 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R6 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R8 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R9 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R10 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R13 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R14 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R15 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R18 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R19 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R20 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R21 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R23 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R99 Old DesignItemId=R0402 New DesignItemId=R-EU_R0402
+Change Component DesignItemId : Designator=R11 Old DesignItemId=R0603-ROUND New DesignItemId=R-EU_0603-RND
+Change Component DesignItemId : Designator=R12 Old DesignItemId=R0603-ROUND New DesignItemId=R-EU_0603-RND
+Change Component DesignItemId : Designator=R7 Old DesignItemId=R0603-ROUND New DesignItemId=R-EU_R0603
+Change Component DesignItemId : Designator=IC10 Old DesignItemId=SC70-5 New DesignItemId=74*1G125DCK
+Change Component DesignItemId : Designator=C1 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C2 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C3 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C11 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C27 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C29 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C33 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C35 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=C41 Old DesignItemId=SMC_B New DesignItemId=CPOL-EUSMCB
+Change Component DesignItemId : Designator=ERASE Old DesignItemId=SMD_157SW New DesignItemId=MYSMD_PB157
+Change Component DesignItemId : Designator=IC2 Old DesignItemId=SOT23-6 New DesignItemId=LM2736Y
+Change Component DesignItemId : Designator=Q2 Old DesignItemId=SOT23 New DesignItemId=BC847*SMD
+Change Component DesignItemId : Designator=IC4 Old DesignItemId=SOT223 New DesignItemId=MC33269ST*
+Change Component DesignItemId : Designator=T1 Old DesignItemId=SOT-23 New DesignItemId=PMOSSOT23
+Change Component DesignItemId : Designator=T2 Old DesignItemId=SOT-23 New DesignItemId=PMOSSOT23
+Change Component DesignItemId : Designator=T3 Old DesignItemId=SOT-23 New DesignItemId=PMOSSOT23
+Change Component DesignItemId : Designator=L4 Old DesignItemId=SRR0604 New DesignItemId=L-USSRR0604
+Change Component Comment : Designator=IC6 Old Comment= New Comment=ATMEGA16U2-MU
+Change Component Comment : Designator=FID1 Old Comment= New Comment=FIDUCIALMOUNT
+Change Component Comment : Designator=FID2 Old Comment= New Comment=FIDUCIALMOUNT
+Change Component Comment : Designator=FID3 Old Comment= New Comment=FIDUCIALMOUNT
+Change Component Comment : Designator=FID4 Old Comment= New Comment=FIDUCIALMOUNT
+Change Component Comment : Designator=USB1 Old Comment= New Comment=MICRO-USB-AB1
+Change Component Comment : Designator=ERASE Old Comment= New Comment=MYSMD_PB157
+Change Component Comment : Designator=JTAG Old Comment= New Comment=PINHEAD_PINHD-2X5PASSO127
+Change Component Comment : Designator=J3 Old Comment= New Comment=USB-MICRO B
+Change Component Comment : Designator=IC10 Old Comment=74LVC1G125DCK New Comment=74*1G125DCK
+Change Component Comment : Designator=Q2 Old Comment=BC847BSMD New Comment=BC847*SMD
+Change Component Description : Designator=IC4 Old Description= New Description=Adjustable Output Low Dropout Voltage Regulator 800 mA   Source: http://www.onsemi.com/pub/Collateral/MC33269-D.PDF
+Change Component Description : Designator=RN1 Old Description= New Description=Array Chip Resistor   Source: RS Component / Phycomp
+Change Component Description : Designator=RN2 Old Description= New Description=Array Chip Resistor   Source: RS Component / Phycomp
+Change Component Description : Designator=RN3 Old Description= New Description=Array Chip Resistor   Source: RS Component / Phycomp
+Change Component Description : Designator=RN4 Old Description= New Description=Array Chip Resistor   Source: RS Component / Phycomp
+Change Component Description : Designator=RN5 Old Description= New Description=Array Chip Resistor   Source: RS Component / Phycomp
+Change Component Description : Designator=C4 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C5 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C6 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C7 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C8 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C9 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C10 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C12 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C13 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C14 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C15 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C16 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C17 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C18 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C19 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C20 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C21 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C22 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C23 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C24 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C25 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C26 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C28 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C30 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C31 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C32 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C34 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C36 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C37 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C38 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C39 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C40 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=C42 Old Description= New Description=CAPACITOR, European symbol
+Change Component Description : Designator=D2 Old Description= New Description=DIODE
+Change Component Description : Designator=D3 Old Description= New Description=DIODE
+Change Component Description : Designator=IC1 Old Description= New Description=Dual General Purpose, Low Voltage, Rail-to-Rail Output Operational Amplifiers   Source: http://www.national.com/mpf/LM/LMV321.html http://www.national.com/dt/lmv_qual.pdf
+Change Component Description : Designator=L4 Old Description= New Description=INDUCTOR, American symbol
+Change Component Description : Designator=F1 Old Description= New Description=INDUCTOR, European symbol
+Change Component Description : Designator=F2 Old Description= New Description=INDUCTOR, European symbol
+Change Component Description : Designator=L Old Description= New Description=LED   OSRAM: - CHIPLED LG R971, LG N971, LY N971, LG Q971, LY Q971, LO R971, LY R971 LH N974, LH R974 LS Q976, LO Q976, LY Q976 LO Q996 - Hyper CHIPLED LW Q18S LB Q993, LB Q99A, LB R99A - SideLED LS A670, LO A670, LY A670, LG A670, LP A670 LB A673, LV A673, LT A673, LW A673 LH A674 LY A675 LS A676, LA A676, LO A676, LY A676, LW A676 LS A679, LY A679, LG A679 -  Hyper Micro SIDELED® LS Y876, LA Y876, LO Y876, LY Y876 LT Y87S - SmartLED LW L88C, LW L88S LB L89C, LB L89S, LG L890 LS L89K, LO L89K, LY L89K LS L896, LA L896, LO L896, LY L896 - TOPLED LS T670, LO T670, LY T670, LG T670, LP T670 LSG T670, LSP T670, LSY T670, LOP T670, LYG T670 LG T671, LOG T671, LSG T671 LB T673, LV T673, LT T673, LW T673 LH T674 LS T676, LA T676, LO T676, LY T676, LB T676, LH T676, LSB T676, LW T676 LB T67C, LV T67C, LT T67C, LS T67K, LO T67K, LY T67K, LW E67C LS E67B, LA E67B, LO E67B, LY E67B, LB E67C, LV E67C, LT E67C LW T67C LS T679, LY T679, LG T679 LS T770, LO T770, LY T770, LG T770, LP T770 LB T773, LV T773, LT T773, LW T773 LH T774 LS E675, LA E675, LY E675, LS T675 LS T776, LA T776, LO T776, LY T776, LB T776 LHGB T686 LT T68C, LB T68C - Hyper Mini TOPLED® LB M676 - Mini TOPLED Santana® LG M470 LS M47K, LO M47K, LY M47K    Source: http://www.osram.convergy.de   LUXEON: - LUMILED® LXK2-PW12-R00, LXK2-PW12-S00, LXK2-PW14-U00, LXK2-PW14-V00 LXK2-PM12-R00, LXK2-PM12-S00, LXK2-PM14-U00 LXK2-PE12-Q00, LXK2-PE12-R00, LXK2-PE12-S00, LXK2-PE14-T00, LXK2-PE14-U00 LXK2-PB12-K00, LXK2-PB12-L00, LXK2-PB12-M00, LXK2-PB14-N00, LXK2-PB14-P00, LXK2-PB14-Q00 LXK2-PR12-L00, LXK2-PR12-M00, LXK2-PR14-Q00, LXK2-PR14-R00 LXK2-PD12-Q00, LXK2-PD12-R00, LXK2-PD12-S00 LXK2-PH12-R00, LXK2-PH12-S00 LXK2-PL12-P00, LXK2-PL12-Q00, LXK2-PL12-R00    Source: www.luxeon.com   KINGBRIGHT:   KA-3528ASYC Source: www.kingbright.com
+Change Component Description : Designator=ON Old Description= New Description=LED   OSRAM: - CHIPLED LG R971, LG N971, LY N971, LG Q971, LY Q971, LO R971, LY R971 LH N974, LH R974 LS Q976, LO Q976, LY Q976 LO Q996 - Hyper CHIPLED LW Q18S LB Q993, LB Q99A, LB R99A - SideLED LS A670, LO A670, LY A670, LG A670, LP A670 LB A673, LV A673, LT A673, LW A673 LH A674 LY A675 LS A676, LA A676, LO A676, LY A676, LW A676 LS A679, LY A679, LG A679 -  Hyper Micro SIDELED® LS Y876, LA Y876, LO Y876, LY Y876 LT Y87S - SmartLED LW L88C, LW L88S LB L89C, LB L89S, LG L890 LS L89K, LO L89K, LY L89K LS L896, LA L896, LO L896, LY L896 - TOPLED LS T670, LO T670, LY T670, LG T670, LP T670 LSG T670, LSP T670, LSY T670, LOP T670, LYG T670 LG T671, LOG T671, LSG T671 LB T673, LV T673, LT T673, LW T673 LH T674 LS T676, LA T676, LO T676, LY T676, LB T676, LH T676, LSB T676, LW T676 LB T67C, LV T67C, LT T67C, LS T67K, LO T67K, LY T67K, LW E67C LS E67B, LA E67B, LO E67B, LY E67B, LB E67C, LV E67C, LT E67C LW T67C LS T679, LY T679, LG T679 LS T770, LO T770, LY T770, LG T770, LP T770 LB T773, LV T773, LT T773, LW T773 LH T774 LS E675, LA E675, LY E675, LS T675 LS T776, LA T776, LO T776, LY T776, LB T776 LHGB T686 LT T68C, LB T68C - Hyper Mini TOPLED® LB M676 - Mini TOPLED Santana® LG M470 LS M47K, LO M47K, LY M47K    Source: http://www.osram.convergy.de   LUXEON: - LUMILED® LXK2-PW12-R00, LXK2-PW12-S00, LXK2-PW14-U00, LXK2-PW14-V00 LXK2-PM12-R00, LXK2-PM12-S00, LXK2-PM14-U00 LXK2-PE12-Q00, LXK2-PE12-R00, LXK2-PE12-S00, LXK2-PE14-T00, LXK2-PE14-U00 LXK2-PB12-K00, LXK2-PB12-L00, LXK2-PB12-M00, LXK2-PB14-N00, LXK2-PB14-P00, LXK2-PB14-Q00 LXK2-PR12-L00, LXK2-PR12-M00, LXK2-PR14-Q00, LXK2-PR14-R00 LXK2-PD12-Q00, LXK2-PD12-R00, LXK2-PD12-S00 LXK2-PH12-R00, LXK2-PH12-S00 LXK2-PL12-P00, LXK2-PL12-Q00, LXK2-PL12-R00    Source: www.luxeon.com   KINGBRIGHT:   KA-3528ASYC Source: www.kingbright.com
+Change Component Description : Designator=RX1 Old Description= New Description=LED   OSRAM: - CHIPLED LG R971, LG N971, LY N971, LG Q971, LY Q971, LO R971, LY R971 LH N974, LH R974 LS Q976, LO Q976, LY Q976 LO Q996 - Hyper CHIPLED LW Q18S LB Q993, LB Q99A, LB R99A - SideLED LS A670, LO A670, LY A670, LG A670, LP A670 LB A673, LV A673, LT A673, LW A673 LH A674 LY A675 LS A676, LA A676, LO A676, LY A676, LW A676 LS A679, LY A679, LG A679 -  Hyper Micro SIDELED® LS Y876, LA Y876, LO Y876, LY Y876 LT Y87S - SmartLED LW L88C, LW L88S LB L89C, LB L89S, LG L890 LS L89K, LO L89K, LY L89K LS L896, LA L896, LO L896, LY L896 - TOPLED LS T670, LO T670, LY T670, LG T670, LP T670 LSG T670, LSP T670, LSY T670, LOP T670, LYG T670 LG T671, LOG T671, LSG T671 LB T673, LV T673, LT T673, LW T673 LH T674 LS T676, LA T676, LO T676, LY T676, LB T676, LH T676, LSB T676, LW T676 LB T67C, LV T67C, LT T67C, LS T67K, LO T67K, LY T67K, LW E67C LS E67B, LA E67B, LO E67B, LY E67B, LB E67C, LV E67C, LT E67C LW T67C LS T679, LY T679, LG T679 LS T770, LO T770, LY T770, LG T770, LP T770 LB T773, LV T773, LT T773, LW T773 LH T774 LS E675, LA E675, LY E675, LS T675 LS T776, LA T776, LO T776, LY T776, LB T776 LHGB T686 LT T68C, LB T68C - Hyper Mini TOPLED® LB M676 - Mini TOPLED Santana® LG M470 LS M47K, LO M47K, LY M47K    Source: http://www.osram.convergy.de   LUXEON: - LUMILED® LXK2-PW12-R00, LXK2-PW12-S00, LXK2-PW14-U00, LXK2-PW14-V00 LXK2-PM12-R00, LXK2-PM12-S00, LXK2-PM14-U00 LXK2-PE12-Q00, LXK2-PE12-R00, LXK2-PE12-S00, LXK2-PE14-T00, LXK2-PE14-U00 LXK2-PB12-K00, LXK2-PB12-L00, LXK2-PB12-M00, LXK2-PB14-N00, LXK2-PB14-P00, LXK2-PB14-Q00 LXK2-PR12-L00, LXK2-PR12-M00, LXK2-PR14-Q00, LXK2-PR14-R00 LXK2-PD12-Q00, LXK2-PD12-R00, LXK2-PD12-S00 LXK2-PH12-R00, LXK2-PH12-S00 LXK2-PL12-P00, LXK2-PL12-Q00, LXK2-PL12-R00    Source: www.luxeon.com   KINGBRIGHT:   KA-3528ASYC Source: www.kingbright.com
+Change Component Description : Designator=RX Old Description= New Description=LED   OSRAM: - CHIPLED LG R971, LG N971, LY N971, LG Q971, LY Q971, LO R971, LY R971 LH N974, LH R974 LS Q976, LO Q976, LY Q976 LO Q996 - Hyper CHIPLED LW Q18S LB Q993, LB Q99A, LB R99A - SideLED LS A670, LO A670, LY A670, LG A670, LP A670 LB A673, LV A673, LT A673, LW A673 LH A674 LY A675 LS A676, LA A676, LO A676, LY A676, LW A676 LS A679, LY A679, LG A679 -  Hyper Micro SIDELED® LS Y876, LA Y876, LO Y876, LY Y876 LT Y87S - SmartLED LW L88C, LW L88S LB L89C, LB L89S, LG L890 LS L89K, LO L89K, LY L89K LS L896, LA L896, LO L896, LY L896 - TOPLED LS T670, LO T670, LY T670, LG T670, LP T670 LSG T670, LSP T670, LSY T670, LOP T670, LYG T670 LG T671, LOG T671, LSG T671 LB T673, LV T673, LT T673, LW T673 LH T674 LS T676, LA T676, LO T676, LY T676, LB T676, LH T676, LSB T676, LW T676 LB T67C, LV T67C, LT T67C, LS T67K, LO T67K, LY T67K, LW E67C LS E67B, LA E67B, LO E67B, LY E67B, LB E67C, LV E67C, LT E67C LW T67C LS T679, LY T679, LG T679 LS T770, LO T770, LY T770, LG T770, LP T770 LB T773, LV T773, LT T773, LW T773 LH T774 LS E675, LA E675, LY E675, LS T675 LS T776, LA T776, LO T776, LY T776, LB T776 LHGB T686 LT T68C, LB T68C - Hyper Mini TOPLED® LB M676 - Mini TOPLED Santana® LG M470 LS M47K, LO M47K, LY M47K    Source: http://www.osram.convergy.de   LUXEON: - LUMILED® LXK2-PW12-R00, LXK2-PW12-S00, LXK2-PW14-U00, LXK2-PW14-V00 LXK2-PM12-R00, LXK2-PM12-S00, LXK2-PM14-U00 LXK2-PE12-Q00, LXK2-PE12-R00, LXK2-PE12-S00, LXK2-PE14-T00, LXK2-PE14-U00 LXK2-PB12-K00, LXK2-PB12-L00, LXK2-PB12-M00, LXK2-PB14-N00, LXK2-PB14-P00, LXK2-PB14-Q00 LXK2-PR12-L00, LXK2-PR12-M00, LXK2-PR14-Q00, LXK2-PR14-R00 LXK2-PD12-Q00, LXK2-PD12-R00, LXK2-PD12-S00 LXK2-PH12-R00, LXK2-PH12-S00 LXK2-PL12-P00, LXK2-PL12-Q00, LXK2-PL12-R00    Source: www.luxeon.com   KINGBRIGHT:   KA-3528ASYC Source: www.kingbright.com
+Change Component Description : Designator=TX1 Old Description= New Description=LED   OSRAM: - CHIPLED LG R971, LG N971, LY N971, LG Q971, LY Q971, LO R971, LY R971 LH N974, LH R974 LS Q976, LO Q976, LY Q976 LO Q996 - Hyper CHIPLED LW Q18S LB Q993, LB Q99A, LB R99A - SideLED LS A670, LO A670, LY A670, LG A670, LP A670 LB A673, LV A673, LT A673, LW A673 LH A674 LY A675 LS A676, LA A676, LO A676, LY A676, LW A676 LS A679, LY A679, LG A679 -  Hyper Micro SIDELED® LS Y876, LA Y876, LO Y876, LY Y876 LT Y87S - SmartLED LW L88C, LW L88S LB L89C, LB L89S, LG L890 LS L89K, LO L89K, LY L89K LS L896, LA L896, LO L896, LY L896 - TOPLED LS T670, LO T670, LY T670, LG T670, LP T670 LSG T670, LSP T670, LSY T670, LOP T670, LYG T670 LG T671, LOG T671, LSG T671 LB T673, LV T673, LT T673, LW T673 LH T674 LS T676, LA T676, LO T676, LY T676, LB T676, LH T676, LSB T676, LW T676 LB T67C, LV T67C, LT T67C, LS T67K, LO T67K, LY T67K, LW E67C LS E67B, LA E67B, LO E67B, LY E67B, LB E67C, LV E67C, LT E67C LW T67C LS T679, LY T679, LG T679 LS T770, LO T770, LY T770, LG T770, LP T770 LB T773, LV T773, LT T773, LW T773 LH T774 LS E675, LA E675, LY E675, LS T675 LS T776, LA T776, LO T776, LY T776, LB T776 LHGB T686 LT T68C, LB T68C - Hyper Mini TOPLED® LB M676 - Mini TOPLED Santana® LG M470 LS M47K, LO M47K, LY M47K    Source: http://www.osram.convergy.de   LUXEON: - LUMILED® LXK2-PW12-R00, LXK2-PW12-S00, LXK2-PW14-U00, LXK2-PW14-V00 LXK2-PM12-R00, LXK2-PM12-S00, LXK2-PM14-U00 LXK2-PE12-Q00, LXK2-PE12-R00, LXK2-PE12-S00, LXK2-PE14-T00, LXK2-PE14-U00 LXK2-PB12-K00, LXK2-PB12-L00, LXK2-PB12-M00, LXK2-PB14-N00, LXK2-PB14-P00, LXK2-PB14-Q00 LXK2-PR12-L00, LXK2-PR12-M00, LXK2-PR14-Q00, LXK2-PR14-R00 LXK2-PD12-Q00, LXK2-PD12-R00, LXK2-PD12-S00 LXK2-PH12-R00, LXK2-PH12-S00 LXK2-PL12-P00, LXK2-PL12-Q00, LXK2-PL12-R00    Source: www.luxeon.com   KINGBRIGHT:   KA-3528ASYC Source: www.kingbright.com
+Change Component Description : Designator=TX Old Description= New Description=LED   OSRAM: - CHIPLED LG R971, LG N971, LY N971, LG Q971, LY Q971, LO R971, LY R971 LH N974, LH R974 LS Q976, LO Q976, LY Q976 LO Q996 - Hyper CHIPLED LW Q18S LB Q993, LB Q99A, LB R99A - SideLED LS A670, LO A670, LY A670, LG A670, LP A670 LB A673, LV A673, LT A673, LW A673 LH A674 LY A675 LS A676, LA A676, LO A676, LY A676, LW A676 LS A679, LY A679, LG A679 -  Hyper Micro SIDELED® LS Y876, LA Y876, LO Y876, LY Y876 LT Y87S - SmartLED LW L88C, LW L88S LB L89C, LB L89S, LG L890 LS L89K, LO L89K, LY L89K LS L896, LA L896, LO L896, LY L896 - TOPLED LS T670, LO T670, LY T670, LG T670, LP T670 LSG T670, LSP T670, LSY T670, LOP T670, LYG T670 LG T671, LOG T671, LSG T671 LB T673, LV T673, LT T673, LW T673 LH T674 LS T676, LA T676, LO T676, LY T676, LB T676, LH T676, LSB T676, LW T676 LB T67C, LV T67C, LT T67C, LS T67K, LO T67K, LY T67K, LW E67C LS E67B, LA E67B, LO E67B, LY E67B, LB E67C, LV E67C, LT E67C LW T67C LS T679, LY T679, LG T679 LS T770, LO T770, LY T770, LG T770, LP T770 LB T773, LV T773, LT T773, LW T773 LH T774 LS E675, LA E675, LY E675, LS T675 LS T776, LA T776, LO T776, LY T776, LB T776 LHGB T686 LT T68C, LB T68C - Hyper Mini TOPLED® LB M676 - Mini TOPLED Santana® LG M470 LS M47K, LO M47K, LY M47K    Source: http://www.osram.convergy.de   LUXEON: - LUMILED® LXK2-PW12-R00, LXK2-PW12-S00, LXK2-PW14-U00, LXK2-PW14-V00 LXK2-PM12-R00, LXK2-PM12-S00, LXK2-PM14-U00 LXK2-PE12-Q00, LXK2-PE12-R00, LXK2-PE12-S00, LXK2-PE14-T00, LXK2-PE14-U00 LXK2-PB12-K00, LXK2-PB12-L00, LXK2-PB12-M00, LXK2-PB14-N00, LXK2-PB14-P00, LXK2-PB14-Q00 LXK2-PR12-L00, LXK2-PR12-M00, LXK2-PR14-Q00, LXK2-PR14-R00 LXK2-PD12-Q00, LXK2-PD12-R00, LXK2-PD12-S00 LXK2-PH12-R00, LXK2-PH12-S00 LXK2-PL12-P00, LXK2-PL12-Q00, LXK2-PL12-R00    Source: www.luxeon.com   KINGBRIGHT:   KA-3528ASYC Source: www.kingbright.com
+Change Component Description : Designator=USB1 Old Description= New Description=Micro_USB ADAM-TECH MCR-AB1-S-RA-SMT
+Change Component Description : Designator=T1 Old Description= New Description=MOS FET
+Change Component Description : Designator=T2 Old Description= New Description=MOS FET
+Change Component Description : Designator=T3 Old Description= New Description=MOS FET
+Change Component Description : Designator=Q2 Old Description= New Description=NPN Transistor
+Change Component Description : Designator=ADCH Old Description= New Description=PIN HEADER
+Change Component Description : Designator=ADCL Old Description= New Description=PIN HEADER
+Change Component Description : Designator=COMMUNICATION Old Description= New Description=PIN HEADER
+Change Component Description : Designator=DEBUG Old Description= New Description=PIN HEADER
+Change Component Description : Designator=ICSP1 Old Description= New Description=PIN HEADER
+Change Component Description : Designator=JP5 Old Description= New Description=PIN HEADER
+Change Component Description : Designator=JTAG Old Description= New Description=PIN HEADER
+Change Component Description : Designator=POWER Old Description= New Description=PIN HEADER
+Change Component Description : Designator=PWMH Old Description= New Description=PIN HEADER
+Change Component Description : Designator=PWML Old Description= New Description=PIN HEADER
+Change Component Description : Designator=SPI Old Description= New Description=PIN HEADER
+Change Component Description : Designator=XIO Old Description= New Description=PIN HEADER
+Change Component Description : Designator=C1 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C2 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C3 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C11 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C27 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C29 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C33 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C35 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=C41 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=PC1 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=PC2 Old Description= New Description=POLARIZED CAPACITOR, European symbol
+Change Component Description : Designator=JR1 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R1 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R2 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R3 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R4 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R5 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R6 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R7 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R8 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R9 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R10 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R11 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R12 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R13 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R14 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R15 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R18 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R19 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R20 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R21 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R23 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=R99 Old Description= New Description=RESISTOR, European symbol
+Change Component Description : Designator=IC10 Old Description= New Description=Single Bus Buffer Gate with 3-State Output
+Change Component Description : Designator=L1 Old Description= New Description=SMD EMI Suppression Ferrite Beads - excellent anti-EMI properties - low DCR - impedances till 3000 ohms - rated current up to 6 A
+Change Component Description : Designator=L2 Old Description= New Description=SMD EMI Suppression Ferrite Beads - excellent anti-EMI properties - low DCR - impedances till 3000 ohms - rated current up to 6 A
+Change Component Description : Designator=L3 Old Description= New Description=SMD EMI Suppression Ferrite Beads - excellent anti-EMI properties - low DCR - impedances till 3000 ohms - rated current up to 6 A
+Change Component Description : Designator=L5 Old Description= New Description=SMD EMI Suppression Ferrite Beads - excellent anti-EMI properties - low DCR - impedances till 3000 ohms - rated current up to 6 A
+Change Component Description : Designator=L6 Old Description= New Description=SMD EMI Suppression Ferrite Beads - excellent anti-EMI properties - low DCR - impedances till 3000 ohms - rated current up to 6 A
+Change Component Description : Designator=BR1 Old Description= New Description=Three terminal jumper made from two 0402, 0603, 0805, etc.
+Change Component Description : Designator=RESET Old Description= New Description=TS42 Dongnan Electronics Tact switch VDC 12V - 50mA
+Change Component Description : Designator=Z1 Old Description= New Description=VARISTOR
+Change Component Description : Designator=Z2 Old Description= New Description=VARISTOR
+Change Component Description : Designator=Z3 Old Description= New Description=VARISTOR
+Change Component Description : Designator=Z4 Old Description= New Description=VARISTOR
+Change Component Description : Designator=Z5 Old Description= New Description=VARISTOR
+Change Component Library : Designator=IC10 Old Library= New Library=74xx-little-us.IntLib
+Change Component Library : Designator=JTAG Old Library= New Library=Arduino_Wifi_shield_v018_tG.IntLib
+Change Component Library : Designator=BR1 Old Library= New Library=bibaja.IntLib
+Change Component Library : Designator=D2 Old Library= New Library=diode.IntLib
+Change Component Library : Designator=D3 Old Library= New Library=diode.IntLib
+Change Component Library : Designator=L Old Library= New Library=led.IntLib
+Change Component Library : Designator=ON Old Library= New Library=led.IntLib
+Change Component Library : Designator=RX1 Old Library= New Library=led.IntLib
+Change Component Library : Designator=RX Old Library= New Library=led.IntLib
+Change Component Library : Designator=TX1 Old Library= New Library=led.IntLib
+Change Component Library : Designator=TX Old Library= New Library=led.IntLib
+Change Component Library : Designator=IC1 Old Library= New Library=linear.IntLib
+Change Component Library : Designator=IC4 Old Library= New Library=linear.IntLib
+Change Component Library : Designator=DEBUG Old Library= New Library=pinhead.IntLib
+Change Component Library : Designator=C1 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C2 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C3 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C11 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C27 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C29 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C33 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C35 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=C41 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=F1 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=F2 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=PC1 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=PC2 Old Library= New Library=rcl.IntLib
+Change Component Library : Designator=RN1 Old Library= New Library=resistor-dil.IntLib
+Change Component Library : Designator=RN2 Old Library= New Library=resistor-dil.IntLib
+Change Component Library : Designator=RN3 Old Library= New Library=resistor-dil.IntLib
+Change Component Library : Designator=RN4 Old Library= New Library=resistor-dil.IntLib
+Change Component Library : Designator=RN5 Old Library= New Library=resistor-dil.IntLib
+Change Component Library : Designator=ADCH Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=ADCL Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C4 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C5 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C6 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C7 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C8 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C9 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C10 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C12 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C13 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C14 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C15 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C16 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C17 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C18 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C19 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C20 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C21 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C22 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C23 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C24 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C25 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C26 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C28 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C30 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C31 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C32 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C34 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C36 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C37 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C38 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C39 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C40 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=C42 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=COMMUNICATION Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=D4 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=D5 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=ERASE Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=FID1 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=FID2 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=FID3 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=FID4 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=IC2 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=IC6 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=ICSP1 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=J3 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=JP5 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=JR1 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=L4 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=POWER Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=PWMH Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=PWML Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R1 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R2 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R3 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R4 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R5 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R6 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R7 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R8 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R9 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R10 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R11 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R12 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R13 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R14 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R15 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R18 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R19 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R20 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R21 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R23 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=R99 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=RESET Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=SPI Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=U1 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=USB1 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=X2 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=XIO Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=Y1 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=Y4 Old Library= New Library=SmartPrj.IntLib
+Change Component Library : Designator=Q2 Old Library= New Library=transistor-npn.IntLib
+Change Component Library : Designator=Z1 Old Library= New Library=varistor.IntLib
+Change Component Library : Designator=Z2 Old Library= New Library=varistor.IntLib
+Change Component Library : Designator=Z3 Old Library= New Library=varistor.IntLib
+Change Component Library : Designator=Z4 Old Library= New Library=varistor.IntLib
+Change Component Library : Designator=Z5 Old Library= New Library=varistor.IntLib
+Change Component Library : Designator=L1 Old Library= New Library=wuerth-elektronik.IntLib
+Change Component Library : Designator=L2 Old Library= New Library=wuerth-elektronik.IntLib
+Change Component Library : Designator=L3 Old Library= New Library=wuerth-elektronik.IntLib
+Change Component Library : Designator=L5 Old Library= New Library=wuerth-elektronik.IntLib
+Change Component Library : Designator=L6 Old Library= New Library=wuerth-elektronik.IntLib
+Change Component Library : Designator=T1 Old Library= New Library=zetex.IntLib
+Change Component Library : Designator=T2 Old Library= New Library=zetex.IntLib
+Change Component Library : Designator=T3 Old Library= New Library=zetex.IntLib
+Added Component: Designator=IC?(SOT23-6)
+Added Component: Designator=Y2(RESONATOR_EPSON_FC_145)
+Added Pin To Net: NetName=+5V Pin=IC6-16
+Added Pin To Net: NetName=+5V Pin=ICSP1-4
+Added Pin To Net: NetName=XOUT32 Pin=Y2-P$1
+Added Pin To Net: NetName=XIN32 Pin=Y2-P$2
+Change Net Name : Old Net Name=+5V New Net Name=MOSI2
+Change Net Name : Old Net Name=N$2 New Net Name=NetL_A
+Change Net Name : Old Net Name=N$3 New Net Name=NetON_A
+Change Net Name : Old Net Name=N$4 New Net Name=NetR15_2
+Change Net Name : Old Net Name=N$5 New Net Name=NetR8_2
+Change Net Name : Old Net Name=N$6 New Net Name=NetQ2_1
+Change Net Name : Old Net Name=N$7 New Net Name=NetR4_1
+Change Net Name : Old Net Name=N$10 New Net Name=NetD5_P$2
+Change Net Name : Old Net Name=N$11 New Net Name=NetR5_2
+Change Net Name : Old Net Name=N$12 New Net Name=NetR6_2
+Change Net Name : Old Net Name=N$14 New Net Name=NetR14_2
+Change Net Name : Old Net Name=N$54 New Net Name=NetRN3_1
+Change Net Name : Old Net Name=N$55 New Net Name=NetRN3_2
+Added Pin To Net: NetName=NetU1_39 Pin=U1-39
+Added Net: Name=NetU1_39
+Added Class: Name=Arduino-DUE-V03
+Added Room: Name=Arduino-DUE-V03

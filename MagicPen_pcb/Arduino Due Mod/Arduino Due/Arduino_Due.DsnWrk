@@ -1,0 +1,6 @@
+[ProjectGroup]
+Version=1.0
+[Project1]
+ProjectPath=Arduino_Due.PrjPCB
+[Project2]
+ProjectPath=Arduino_Due_Template\Arduino_Due_Template.PrjPCB
