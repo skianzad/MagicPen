@@ -1,27 +1,46 @@
 import controlP5.*;
 import grafica.*;
+import processing.serial.*;
+import com.dhchoi.CountdownTimer;
+import com.dhchoi.CountdownTimerService;
 
+/* Device block definitions ********************************************************************************************/
+Device            haply_2DoF;
+byte              deviceID                   = 5;
+Board             haply_board;
+DeviceType        degreesOfFreedom;
+boolean           rendering_force                 = false;
+
+
+/* Simulation Speed Parameters ****************************************************************************************/
+final long        SIMULATION_PERIOD          = 1; //ms
+final long        HOUR_IN_MILLIS             = 36000000;
+CountdownTimer    haptic_timer;
+float             dt                        = SIMULATION_PERIOD/1000.0; 
+/**********************************************************************************************************************/
 
 
 ControlP5  cp5;
 DropdownList d1,d2,d3;
 Slider     S1,S2,S3;
-int        NumberPoints=400; //Number of points
+int        NumberPoints=200; //Number of points
+float      xSpace=0.02;          //linespace between each point
 float      Xintital=-2.0;
-float      Delta=1.0;                        //linespace between each point
+//float      Delta=1.0;                        
 float[]    X=new float[NumberPoints];       
 float[]    Y=new float[NumberPoints];
-float      xSpace=0.01;
+
 FloatList  xPoints;
 FloatList  yPoints;
 int        sliderValue = 100;
 int        sliderTicks1 = 100;
 int        sliderTicks2 = 30;
-int        Delaytime=40;
+int        Delaytime=5;
 boolean    flag=false;
 boolean    run=false;
-float      scale=          5;
-int lastStepTime=          0;    
+int        lastStepTime=          0; 
+PVector    Velocity =             new PVector(0,0); 
+float      MaxSpeed=              3;
 // Graph details
 static final float RADIUS=15;      // Size of animated discs in pixels.
 static final int graphSize = 400;  // Width and height of graph in pixels.
@@ -30,7 +49,15 @@ PVector    origin = new PVector(0,0);
 Slider     Speed;
 int        step=0;
 int        stepsPerCycle=100;
+/* generic data for a 2DOF device */
+/* joint space */
+PVector           angles                    = new PVector(0, 0);
+PVector           torques                   = new PVector(0, 0);
 
+/* task space */
+PVector           pos_ee                    = new PVector(0, 0);
+PVector           pos_ee_last               = new PVector(0, 0); 
+PVector           f_ee                      = new PVector(0, 0); 
 
 void setup(){
   size(1000,600,P2D);
@@ -41,8 +68,13 @@ void setup(){
   xPoints=new FloatList();
   yPoints=new FloatList();
   lastStepTime=millis();
-
   
+  haply_board = new Board(this,"COM3", 0); //Put your COM# port here
+
+  /* DEVICE */
+  haply_2DoF = new Device(degreesOfFreedom.HaplyTwoDOF, deviceID, haply_board);
+  haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
+
   d1=cp5.addDropdownList("Graph lists")
        .setPosition(100,100);
        customize(d1); // customize the first list
@@ -131,17 +163,22 @@ void draw() {
           if (step<NumberPoints){
           // Add the point at the end of the array
               lineChart.addPoint(0,calculatePoint(X[step]));
-              if(step>=1){
-                
-              }
-              println(step,X[step],Y[step]);
-              step++;
+              if(step!=NumberPoints-1&step!=0){
+                float DY=tangent(Yvalues(X[step-1]),Yvalues(X[step]),Yvalues(X[step+1]),xSpace);
+                float DX=xSpace;
+                updateVelocity(DX,DY);
+                println(Velocity.x,Velocity.y);
+                step++;
           // Remove the first point
           //lineChart.removePoint(0);
-           }
+              }else{
+                Velocity.set(0,0);
+                step++;
+              }
          // Remove the last point
          // lineChart.removePoint(lineChart.getPointsRef().getNPoints() - 1);
         lastStepTime = millis();
+        }
       }
   }
 }
@@ -212,7 +249,7 @@ float Yvalues(float temPointx){
             temPointy=(temPointx*temPointx);
        break;
        case 2:
-            temPointy=(sin(2*3.4*temPointx));
+            temPointy=(sin(3.4*temPointx));
        break;
        default:
             temPointy=(sin(2*3.4*temPointx));
@@ -233,10 +270,61 @@ public void RUN(){
 public void STOP(){
   Graphing(X,Y);
   run=false;
+  Velocity.set(0,0);
 }
 
 public float tangent(float y_b,float y,float y_a,float h){ 
-  float Ygradiant=0; 
-  Ygradiant=((y_a-y/h)+(y-y_b)/h)/2;
-  return Ygradiant;
+  float Ygradient=0; 
+  Ygradient=(((y_a-y)/h)+((y-y_b)/h))/2;
+  println("gradient",Ygradient);
+  return Ygradient;
+}
+
+
+
+
+
+void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
+  
+
+   
+  if (haply_board.data_available()) {
+    /* GET END-EFFECTOR STATE (TASK SPACE) */
+        
+    angles.set(haply_2DoF.get_device_angles()); 
+    pos_ee.set( haply_2DoF.get_device_position(angles.array()));
+    pos_ee.set(pos_ee.copy().mult(100)); 
+    
+  }
+
+
+ 
+  f_ee.set(Velocity.x,Velocity.y );
+ println(f_ee);
+  //f_ee.div(1000); //
+  haply_2DoF.set_device_torques(f_ee.array());
+  torques.set(haply_2DoF.mechanisms.get_torque());
+  haply_2DoF.device_write_torques();
+  
+
+}
+public void updateVelocity(float Vx,float Vy){
+   float Vscale=Vy;
+    if ((Vscale)>=0){
+        Velocity.set(-MaxSpeed/sqrt(1+Vscale*Vscale),-MaxSpeed/sqrt(1+1/(Vscale*Vscale)));
+      }else{
+        Velocity.set(-MaxSpeed/sqrt(1+Vscale*Vscale),MaxSpeed/sqrt(1+1/(Vscale*Vscale)));
+      }
+
+}
+
+/* Timer control event functions **************************************************************************************/
+
+/**
+ * haptic timer reset
+ */
+void onFinishEvent(CountdownTimer t){
+  println("Resetting timer...");
+  haptic_timer.reset();
+  haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
 }
