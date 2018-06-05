@@ -12,6 +12,7 @@ import de.voidplus.dollar.*;
 import processing.svg.*;
 import processing.pdf.*;
 //import geomerative.*;
+import websockets.*;
 import fisica.*;
 AudioPlayer player;
 Minim minim;//audio context
@@ -125,8 +126,8 @@ ArrayList <PShape> bg;
 PShape tst;
 //RShape grp;
 int NP=1;
-float x=width/2;
-float y=height/2;
+//float x=width/2;
+//float y=height/2;
 boolean flag= true;
 int selected;
 boolean avatar=false;
@@ -134,7 +135,9 @@ boolean avatar=false;
 
 void setup() {
   
-  size(1200, 800);
+  //websocketSetup();
+  
+  size(1200, 800, P2D);
   background(255);
   minim = new Minim(this);
   player = minim.loadFile("fl1.mp3", 2048);
@@ -273,6 +276,7 @@ drawing();
 }
 //one.track
 void mouseDragged(){
+  
   FBody hovered = world.getBody(mouseX, mouseY);
       if ( hovered == null  ) {
   Pointlist.add(new PVector(mouseX, mouseY));
@@ -282,16 +286,18 @@ void mouseDragged(){
   stroke(126);
   tst.vertex(mouseX,mouseY);
       }
-  //if (current_charge != null) {
-  //   current_charge.x_pos = round(current_charge.body.getX());
-  //   current_charge.y_pos = round(current_charge.body.getY());
+      
+  //if (force_vector != null){
+  //  drawVector();
   //}
+      
+      
 }
 void mouseReleased(){
+ //   mouse_b = false;
   if (trFlag==false){
-    FBody hovered = world.getBody(mouseX, mouseY);
+    FBody hovered = world.getBody(mouseX, mouseY); //add the points
      if ( hovered == null  ) {
-    
         if (Pointlist.size()>=40){
           for (int i=1;i<Pointlist.size();i++){
             po=Pointlist.get(i);
@@ -408,7 +414,11 @@ lable=key;
           //if (gind==1){
           //      println("Spring is removed");
           //  }else{
-          world.remove(hovered);
+          
+          if (hovered_charge != null && hovered_charge != current_charge) {
+              charges.remove(hovered_charge);
+              world.remove(hovered);
+          }
             //}
         }
       break;
@@ -418,24 +428,36 @@ lable=key;
         hovered_charge.sign = -hovered_charge.sign;
         if (hovered_charge.sign != 1) {
         hovered_charge.colour = #0070FF; //blue
-        hovered_charge.q = -120;
+        hovered_charge.q = qn;
         }
         else {
           hovered_charge.colour = #FF0000; //red
-          hovered_charge.q = 120;
+          hovered_charge.q = qp;
         }
       break;
-      case (UP): //increase q of charge (and size of charge)
+  }
+      switch(keyCode) {
+      case (UP): //increase q of hovered charge (and size of charge)
+
+        if (hovered_charge != null && hovered_charge.q == 1) { //for a positive charge, increase q
+              println("UP");
+          //hovered_charge.q = 50 + hovered_charge.q;
+         // hovered_charge.c_radius = 50 + hovered_charge.c_radius;
+          println("hovered_charge: ", hovered_charge);
+          println("hov charge: q = ", hovered_charge.q, ", c_radius = ", hovered_charge.c_radius);
+          //hovered_charge.inner_radius += 10; 
+        }
       break;
-      case (DOWN): //decrease q of charge (and size of charge)
+      case (DOWN): //decrease q of hovered charge (and size of charge)
       break;
       
-    default: 
-    lable=key;
-    trFlag=false;
+      
+    //default: 
+    //lable=key;
+    //trFlag=false;
 
-    //trFlag=true;
-    break;
+    ////trFlag=true;
+    //break;
   }
 } 
 
@@ -570,6 +592,8 @@ void contactEnded(FContact c) {
 
 void drawing() {
   
+  //println("drawing() called");
+  
   //btnPanel();
     onHover();
   
@@ -614,9 +638,9 @@ void drawing() {
   
   ArrayList<Particle> temp = new ArrayList<Particle>(); 
   
-  //stroke(#9cadb5);
+  stroke(#9cadb5);
   //stroke(0,128);
-  stroke(0);
+  stroke(150);
   for (Particle p : particles) {
      if(!stuck(p.loc)){
        p.run();
@@ -629,7 +653,7 @@ void drawing() {
   for (ElectricCharge e : charges) { //update the x_position and y_pos of each charge that's not the current charge so that it is where its body is
     if (!e.equals(current_charge)) {
        e.x_pos = round(e.body.getX());
-       println("e.body: ", round(e.body.getX()), ", ", round(e.body.getY()));
+
        e.y_pos = round(e.body.getY());
     }
   }
@@ -641,14 +665,27 @@ void drawing() {
       stroke(#000000);
       noStroke();
       ellipse(e.x_pos, e.y_pos, e.c_radius - i, e.c_radius - i);
+      
+      if (e.equals(current_charge)) { //a circle in the centre indicates that the charge is the current charge
+        stroke(#000000);
+        point(current_charge.x_pos, current_charge.y_pos);
+        pushMatrix();
+        translate(current_charge.x_pos,current_charge.y_pos);
+        ellipse(0, 0, 10, 10);
+        popMatrix();
+      }
 
     }
   }
   
-  if (force_vector != null){
+  //if (force_vector != null){
+    //println("drawVector() called by drawing()");
     drawVector();
-  }
-  
+  //}
+    if (current_charge != null) {
+    println("curr charge: ", current_charge.x_pos, ", ", current_charge.y_pos);
+    }
+    println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", ", pos_ee.y*pixelsPerMeter);
  // graph.beginDraw();
   //graph.drawBox();
 
@@ -730,6 +767,7 @@ boolean inRect(float x, float y, float w, float h) {
 }
 
 void mousePressed() {
+ // mouse_b = true;
   mouse_ctrl = true;
   
   force_vector = null;
@@ -739,10 +777,13 @@ void mousePressed() {
   else if(selected_obj == 2){
     draw_sign = 0;
   }
-  else if(selected_obj == 3){
-    //current_charge = hovered_charge;
+  else if(selected_obj == 3 && mouseButton == RIGHT){
     
-
+    current_charge = hovered_charge;
+    //change the offset here
+    offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter);
+    //offset.set((pos_ee.x)*pixelsPerMeter, -(pos_ee.y)*pixelsPerMeter);
+    
 
   }
   else if (charges.size() < 5){
@@ -900,8 +941,10 @@ void computeTotalForce(ArrayList<PVector> vectors){
 }
 
 void drawVector() {
-  x2=(force_vector.x*10);
-  y2=(force_vector.y*10);
+  if (current_charge != null) {
+  if (force_vector != null) {
+  x2=(force_vector.x*30);
+  y2=(force_vector.y*30);
 
   stroke(#000000);
   line(current_charge.x_pos, current_charge.y_pos, current_charge.x_pos+x2,current_charge.y_pos+y2);
@@ -909,9 +952,11 @@ void drawVector() {
   translate(current_charge.x_pos+x2,current_charge.y_pos+y2);
   float a = atan2(-x2, y2);
   rotate(a);
-  line(0, 0, -10, -10);
-  line(0, 0, 10, -10);
+    line(0, 0, -10, -10);
+    line(0, 0, 10, -10);
   popMatrix();
+  }
+  }
 }
 
 void createGraph(){
@@ -990,23 +1035,28 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){    //this gets cal
     //update the position of the FCircle of the current charge to match the current charge's position
     
     //current_charge.body.setPosition(current_charge.x_pos, current_charge.y_pos);
-    if (current_charge != null) {
+    if (current_charge != null && current_charge.body != null) {
        current_charge.body.setPosition(current_charge.x_pos, current_charge.y_pos);
     }
     
-
+  //    if (current_charge != null && force_vector != null){
+  //  drawVector();
+  //}
   
   
 //f_ee.set(-10,-10);
       haply_2DoF.set_device_torques(f_ee.array());
     torques.set(haply_2DoF.mechanisms.get_torque());
     haply_2DoF.device_write_torques();
+   
 }
 
 PVector device2graphics(PVector deviceFrame){
    
   return deviceFrame.set(-deviceFrame.x, deviceFrame.y);  
+  
 }
+
 /**
  * haptic timer reset
  */
@@ -1015,3 +1065,91 @@ void onFinishEvent(CountdownTimer t){
   haptic_timer.reset();
   haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
 }
+
+/* Connection to the smartpen ***************** Copy paste this into the bottom of a file. Be sure to write "import websockets.*;" at the top **********/
+/* HOW TO USE: open the Sample App in Visual studio. Deploy the app. Run this sketch. Then run the Sample App on Local Machine */
+/* other instructions: set mouse_b to true when mouse is pressed, false when released. comment out mouseDragged. call websocketSetup in setup.*/
+
+//// Fields //
+
+//WebsocketServer ws;
+//int xFakeMouse;
+//int yFakeMouse;
+
+
+//// Methods //
+
+//void webSocketServerEvent(String msg){
+//  println(msg);
+  
+//if (!msg.equals("pen-up") && mousePressed) {
+  
+//   String[] parts = msg.split(" "); //parsing the message
+
+//   xFakeMouse = round(Float.parseFloat(parts[0])*10);
+//   yFakeMouse = round(Float.parseFloat(parts[1])*10);
+   
+//   PVector fakemouse = new PVector(xFakeMouse,yFakeMouse); //stroke of fake mouse
+   
+//   // ADD THE BODY OF MOUSEDRAGGED HERE, replacing mouseX and mouseY with the fakemouse equivalents. COMMENT OUT MOUSEDRAGGED //
+
+//        FBody hovered = world.getBody(xFakeMouse, yFakeMouse);
+//      if ( hovered == null  ) {
+//  Pointlist.add(fakemouse);
+//  Pointlists.add(fakemouse);
+//  xPoints.append(str(xFakeMouse));
+//  xPoints.append(str(yFakeMouse));
+//  stroke(126);
+//  tst.vertex(xFakeMouse, yFakeMouse);
+//      }
+//  }
+//  else {
+//    mouseReleased();
+ 
+//}
+//}
+
+///**
+// * Ends the pen/mouse stroke
+// */
+ 
+//public void endStroke() {
+// if (tst != null && tst.getVertexCount() > 0) { //check for if tst is null
+      
+//  PVector v1=new PVector (0,0);
+//  PVector v2=new PVector (0,0);
+  
+//  PVector v = new PVector (0, 0);
+//  v = (tst.getVertex(0));
+  
+      
+//  for (int i=1;i<tst.getVertexCount();i=i+1){ //this is the part that adds the lines to the world
+//    v1=(tst.getVertex(i));
+//    if (PVector.dist(v, v1) > C ) {
+//       FLine myLine = new FLine(v1.x/40,v1.y/40, v.x/40,v.y/40);
+//       world.add(myLine);
+//       v = v1;
+//    }
+//    }
+    
+//   tst.endShape(); //tst is a placeholder thing for a shape
+//  }
+   
+//   tst=createShape();
+//   tst.beginShape();
+//}
+
+//public boolean contains(ArrayList<PVector> list, PVector v) {
+//  for (PVector p : list) {
+//    if ((p.x == v.x) && (p.y == v.y)) {
+//       return true;
+//    }
+//  }
+//  return false;
+//}
+
+//public void websocketSetup() { // Call this in setup //
+//    //Initiates the websocket server, and listens for incoming connections on ws://localhost:8025/john
+//  ws= new WebsocketServer(this, 8080,"/WebsocketHttpListenerDemo"); //ws://Localhost:8080/WebsocketHttpListenerDemo
+//  Pointlist = new ArrayList();
+//}
