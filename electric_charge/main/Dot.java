@@ -6,7 +6,8 @@ public class Dot {
   int y; //y-pos in screen coords
   boolean offScreen;
   static final int scaling_factor = 1; 
-  boolean type; //type is true if it the tau represented is tau1, false if tau2. Reminder: tau1 is horizontal force, tau2 is vertical force.
+  boolean type; //type is true if it the tau represented is tau1, false if tau2. Reminder: tau1 is horizontal force, tau2 is vertical force. 
+  //bottom graph is vertical torque (type is false) side graph is type true
   
   public Dot(int x, int y, boolean type) {
     this.x = x;

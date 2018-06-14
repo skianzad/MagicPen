@@ -666,9 +666,11 @@ public void graphDraw() {
 }
 
 public void drawDot(Dot d, color c) {
+  if (d.type && d.x <= graphwidth || !d.type && d.y >= height-graphwidth) {
     stroke(c);
     point(d.x, d.y);
     stroke(0);
+  }
 }
 
 public void addText() {
