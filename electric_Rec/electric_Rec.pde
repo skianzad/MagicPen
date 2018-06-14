@@ -366,11 +366,11 @@ lable=key;
          String ps=(row.getString("X/Y"));
          String la=row.getString("Lable");
          
-         //println("Value is",int(la.charAt(0)));
+         println("la: ", la);
            if ((la.charAt(0) =='N')||( la.charAt(0) ==32)){
                table.removeRow(i);
                saveTable(table,"table.csv"); 
-           }else{   
+           } else{   
              String[] pts=split(ps,',');
              int[]points=int(pts);
                if (points.length<=5){
@@ -423,8 +423,10 @@ lable=key;
         }
       break;
       case (TAB):         // this changes the colour of the hovered charge
-        println("hovered charge pos: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
+        //println("hovered charge pos: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
         println("mouse: ", mouseX, ", ", mouseY);
+        if (hovered_charge != null) {
+        
         hovered_charge.sign = -hovered_charge.sign;
         if (hovered_charge.sign != 1) {
         hovered_charge.colour = #0070FF; //blue
@@ -433,6 +435,7 @@ lable=key;
         else {
           hovered_charge.colour = #FF0000; //red
           hovered_charge.q = qp;
+        }
         }
       break;
   }
@@ -684,8 +687,14 @@ void drawing() {
   //}
     if (current_charge != null) {
     println("curr charge: ", current_charge.x_pos, ", ", current_charge.y_pos);
+    println("curr charge body: ", current_charge.body.getX(), ", ", current_charge.body.getY());
     }
-    println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", ", pos_ee.y*pixelsPerMeter);
+    
+    if (hovered_charge != null) {
+    println("hov charge: ", hovered_charge.x_pos, ", ", hovered_charge.x_pos);
+    println("hov charge body: ", hovered_charge.body.getX(), ", ", hovered_charge.body.getY());
+    }
+    //println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", ", pos_ee.y*pixelsPerMeter);
  // graph.beginDraw();
   //graph.drawBox();
 
@@ -994,6 +1003,8 @@ boolean stuck(PVector position) {
 
   /* Timer control event functions **************************************************************************************/
 void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){    //this gets called when the haptic device moves
+
+  //println("onTick called");
   
   /* check if new data is available from physical device */
   if (haply_board.data_available()) {
@@ -1045,7 +1056,7 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){    //this gets cal
   
   
 //f_ee.set(-10,-10);
-      haply_2DoF.set_device_torques(f_ee.array());
+    haply_2DoF.set_device_torques(f_ee.array());
     torques.set(haply_2DoF.mechanisms.get_torque());
     haply_2DoF.device_write_torques();
    

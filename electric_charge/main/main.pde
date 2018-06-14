@@ -41,6 +41,7 @@ PVector           device_origin        = new PVector (0, 0) ;
 PVector           pos_ee               = new PVector(0, 0); // intrinsic position of the haptic device
 PVector           lastpos_ee           = new PVector(0, 0);
 PVector           f_ee                 = new PVector(0, 0); 
+PVector delta_pos = new PVector(0, 0);
 
 
 int qp=120, qn=-120;
@@ -83,6 +84,8 @@ ArrayList <ElectricCharge> charges = new ArrayList <ElectricCharge> ();
 
 void setup() {
   minim = new Minim(this);
+  
+  lastpos_ee = new PVector(0, 0);
 
   player = minim.loadFile("fl1.mp3", 2048);
   player.loop();
@@ -116,6 +119,18 @@ void setup() {
 
 void draw() {
   
+  if (current_charge != null) {
+     println("curr position: ", current_charge.x_pos, ", ", current_charge.y_pos);
+  }
+  else { println("curr charge is null"); }
+  if (hovered_charge != null) {
+  println("hov position: ", hovered_charge.x_pos, ", ", hovered_charge.y_pos);
+  }
+  else {println("hov charge is null"); }
+  
+  println("offset: ", offset);
+  println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", ", pos_ee.y*pixelsPerMeter);
+  
   btnPanel();
   
   //Drawing the fluid dynamics
@@ -140,14 +155,14 @@ void draw() {
     particles.add(p); 
   }
 
-  if (frameCount % 0.5 == 0) {
+  if (frameCount % 1 == 0) {
     noStroke();
     //fill(#3c4677, 10);
     fill(255,8);
     rect(0, 0, width, height);
    }
    
-     if (frameCount % 50 == 0) {
+     if (frameCount % 20 == 0) {
 
     ArrayList<Particle> temp = new ArrayList<Particle>();
    for (int i = particles.size()/2; i < particles.size(); i++){
@@ -176,6 +191,10 @@ void draw() {
       fill(e.colour, i/10); //change to color of its sign
       stroke(#000000);
       noStroke();
+      if (e.x_pos < 0 || e.x_pos > width || e.y_pos < 0 || e.y_pos > height) { //if the charge happens to be off the screen at any time
+         e.x_pos = e.x_pos % width; //then put it back somewhere on the screen.
+         e.y_pos = e.y_pos % height;
+      }
       ellipse(e.x_pos, e.y_pos, e.c_radius - i, e.c_radius - i);
     }
   }
@@ -233,23 +252,28 @@ void btnPanel(){
 //1) change the current object under control
 //2) highlight the selected object
 void onHover(){
-  selected_obj = 0;
+  selected_obj = 0; // 0 means not hovering over anything important
   
   if( inCircle(pos_btn.x, pos_btn.y, mouseX, mouseY, btn_width) ) {
-     selected_obj = 1; 
+     selected_obj = 1; //hovering over a button
   }
   
   if( inCircle(neg_btn.x, neg_btn.y, mouseX, mouseY, btn_width) ) {
-     selected_obj = 2; 
+     selected_obj = 2; //hovering over a button
   }
+  
+  boolean found = false; // is false if there is no object currently hovered over. otherwise true
   
   for (ElectricCharge c : charges) {
     if( inCircle(c.x_pos, c.y_pos, mouseX, mouseY, c.c_radius) ) {
-      selected_obj = 3;
+      found = true;
+      selected_obj = 3; //hovering over a charge
       hovered_charge = c;
       break;
     }
   }
+  if (!found) { hovered_charge = null; }
+  
 }
 
 boolean inCircle(float x1, float y1, float x2, float y2, float diameter) {
@@ -279,11 +303,13 @@ void mousePressed() {
     draw_sign = 0;
   }
   else if(selected_obj == 3){ // clicking selection of charge
-    current_charge = hovered_charge;
-    offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter); //whenever you change the current charge, you need to change the offset too
+    if (hovered_charge != null) { // if you are hovering over an actual charge
+       current_charge = hovered_charge;
+       offset.set(current_charge.x_pos -(pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter); //whenever you change the current charge, you need to change the offset too
+    }
     //assign this charge to Haply
   }
-  else if (charges.size() < 5){
+  else if (charges.size() < 7){
     
     if (draw_sign == 1 ){
       addCharge(1);
@@ -295,22 +321,25 @@ void mousePressed() {
     }
   } 
 
+  
 }
 
 void addCharge(int sign){
-   if (haply_board.data_available()) {
-        //  /* GET END-EFFECTOR STATE (TASK SPACE) */
+   //if (haply_board.data_available()) {
+   //     //  /* GET END-EFFECTOR STATE (TASK SPACE) */
         
-        angles.set(haply_2DoF.get_device_angles());
-        pos_ee.set( haply_2DoF.get_device_position(angles.array()));
-   }
-  offset.set(mouseX + (pos_ee.x)*pixelsPerMeter, mouseY -(pos_ee.y)*pixelsPerMeter);
+   //     angles.set(haply_2DoF.get_device_angles());
+   //     pos_ee.set( haply_2DoF.get_device_position(angles.array()));
+   //}
+
   //println("Offset ",offset);
 
   ElectricCharge c = new ElectricCharge(10, 100, mouseX, mouseY, sign);
+  current_charge = c;
+  offset.set(current_charge.x_pos - (pos_ee.x)*pixelsPerMeter, current_charge.y_pos -(pos_ee.y)*pixelsPerMeter);
   charges.add(c); 
 
-  current_charge = c;
+
   ArrayList<PVector> v_list = computeEachForce();
   computeTotalForce(v_list);
 }
@@ -441,6 +470,19 @@ boolean stuck(PVector position) {
   /* Timer control event functions **************************************************************************************/
 void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
   
+
+  
+  //delta_pos = (pos_ee.sub(lastpos_ee)).mult(pixelsPerMeter);
+  
+  //println("delta_pos: ", delta_pos);
+  
+  //if (current_charge != null) {
+  //  current_charge.x_pos += delta_pos.x;
+  //  current_charge.y_pos += delta_pos.y;
+  //}
+  
+  
+  
   /* check if new data is available from physical device */
   if (haply_board.data_available()) {
    
@@ -457,7 +499,6 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     }
     
     if (mouse_ctrl == false){
-      PVector tempPos = new PVector(pos_ee.x, pos_ee.y);
     pos_ee.set( haply_2DoF.get_device_position(angles.array()));
     pos_ee.set(device2graphics(pos_ee));    
     
@@ -486,6 +527,8 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
       haply_2DoF.set_device_torques(f_ee.array());
     torques.set(haply_2DoF.mechanisms.get_torque());
     haply_2DoF.device_write_torques();
+    
+    lastpos_ee = pos_ee;
 }
 PVector device2graphics(PVector deviceFrame){
    

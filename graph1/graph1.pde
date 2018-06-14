@@ -411,6 +411,7 @@ public void Graphing(float[] X,float[] Y)
     lineChart.activateReset();
 
 }
+// initializes the x-values
 void Xvalues(){
   X[0]=Xintital;
   for(int i=1;i<NumberPoints;i++){
