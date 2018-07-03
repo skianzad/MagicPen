@@ -246,7 +246,7 @@ void mouseReleased(){
   PVector v1=new PVector (0,0);     // location of first vertex
   PVector v2=new PVector (0,0);     // location of second vertex
   FCircle e2 = new FCircle(0.175);  // Make a circle body to select the line in order to delete it
-  v1=(tst.getVertex(0));
+
   e2.setPosition(v1.x/40,v1.y/40); 
   e2.setStatic(true);
   e2.setFill(random(0),random(0),random(0));

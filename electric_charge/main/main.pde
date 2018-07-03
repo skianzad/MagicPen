@@ -45,6 +45,7 @@ PVector delta_pos = new PVector(0, 0);
 
 
 int qp=120, qn=-120;
+PVector actualForce = new PVector(0, 0); //actual force acting on the avatar charge
 float[] F={0,0};
 float K=8.99;
 float Dx,Dy,DD,F1x,F1y,FT;
@@ -98,13 +99,13 @@ void setup() {
   strokeWeight(0.75);
   frameRate(baseFrameRate);
   createGraph();
-   PVector offset=new PVector(0,0);
+  PVector offset=new PVector(0,0);
   
   
   /* Initialization of the Board, Device, and Device Components */
   
   /* BOARD */
-     haply_board =new Board(this, "COM4", 0); //Put your COM# port here
+     haply_board =new Board(this, "COM3", 0); //Put your COM# port here
 
   /* DEVICE */
   haply_2DoF = new Device(device_type.HaplyTwoDOF, deviceID, haply_board);
@@ -191,14 +192,17 @@ void draw() {
       fill(e.colour, i/10); //change to color of its sign
       stroke(#000000);
       noStroke();
-      if (e.x_pos < 0 || e.x_pos > width || e.y_pos < 0 || e.y_pos > height) { //if the charge happens to be off the screen at any time
-         e.x_pos = e.x_pos % width; //then put it back somewhere on the screen.
-         e.y_pos = e.y_pos % height;
-      }
       ellipse(e.x_pos, e.y_pos, e.c_radius - i, e.c_radius - i);
+
     }
   }
   
+  if (current_charge != null) {
+          fill(0, 102, 153);
+      text(actualForce.mag() + " N", current_charge.x_pos, current_charge.y_pos-10);
+  }
+
+      
   if (force_vector != null){
     drawVector();
   }
@@ -362,6 +366,8 @@ ArrayList<PVector> computeEachForce() {
        float dy = c.y_pos - current_charge.y_pos;
        float dd = sqrt( dx*dx + dy*dy);
        
+       println("dd: ", dd);
+       
        float ft = K* current_charge.q * c.q/(dd*dd); // current_charge.q * c.q = qp*qn    
        PVector vector = new PVector(ft*dx/dd, ft*dy/dd);
        vectors.add(vector);
@@ -390,6 +396,8 @@ void computeTotalForce(ArrayList<PVector> vectors){
        // player.setGain(-60);
        //}
        //else{
+       actualForce = new PVector(fx_total, fy_total);  
+       
            f_ee.x=-fx_total/25;
            f_ee.y=fy_total/25;
            //println(abs(-fx_total),abs(fy_total));
@@ -509,6 +517,15 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     current_charge.x_pos =  int((pos_ee.x)*pixelsPerMeter)+int(offset.x); //which coord system are these in?
     current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter)+int(offset.y);
     
+      if (current_charge != null && (current_charge.x_pos < 0 || current_charge.x_pos > width || current_charge.y_pos < 0 || current_charge.y_pos > height)) { //if the charge happens to be off the screen at any time
+       //  println("
+         current_charge.x_pos = (current_charge.x_pos + 10*width) % width; //then put it back somewhere on the screen.
+         current_charge.y_pos = (current_charge.y_pos + 10*height) % height;
+         //offset.set(offset.x % width, offset.y % height);
+         println("curr charge position: ", current_charge.x_pos, ", ", current_charge.y_pos);
+      }
+      
+      
     //println("current charge position: ", current_charge.x_pos, ", " ,current_charge.y_pos);
     //println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", " ,pos_ee.y*pixelsPerMeter);
 

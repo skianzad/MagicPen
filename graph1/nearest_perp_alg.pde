@@ -58,9 +58,9 @@ public PVector closestPoint(HashSet<PVector> points, PVector pen) {
   float dist;
   
   for (PVector v : points) {
-    if (dist(v, pen)) < dist) {
+   // if (dist(v, pen)) < dist) {
       
-    }
+   // }
   }
   return null;
   

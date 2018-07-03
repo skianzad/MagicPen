@@ -12,7 +12,7 @@ public class HaplyTwoDoFMech extends Mechanisms{
 	
 	private float 	pi = 3.14159265359f;
 	private float 	J11, J12, J21, J22; //Jacobian 
-  private float   gain = 0.1f; 
+  private float   gain = 2.0f; 
 	
 	public HaplyTwoDoFMech(){
 		this.l = 0.05f; //m
@@ -46,8 +46,8 @@ public class HaplyTwoDoFMech extends Mechanisms{
 		
 	  //y_E = (-b+(float)sqrt(Delta))/(2*a);
     //x_E = M*y_E+N;  
-    y_E=th1/20;
-    x_E=th2/20; 
+    y_E=th1/15;
+    x_E=th2/15; 
     
     float phi1 = (float)acos((x_E-l*c1)/L);
     float phi2 = (float)acos((x_E-d-l*c2)/L);
@@ -61,16 +61,16 @@ public class HaplyTwoDoFMech extends Mechanisms{
   }
   
   public void torqueCalculation(float[] force){
-    f_x = force[0]/100;
-    f_y = force[1]/100;
+    f_x = force[0];
+    f_y = force[1];
     
     //tau1 = J11*f_x + J12*f_y;
     //tau2 = J21*f_x + J22*f_y;
       tau1 = f_x ;
       tau2 = f_y;
 		
-		tau1 =tau1*gain*400;
-    tau2 = -tau2*gain*400;
+		tau1 = tau1*gain;
+    tau2 = -tau2*gain;
 		
 	}
 	
