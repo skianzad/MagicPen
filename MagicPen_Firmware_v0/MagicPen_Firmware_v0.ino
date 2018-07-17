@@ -60,7 +60,7 @@ int  		ledPin = 13;
 void setup() {
 	pinMode(ledPin, OUTPUT);
 	digitalWrite(ledPin, LOW);
-	SerialUSB.begin(0);
+	SerialUSB.begin(115200);
  pinMode(Lft, INPUT_PULLUP);
 attachInterrupt(digitalPinToInterrupt(Lft), Right, CHANGE);
 pinMode(Rht,INPUT_PULLUP);

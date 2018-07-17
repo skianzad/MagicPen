@@ -130,7 +130,7 @@ void draw() {
   else {println("hov charge is null"); }
   
   println("offset: ", offset);
-  println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", ", pos_ee.y*pixelsPerMeter);
+  //println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", ", pos_ee.y*pixelsPerMeter);
   
   btnPanel();
   
@@ -377,7 +377,7 @@ ArrayList<PVector> computeEachForce() {
   return vectors;
 }
 
-void computeTotalForce(ArrayList<PVector> vectors){
+void computeTotalForce(ArrayList<PVector> vectors){ //sets f_ee to what it should be
   float fx_total = 0;
   float fy_total = 0;
   
@@ -478,18 +478,6 @@ boolean stuck(PVector position) {
   /* Timer control event functions **************************************************************************************/
 void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
   
-
-  
-  //delta_pos = (pos_ee.sub(lastpos_ee)).mult(pixelsPerMeter);
-  
-  //println("delta_pos: ", delta_pos);
-  
-  //if (current_charge != null) {
-  //  current_charge.x_pos += delta_pos.x;
-  //  current_charge.y_pos += delta_pos.y;
-  //}
-  
-  
   
   /* check if new data is available from physical device */
   if (haply_board.data_available()) {
@@ -498,9 +486,10 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     
 
     /* GET END-EFFECTOR POSITION (TASK SPACE) */
-    angles.set(haply_2DoF.get_device_angles()); 
     
-    if (angles.x == tempAngle.x && angles.y == tempAngle.y) {
+    angles.set(haply_2DoF.get_device_angles()); //update device angles
+    
+    if (angles.x == tempAngle.x && angles.y == tempAngle.y) { //for dragging the body
       mouse_ctrl = true;
     } else {
         mouse_ctrl = false;
@@ -510,23 +499,18 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
     pos_ee.set( haply_2DoF.get_device_position(angles.array()));
     pos_ee.set(device2graphics(pos_ee));    
     
-    //println(pos_ee.x*pixelsPerMeter,pos_ee.y*pixelsPerMeter);
-    //current_charge.x_pos=int((pos_ee.x-lastpos_ee.x)*pixelsPerMeter+400);
-    //current_charge.y_pos=int((pos_ee.y-lastpos_ee.y)*pixelsPerMeter-200);
-    
     current_charge.x_pos =  int((pos_ee.x)*pixelsPerMeter)+int(offset.x); //which coord system are these in?
     current_charge.y_pos = int((pos_ee.y )*pixelsPerMeter)+int(offset.y);
     
-      if (current_charge != null && (current_charge.x_pos < 0 || current_charge.x_pos > width || current_charge.y_pos < 0 || current_charge.y_pos > height)) { //if the charge happens to be off the screen at any time
-       //  println("
+      if (current_charge != null && (current_charge.x_pos < 0 || current_charge.x_pos > width || current_charge.y_pos < 0 || current_charge.y_pos > height)) { 
+        //^if the charge happens to be off the screen at any time
+
          current_charge.x_pos = (current_charge.x_pos + 10*width) % width; //then put it back somewhere on the screen.
          current_charge.y_pos = (current_charge.y_pos + 10*height) % height;
          //offset.set(offset.x % width, offset.y % height);
          println("curr charge position: ", current_charge.x_pos, ", ", current_charge.y_pos);
       }
       
-      
-    //println("current charge position: ", current_charge.x_pos, ", " ,current_charge.y_pos);
     //println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", " ,pos_ee.y*pixelsPerMeter);
 
         ArrayList<PVector> v_list = computeEachForce();
@@ -539,11 +523,11 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
    }
 
   }
-  
-//f_ee.set(-10,-10);
-      haply_2DoF.set_device_torques(f_ee.array());
+
+    haply_2DoF.set_device_torques(f_ee.array());
     torques.set(haply_2DoF.mechanisms.get_torque());
     haply_2DoF.device_write_torques();
+    println("pos_ee: ", pos_ee.x*pixelsPerMeter, ", " ,pos_ee.y*pixelsPerMeter);
     
     lastpos_ee = pos_ee;
 }
@@ -702,84 +686,3 @@ public void addText() {
   text("Vertical Torque", height - 30, height-8*graphwidth/10);
   fill(0);
 }
-
-/* Connection to the smartpen ***************** Copy paste this into the bottom of a file. Be sure to write "import websockets.*;" at the top **********/
-/* HOW TO USE: open the Sample App in Visual studio. Deploy the app. Run this sketch. Then run the Sample App on Local Machine */
-
-// Fields //
-
-WebsocketServer ws;
-int xFakeMouse;
-int yFakeMouse;
-ArrayList<PVector> Pointlist;
-
-// Methods //
-
-//void webSocketServerEvent(String msg){
-  
-//if (!msg.equals("pen-up") && mousePressed) {
-  
-//   String[] parts = msg.split(" ");
-
-//   xFakeMouse = round(Float.parseFloat(parts[0])*10)+graphwidth; // 004
-//   yFakeMouse = round(Float.parseFloat(parts[1])*10); // 034556
-   
-//   PVector fakemouse = new PVector(xFakeMouse,yFakeMouse);
- 
-//      //xPoints.append(str(yFakeMouse));
-//      if (!contains(Pointlist, fakemouse)) {
-//         stroke(126);
-//         tst.vertex(xFakeMouse,yFakeMouse);
-//     }
-
-//  }
-//  else {
-//    endStroke();
- 
-//}
-//}
-
-///**
-// * Ends the pen/mouse stroke
-// */
- 
-//public void endStroke() {
-// if (tst != null && tst.getVertexCount() > 0) { //check for if tst is null
-      
-//  PVector v1=new PVector (0,0);
-//  PVector v2=new PVector (0,0);
-  
-//  PVector v = new PVector (0, 0);
-//  v = (tst.getVertex(0));
-  
-      
-//  for (int i=1;i<tst.getVertexCount();i=i+1){ //this is the part that adds the lines to the world
-//    v1=(tst.getVertex(i));
-//    if (PVector.dist(v, v1) > C ) {
-//       FLine myLine = new FLine(v1.x/40,v1.y/40, v.x/40,v.y/40);
-//       world.add(myLine);
-//       v = v1;
-//    }
-//    }
-    
-//   tst.endShape(); //tst is a placeholder thing for a shape
-//  }
-   
-//   tst=createShape();
-//   tst.beginShape();
-//}
-
-//public boolean contains(ArrayList<PVector> list, PVector v) {
-//  for (PVector p : list) {
-//    if ((p.x == v.x) && (p.y == v.y)) {
-//       return true;
-//    }
-//  }
-//  return false;
-//}
-
-//public void websocketSetup() { // Call this in setup //
-//    //Initiates the websocket server, and listens for incoming connections on ws://localhost:8025/john
-//  ws= new WebsocketServer(this, 8080,"/WebsocketHttpListenerDemo"); //ws://Localhost:8080/WebsocketHttpListenerDemo
-//  Pointlist = new ArrayList();
-//}
