@@ -594,7 +594,8 @@ void forceCommand(){
  if (run==true){ //if the pen is driving your hand
    f_ee.set(10*(Velocity.x-penVelocity.x),10*(Velocity.y-penVelocity.y));
   }else if(run==false && doneDriving){ //doneDriving means the driving portion is done. it is set to true as soon as the run is set to true.
-                 
+           
+                 /*
    //f_ee.set(0,deltaPosition.y*(-10)-penVelocity.y*(.02)); //spring model
    //println("penVelocity",deltaPosition.y);
    if (curr_fn != null && !curr_fn.equals("")) {
@@ -609,7 +610,7 @@ void forceCommand(){
    f_ee.set(-force.x, -force.y);
    //f_ee.set(0, 0);
    //println("computed force: ", force);
-   
+   */
    }
    else {f_ee.set(0, 0); }
   

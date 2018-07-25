@@ -165,7 +165,7 @@ void setup(){
   lastStepTime=millis();
   doneDriving = false;
   
-  pos_ee_initial = pos_ee;
+  
   
   initialPosition = new PVector(0, 0); //set initial position
   
@@ -303,6 +303,9 @@ void customize(DropdownList d1) {
    d1.setColorActive(color(179, 114, 119));
    d1.setHeight((button_height+15)*2);
    d1.setScrollSensitivity(500.0f); //lower probably means less sensitive, but I can't be sure
+   
+   
+   pos_ee_initial.set(pos_ee.x, pos_ee.y);
 }
 
 void controlEvent(ControlEvent theEvent) { //called when a textbox is changed and enter is pressed
@@ -396,6 +399,7 @@ public void RUN(){ //called when the "run" button is pressed
   }
   
   updatePDpts();
+  pos_ee_initial = pos_ee.copy();
 }
 
 public void STOP(){ //called when "stop" button is pressed
@@ -404,6 +408,7 @@ public void STOP(){ //called when "stop" button is pressed
   Velocity.set(0,0);
   //result = "";
   state = 0;
+  pos_ee_initial = pos_ee.copy();
 }
 
 
@@ -454,7 +459,6 @@ void draw() {
   lineChart.getLayer("surface").setPointColor(color(100, 100, 255));
   lineChart.drawLines();
   lineChart.endDraw();
-  forceCommand();
 
   if (run){
       if (millis() - lastStepTime > Delaytime) {
@@ -503,7 +507,7 @@ void draw() {
          if (range<=0){
              range=1;
              lineChart.getLayer("surface").addPoint(0,new GPoint(X[range],Yvalues(X[NumberPoints-1])+(-pos_ee.y+offset.y)/20));
-             initialPosition.set(X[range], yval); //trying to get the position
+     //        initialPosition.set(X[range], yval); //trying to get the position
              deltaPosition.set(0,0);
              penVelocity.set(0,0);
              
@@ -514,7 +518,7 @@ void draw() {
                 deltaPosition.set(0,Yvalues(X[range])-Yvalues(X[NumberPoints-1])-(-pos_ee.y+offset.y)/20);
                 //println("delta",deltaPosition);
                 //Calcukating the pen 
-                initialPosition.set(X[range], yval); //trying to get the position
+      //          initialPosition.set(X[range], yval); //trying to get the position
                 Position.set(pos_ee.x,pos_ee.y);
                 //penVelocity.set(7*(Position.x-oldPosition.x)/1,7*(Position.y-oldPosition.y)/1);
                 penVelocity.set(1*(Position.x-oldPosition.x)/1,1*(Position.y-oldPosition.y)/1);
@@ -541,7 +545,7 @@ void draw() {
                range=NumberPoints-1;
                lineChart.getLayer("surface").addPoint(0,new GPoint(X[range],Yvalues(X[NumberPoints-1])+(-pos_ee.y+offset.y)/20));
                
-               initialPosition.set(X[range],yval); //trying to get the position
+      //         initialPosition.set(X[range],yval); //trying to get the position
                deltaPosition.set(0,0);
                penVelocity.set(0,0);
                
@@ -556,9 +560,19 @@ void draw() {
         lastStepTime = millis();
         }
         
-        //println("pos_ee ", pos_ee);
+        println("pos_ee ", pos_ee);
         //println("velocity: ", penVelocity);
-        //println("accel: ", acceleration);
+        //println("accel: ", acceleration)
+        
+        // now, initialPosition actually has the pos_ee but in graph scale. here we are updating initialPosition field
+        
+        float K = 0.1;
+        
+        initialPosition.set(0, 0);
+        initialPosition.sub(pos_ee_initial.copy().mult(K)).add(pos_ee.copy().mult(K)).add(Xintital, Yvalues(Xintital));
+        println("initialPosition: ", initialPosition);
+        println("pos_ee_initial: ", pos_ee_initial);
+
         
 }
 
@@ -612,16 +626,25 @@ public float tangent(float y_b,float y,float y_a,float h){
   return Ygradient;
 }
 
-/** this controls the forces to the pen. There are 2 models that determine the force. **/
+/** this controls the forces to the pen. Currently there is one model of control: position tracking. **/
 
+// constants
 float C1 = 0.5; //position
-float C2 = -1; //velocity
+float C2 = 0; //velocity
 float C3 = 0.00003; //acceleration
 float thresh = 0.5;
 
 void forceCommand(){
- if (run==true){ //if the pen is driving your hand
+ if (run==true && initialPosition.x <= Xfinal){ //if the pen is driving your hand, using tangent-force drive
  
+    float yval = Yvalues(initialPosition.x);
+    PVector tangentForce = new PVector(initialPosition.x + 0.01, Yvalues(initialPosition.x+0.01));
+    tangentForce.sub(new PVector(initialPosition.x, Yvalues(initialPosition.x))).normalize();
+    f_ee.set(tangentForce.mult(50));
+    println("tangentForce: ", tangentForce);
+ 
+ 
+ /*
       PVector moveHere = new PVector(PDpts.get(PDStep).x,PDpts.get(PDStep).y); ; //next point to move to, in pos_ee scale
       PVector force = new PVector(moveHere.x-pos_ee.x, moveHere.y-pos_ee.y); //position variable in PID controller
       println("dist to next point: ", PVector.dist(moveHere, pos_ee));
@@ -646,16 +669,17 @@ void forceCommand(){
       force.add(accelfactor);
       
       println("force: ", force);
-      f_ee.set(-force.x, -force.y);
+      f_ee.set(force.x, force.y);
       
       
-      if (PDStep >= PDpts.size()) {
+      if (PDStep > PDpts.size()-1) {
         f_ee.set(0, 0);
         run = false;
       }
+      */
    }
    
-  else if(run==false){ 
+  else { 
     f_ee.set(0, 0);
 }
 }
@@ -679,6 +703,8 @@ void onTickEvent(CountdownTimer t, long timeLeftUntilFinish){
  
   //f_ee.div(1); //
   //println(f_ee);
+  forceCommand();
+  
   haply_2DoF.set_device_torques(f_ee.array());
   torques.set(haply_2DoF.mechanisms.get_torque());
   haply_2DoF.device_write_torques();
@@ -698,10 +724,9 @@ public void updateVelocity(float Vx,float Vy){
       }
 }
 
-// Sets up the list of points that is used to draw the graph (position-tracking based) //
+// Sets up the list of points (PDpts) that is used to draw the graph (position-tracking based) //
 
 public void updatePDpts() {
-  // update PDpts for the purpose of position-driving //
   
   PDStep = 1;
   
@@ -710,17 +735,22 @@ public void updatePDpts() {
   PDpts = new ArrayList();
   float max = 0;
         
-  for (int i = 0; i < X.length; i++) {
-    if (!Float.isNaN(X[i]) && !Float.isNaN(Yvalues(X[i])) && i % 10 == 0) {
-    PVector temp = new PVector(X[i], Yvalues(X[i]));
-    //println(temp);
-     PDpts.add(temp); //add a vector to PDpts (basically a list of the points that get graphed)
-    //println("PDpt: ", temp);
-    }
-  }
+  //for (int i = 0; i < X.length; i++) {
+  //  if (!Float.isNaN(X[i]) && !Float.isNaN(Yvalues(X[i])) && i % 25 == 0) {
+  //  PVector temp = new PVector(X[i], Yvalues(X[i]));
+  //  //println(temp);
+  //   PDpts.add(temp); //add a vector to PDpts (basically a list of the points that get graphed)
+  //  //println("PDpt: ", temp);
+  //  }
+  //}
   
+//PDpts.add(new PVector(-5, 5)); 
+PDpts.add(new PVector(0, 0));
+PDpts.add(new PVector(5, 5));
+
           
 //PDpts.add(new PVector(0, 0)); //origin
+//PDpts.add(new PVector(-7, 0)); //origin
 //PDpts.add(new PVector(7, 0));
 //PDpts.add(new PVector(7, 7));
 //PDpts.add(new PVector(0, 7)); //square
@@ -744,7 +774,7 @@ public void updatePDpts() {
 //PDpts.add(new PVector(0, 10));
 //PDpts.add(new PVector(2, 0));
 //PDpts.add(new PVector(4, 5));
-//PDpts.add(new PVector(6, 0)); 
+//PDpts.add(new PVector(6, 0));
 //PDpts.add(new PVector(8, 10)); // W shape
 
   
