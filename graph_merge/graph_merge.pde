@@ -610,10 +610,10 @@ void forceCommand(){
    f_ee.set(-force.x, -force.y);
    //f_ee.set(0, 0);
    //println("computed force: ", force);
-   */
+   
    }
    else {f_ee.set(0, 0); }
-  
+  */
   }else{
     f_ee.set(0,0);
   }

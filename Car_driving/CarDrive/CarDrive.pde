@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+
 /**
  ************************************************************************************************************************
  * @file       HelloWall2.pde
@@ -846,5 +846,5 @@ void onFinishEvent(CountdownTimer t){
   println("Resetting timer...");
   haptic_timer.reset();
   haptic_timer = CountdownTimerService.getNewCountdownTimer(this).configure(SIMULATION_PERIOD, HOUR_IN_MILLIS).start();
->>>>>>> Stashed changes
+
 }
