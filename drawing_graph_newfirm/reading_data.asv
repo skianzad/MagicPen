@@ -1,0 +1,22 @@
+%clear all;
+close all;
+A = importdata('Sens.txt');
+B = importdata('Time.txt');
+C = importdata('X.txt');
+D = importdata('Y.txt');
+%A=A(A>300)-360
+endpoint=min([length(A),length(B),length(C),length(D)])
+for k=1:length(A)
+    if A(k)>=180;
+        A(k)=A(k)-360;
+    end
+end
+figure;plot(B(1,1:endpoint),A(1,1:endpoint));
+%figure;plot(D(1,1:endpoint),C(1,1:endpoint));
+figure;plot(-C(1,1:endpoint),D(1,1:endpoint));
+
+for i=endpoint
+    Vx=C(i)*cos(-A(i)*pi/180)-sin(-A(i)*pi/180)*D(i);
+    Vy=C(i)*sin(-A(i)*pi/180)+cos(-A(i)*pi/180)*D(i);
+end
+plot()
