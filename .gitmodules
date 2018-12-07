@@ -1,0 +1,3 @@
+[submodule "smartpen"]
+	path = smartpen
+	url = https://github.com/skianzad/magicpen
