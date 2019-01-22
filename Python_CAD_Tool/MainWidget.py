@@ -11,7 +11,10 @@ from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, QSplitter, \
     QComboBox, QLabel, QSpinBox, QFileDialog, QDialog, QApplication
 from PaintBoard import PaintBoard
 
-
+'''
+	The MainWidget class is the main UI of the CAD tool. 
+	It handles the user interactions (e.g. button clicks) and calls the functions in PaintBoard.py
+'''
 class MainWidget(QWidget):
 
 

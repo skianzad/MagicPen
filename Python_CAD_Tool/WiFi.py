@@ -12,7 +12,7 @@ BUFFER_SIZE = 64              # Normally 1024, but we want fast response
 addr = None
 
 '''
-    A simple WiFi server to receive coordinates from the digital pen
+    A simple WiFi server class to receive coordinates from the digital pen
 '''
 class WiFi():
     

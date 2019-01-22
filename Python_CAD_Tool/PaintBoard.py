@@ -14,7 +14,9 @@ import sys
 coordinates = [0, 0]
 penDrawing = False
 
-
+'''
+	The PaintBoard class handles the drawing events, including CAD drawings and free drawing
+'''
 class PaintBoard(QWidget):
 
 
@@ -37,7 +39,7 @@ class PaintBoard(QWidget):
         
         self.__size = QSize(480,460)
         
-        self.__board = QPixmap(self.__size) #Make a new QPixmap as paint board，350px * 250px
+        self.__board = QPixmap(self.__size) #Make a new QPixmap as paint board，480px * 460px
         self.__board.fill(Qt.white) #Fill the paint board with white
         
         self.__IsEmpty = True #board is empty by default 
@@ -59,9 +61,11 @@ class PaintBoard(QWidget):
         self.__IsEmpty = True
         
     def ChangePenColor(self, color="black"):
+		#Change the color of the pen
         self.__penColor = QColor(color)
         
     def ChangePenThickness(self, thickness=10):
+		#Change the thickness of the pen
         self.__thickness = thickness
         
     def IsEmpty(self):
