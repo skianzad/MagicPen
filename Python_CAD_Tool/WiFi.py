@@ -1,46 +1,65 @@
 #!/usr/bin/env python
 '''
-Created on 2019-01-02
+Created on 2019-01-01
 
-@author: Yuxiang Huang
+@author: Yuxiang
 '''
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 import RPi.GPIO as GPIO
 import socket
 
-BUFFER_SIZE = 64              # Normally 1024, but we want fast response
-
-addr = None
 
 '''
-    A simple WiFi server class to receive coordinates from the digital pen
+    A simple WiFi server to receive coordinates from the digital pen
 '''
-class WiFi():
+class WiFiThread(QThread):
+
+    __TCP_IP = ''
+    __TCP_PORT = 8080
+    __BUFFER_SIZE = 20
+    conn = None
+    addr = None
+    sigOut = pyqtSignal(list)
     
-    def __init__(self, TCP_IP='', TCP_Port=8080):
+    def __init__(self, tcpIP='', tcpPort=8080, bufferSize = 20, parent=None):
+        super(WiFiThread,self).__init__(parent)
         
-        self.WiFiInit(IP, Port)
+        self.__TCP_IP = tcpIP
+        self.__TCP_PORT = tcpPort
+        self.__BUFFER_SIZE = bufferSize
 
         
     # Initialize WiFi connection
-    def WiFiInit(self, TCP_IP, TCP_Port):
+    def socketInit(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((self.__TCP_IP, self.__TCP_PORT))
+        s.listen(1)
+        # Wait until a connection is established/accepted
+        print("Waiting for connection...")
+        self.conn, self.addr = s.accept()
+      
+        while(self.addr is None and self.conn is None):
+            self.conn, self.addr = s.accept()
 
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.bind((TCP_IP, TCP_PORT))
-            s.listen(1)
-            conn, addr = s.accept()
+        print("Connection address:", self.addr)
 
-            while(addr is None and conn is None):
-                    conn, addr = s.accept()
-                    print "waiting for connection..."
 
-            print("Connection address:", addr)
-
+    # overwrite  the run method to continously receive data from the socket
+    def run(self):
+        self.socketInit()
         
-    def WiFiReceive(self, BUFFER_SIZE=64):
+        while(self.addr is not None and self.conn is not None):
+            data = self.conn.recv(self.__BUFFER_SIZE)
+            dataString = data.decode("utf-8")
+            # print(dataString)
             
-            data = conn.recv(BUFFER_SIZE)
-            respString = data.decode("utf-8")
-            print "received data: " + data
-            coordinates = respString.split(",")
-            return coordinates
+            rawCoordinates = dataString.split("/")[0].split(",")
+            rawPressure = dataString.split("/")[1]
+            rawXCoord = rawCoordinates[0]
+            rawYCoord = rawCoordinates[1]
+
+            dataList = [rawXCoord, rawYCoord, rawPressure]
+            self.sigOut.emit(dataList)
+            
 

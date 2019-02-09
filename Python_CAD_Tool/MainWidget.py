@@ -1,45 +1,65 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 2019-01-02
+Created on 2019-01-01
 
-@author: Yuxiang Huang
+@author: Yuxiang
 '''
 from PyQt5 import QtWidgets
-from PyQt5.Qt import QWidget, QColor, QPixmap, QIcon, QSize, QCheckBox, QPainter, \
-    QPoint, QPolygon
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, QSplitter, \
-    QComboBox, QLabel, QSpinBox, QFileDialog, QDialog, QApplication
+from PyQt5.Qt import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from PaintBoard import PaintBoard
+from WiFi import WiFiThread
 
-'''
-	The MainWidget class is the main UI of the CAD tool. 
-	It handles the user interactions (e.g. button clicks) and calls the functions in PaintBoard.py
-'''
+
 class MainWidget(QWidget):
-
+    
 
     def __init__(self, Parent=None):
         '''
                 Constructor
         ''' 
         super().__init__(Parent)
-        
-        self.__InitData() #First initialize data, then initialize view/interface
-        self.__InitView()
 
-    def __InitData(self):
+        #The NeoSmartpen custom paper is 88.3 x 114.2 in raw coordinates
+        rawLimitX = 88
+        rawLimitY = 114
+        multiplier = 4
+        
+        paintSizeX = rawLimitX * multiplier
+        paintSizeY = rawLimitY * multiplier
+        mainSizeX = paintSizeX + 200
+        mainSizeY = paintSizeY + 100
+
+        self.__InitData(paintSizeX, paintSizeY) #First initialize data, then initialize view/interface
+        self.__InitView(mainSizeX, mainSizeY)
+        self.__InitWiFi()
+
+        
+    def __InitWiFi(self):
+        '''
+                  initialize the tcp server
+        '''
+        self.WiFiThread = WiFiThread()
+        self.WiFiThread.sigOut.connect(self.free_draw_updates)
+        self.WiFiThread.start()
+
+
+    def __InitData(self, sizeX, sizeY):
         '''
                   initialize data
         '''
-        self.__paintBoard = PaintBoard(self)
+        self.__paintBoard = PaintBoard(sizeX, sizeY)
         self.__colorList = QColor.colorNames() #Get a list of color names
+        self.penCoordinates = [0,0]
+        self.penPressure = 0
         
-    def __InitView(self):
+    def __InitView(self, sizeX, sizeY):
         '''
                   initialize UI
         '''
         print("inside MainWidget")
-        self.setFixedSize(640,480)
+        self.setFixedSize(sizeX,sizeY)
         self.setWindowTitle("PaintBoard Example PyQt5")
         
         
@@ -83,7 +103,7 @@ class MainWidget(QWidget):
         self.__spinBox_penThickness = QSpinBox(self)
         self.__spinBox_penThickness.setMaximum(10)
         self.__spinBox_penThickness.setMinimum(1)
-        self.__spinBox_penThickness.setValue(2) #default thickness is 2
+        self.__spinBox_penThickness.setValue(2)     #default thickness is 2
         self.__spinBox_penThickness.setSingleStep(1) #minimum single step is 1
         self.__spinBox_penThickness.valueChanged.connect(self.on_PenThicknessChange)#Connect spinBox's value change to on_PenThicknessChange method
         sub_layout.addWidget(self.__spinBox_penThickness)
@@ -143,7 +163,6 @@ class MainWidget(QWidget):
         self.__paintBoard.ChangePenThickness(penThickness)
 
     def on_btn_Save_Clicked(self):
-		# NOTE: The save function works on Windows but does not work on RPi for some reason (unkown yet)
         savePath = QFileDialog.getSaveFileName(self, 'Save Your Paint', '.\\', '*.png')
         print(savePath)
         if savePath[0] == "":
@@ -194,6 +213,18 @@ class MainWidget(QWidget):
             QPoint(P3_x, P3_y)]
         )   
         self.__paintBoard.paintTriangle(points)
+
+    # Free drawing functionalities
+    def free_draw_updates(self, penDataList):
+        if penDataList is not None:
+            
+            # print(rawCoordinates)
+            
+            self.penCoordinates[0] = 4 + 4*int(float(penDataList[0]))
+            self.penCoordinates[1] = 4 + 4*int(float(penDataList[1]))
+            self.penPressure = penDataList[2]
+                
+        self.__paintBoard.penMoveEvent(self.penCoordinates, self.penPressure)
 
     def Quit(self):
         self.close()
@@ -260,18 +291,3 @@ class Dialog(QDialog):
         dialog = Dialog(fieldList)
         dialog.exec_()
         return dialog.returnAnswers()
-
-
-'''
-def main():
-    app = QApplication([])
-    window = Widget(['radias', 'center'])
-    data = window.getData(['radias', 'center'])
-    print(data[0])
-    
-
-
-if __name__ == '__main__':
-    main()
-
-'''

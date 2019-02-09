@@ -1,16 +1,14 @@
 '''
-Created on 2019-01-02
+Created on 2019-01-01 00:00
 
-@author: Yuxiang Huang
+@author: Yuxiang
 '''
+
 from MainWidget import MainWidget
 from PyQt5.QtWidgets import QApplication
 
 import sys
 
-'''
-	The main function of the CAD application
-'''
 def main():
     app = QApplication(sys.argv) 
     
@@ -23,4 +21,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-    
