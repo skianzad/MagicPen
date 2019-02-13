@@ -17,12 +17,12 @@ class WiFiThread(QThread):
 
     __TCP_IP = ''
     __TCP_PORT = 8080
-    __BUFFER_SIZE = 20
+    __BUFFER_SIZE = 21
     conn = None
     addr = None
     sigOut = pyqtSignal(list)
     
-    def __init__(self, tcpIP='', tcpPort=8080, bufferSize = 20, parent=None):
+    def __init__(self, tcpIP='', tcpPort=8080, bufferSize = 21, parent=None):
         super(WiFiThread,self).__init__(parent)
         
         self.__TCP_IP = tcpIP
@@ -58,8 +58,12 @@ class WiFiThread(QThread):
             rawPressure = dataString.split("/")[1]
             rawXCoord = rawCoordinates[0]
             rawYCoord = rawCoordinates[1]
+            
+            QtXCoord = 4.0 + 4*float(rawXCoord)
+            QtYCoord = 4.0 + 4*float(rawYCoord)
+            QtPressure = float(rawPressure)
 
-            dataList = [rawXCoord, rawYCoord, rawPressure]
+            dataList = [QtXCoord, QtYCoord, QtPressure]
             self.sigOut.emit(dataList)
             
 

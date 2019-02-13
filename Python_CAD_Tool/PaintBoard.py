@@ -12,10 +12,19 @@ import socket
 import sys
 
 penDrawing = False
-
+#356, 470
 
 class PaintBoard(QWidget):
 
+    # Define virtual panel coordinates for different shapes/regions
+    VPCoord_Start   =   [316, 332]           #LeftTopX, Y
+    VPCoord_Circle  =   [316, 332, 336, 363] #LeftTopX, Y, RightBotX, Y 
+    VPCoord_Rect    =   [336, 332, 356, 363] #LeftTopX, Y, RightBotX, Y    
+    VPCoord_Tri     =   [316, 363, 336, 395] #LeftTopX, Y, RightBotX, Y 
+    VPCoord_Line    =   [336, 363, 356, 395] #LeftTopX, Y, RightBotX, Y
+
+    # A flag to check if the user is currently using the virtual panel
+    usingVP = False
 
     def __init__(self, sizeX, sizeY, Parent=None):
         '''
@@ -88,15 +97,16 @@ class PaintBoard(QWidget):
         
        
     def penMoveEvent(self, pos, pressure):
-
-        global coordinates, penDrawing
+        pen_x = pos[0]
+        pen_y = pos[1]
+        pen_pressure = pressure
 
         if self.__lastPos is None:
-            self.__lastPos = QPoint(pos[0],pos[1])
-        elif (abs(pos[0]-self.__lastPos.x()) > 21 or abs(pos[1]-self.__lastPos.y()) > 21):
-            self.__lastPos = QPoint(pos[0],pos[1])
-        
-        self.__currentPos =  QPoint(pos[0],pos[1])
+            self.__lastPos = QPoint(pen_x,pen_y)
+        elif (abs(pen_x-self.__lastPos.x()) > 21 or abs(pen_y-self.__lastPos.y()) > 21):
+            self.__lastPos = QPoint(pen_x,pen_y)       
+
+        self.__currentPos =  QPoint(pen_x,pen_y)
         self.__painter.begin(self.__board)
         
         if self.EraserMode == False:
@@ -109,10 +119,26 @@ class PaintBoard(QWidget):
         self.__painter.drawLine(self.__lastPos, self.__currentPos)
         self.__painter.end()
         self.__lastPos = self.__currentPos
-                
+
         self.update() #Show updates
 
-
+    
+    def penVPEvent(self, pos, pressure):
+        pass
+    '''    
+        # Check if the pressure is over 500
+        if(pen_pressure > 400):
+            # Check which region the pen is in and prepare to draw shape accordingly
+            if(pen_x < self.VPCoord_Circle[2] and pen_y < self.VPCoord_Circle[3]):
+                print("A")        
+            elif(pen_x < self.VPCoord_Rect[2] and pen_y < self.VPCoord_Rect[3]):
+                print("B")
+            elif(pen_x < self.VPCoord_Tri[2] and pen_y < self.VPCoord_Tri[3]):
+                print("C")
+            elif(pen_x < self.VPCoord_Line[2] and pen_y < self.VPCoord_Line[3]):
+                print("D")
+    '''
+            
     def penReleaseEvent(self, pos):
         self.__IsEmpty = False #board is not empty
 
@@ -145,6 +171,16 @@ class PaintBoard(QWidget):
         self.__painter.setPen(QPen(self.__penColor,self.__thickness)) 
         self.__painter.drawPolygon(points)
         
+        self.__painter.end()
+                
+        self.update() #Show updates
+
+    def paintLine(self, P1_x, P1_y, P2_x, P2_y):
+        P1 = QPoint(P1_x, P1_y)
+        P2 = QPoint(P2_x, P2_y)
+        
+        self.__painter.begin(self.__board)
+        self.__painter.drawLine(P1, P2)
         self.__painter.end()
                 
         self.update() #Show updates
