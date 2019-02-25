@@ -4,10 +4,9 @@ Created on 2019-01-01
 
 @author: Yuxiang
 '''
-from PyQt5 import QtWidgets
-from PyQt5.Qt import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt4 import QtGui
+from PyQt4.Qt import *
+# from PyQt4.QtCore import *
 from PaintBoard import PaintBoard
 from WiFi import WiFiThread
 
@@ -28,7 +27,7 @@ class MainWidget(QWidget):
         '''
                 Constructor
         ''' 
-        super().__init__(Parent)
+        super(MainWidget, self).__init__(Parent)
 
         #The NeoSmartpen custom paper is 88.3 x 114.2 in raw coordinates
         rawLimitX = 88
@@ -81,9 +80,9 @@ class MainWidget(QWidget):
         self.sub_layout_CAD = QGridLayout()      # Create a new grid sub layout for CAD buttons
 
         self.sub_layout_root.setSpacing(20)
-        self.sub_layout_control.setSpacing(5)
-        self.sub_layout_CAD.setSpacing(5)
-        self.sub_layout_root.setContentsMargins(0, 0, 10, 0)
+        self.sub_layout_control.setSpacing(10)
+        self.sub_layout_CAD.setSpacing(20)
+        self.sub_layout_root.setContentsMargins(0, 0, 10, 0) # Only set the rigt margin (10) for now
         
         self.__init_control_buttons()
         self.__init_CAD_buttons()
@@ -135,7 +134,7 @@ class MainWidget(QWidget):
         self.__spinBox_penThickness = QSpinBox(self)
         self.__spinBox_penThickness.setMaximum(10)
         self.__spinBox_penThickness.setMinimum(1)
-        self.__spinBox_penThickness.setValue(2)     #default thickness is 2
+        self.__spinBox_penThickness.setValue(1)     #default thickness is 1
         self.__spinBox_penThickness.setSingleStep(1) #minimum single step is 1
         self.__spinBox_penThickness.valueChanged.connect(self.on_PenThicknessChange)#Connect spinBox's value change to on_PenThicknessChange method
         self.sub_layout_control.addWidget(self.__spinBox_penThickness, 2, 1)
@@ -147,42 +146,48 @@ class MainWidget(QWidget):
         
         self.__comboBox_penColor = QComboBox(self)
         self.__fillColorList(self.__comboBox_penColor) #Fill the color table/list with various colors
-        self.__comboBox_penColor.currentIndexChanged.connect(self.on_PenColorChange) #关联下拉列表的当前索引变更信号与函数on_PenColorChange
+        self.__comboBox_penColor.currentIndexChanged.connect(self.on_PenColorChange) #on_PenColorChange
         self.sub_layout_control.addWidget(self.__comboBox_penColor, 3, 1)
 
 
     # Initialize buttons for CAD functionalities
     def __init_CAD_buttons(self):
-        self.__cbtn_DrawCircle = QPushButton("Circle")
+        self.__cbtn_DrawCircle = QPushButton("")
         self.__cbtn_DrawCircle.setParent(self)
+        self.__cbtn_DrawCircle.setIcon(QtGui.QIcon('icons/ellipse.png'))
         self.__cbtn_DrawCircle.clicked.connect(self.on_cbtn_DrawCircle_clicked)
         self.sub_layout_CAD.addWidget(self.__cbtn_DrawCircle, 1, 0)
 
-        self.__cbtn_DrawRect = QPushButton("Rectangle")
+        self.__cbtn_DrawRect = QPushButton("")
         self.__cbtn_DrawRect.setParent(self)
+        self.__cbtn_DrawRect.setIcon(QtGui.QIcon('icons/rectangle.png'))
         self.__cbtn_DrawRect.clicked.connect(self.on_cbtn_DrawRect_clicked)
         self.sub_layout_CAD.addWidget(self.__cbtn_DrawRect, 1, 1)
 
-        self.__cbtn_DrawTriangle = QPushButton("Triangle")
+        self.__cbtn_DrawTriangle = QPushButton("")
         self.__cbtn_DrawTriangle.setParent(self)
+        self.__cbtn_DrawTriangle.setIcon(QtGui.QIcon('icons/polygon.png'))
         self.__cbtn_DrawTriangle.clicked.connect(self.on_cbtn_DrawTriangle_clicked)
         self.sub_layout_CAD.addWidget(self.__cbtn_DrawTriangle, 2, 0)
 
         
-        self.__cbtn_DrawTriangle = QPushButton("Arc")
-        self.__cbtn_DrawTriangle.setParent(self)
-        self.__cbtn_DrawTriangle.clicked.connect(self.on_cbtn_DrawTriangle_clicked)
-        self.sub_layout_CAD.addWidget(self.__cbtn_DrawTriangle, 2, 1)
+        self.__cbtn_DrawArc = QPushButton("")
+        self.__cbtn_DrawArc.setParent(self)
+        self.__cbtn_DrawArc.setIcon(QtGui.QIcon('icons/arc.png'))
+        self.__cbtn_DrawArc.clicked.connect(self.on_cbtn_DrawArc_clicked)
+        self.sub_layout_CAD.addWidget(self.__cbtn_DrawArc, 2, 1)
 
-        self.__cbtn_DrawLine = QPushButton("Line")
+        self.__cbtn_DrawLine = QPushButton("")
         self.__cbtn_DrawLine.setParent(self)
+        self.__cbtn_DrawLine.setIcon(QtGui.QIcon('icons/segment.png'))
         self.__cbtn_DrawLine.clicked.connect(self.on_cbtn_DrawLine_clicked)
         self.sub_layout_CAD.addWidget(self.__cbtn_DrawLine, 3, 0)
 
-        self.__cbtn_DrawTriangle = QPushButton("Spline")
-        self.__cbtn_DrawTriangle.setParent(self)
-        self.__cbtn_DrawTriangle.clicked.connect(self.on_cbtn_DrawTriangle_clicked)
-        self.sub_layout_CAD.addWidget(self.__cbtn_DrawTriangle, 3, 1)
+        self.__cbtn_DrawBezierSpline = QPushButton("")
+        self.__cbtn_DrawBezierSpline.setParent(self)
+        self.__cbtn_DrawBezierSpline.setIcon(QtGui.QIcon('icons/nurbs.png'))
+        self.__cbtn_DrawBezierSpline.clicked.connect(self.on_cbtn_DrawBezierSpline_clicked)
+        self.sub_layout_CAD.addWidget(self.__cbtn_DrawBezierSpline, 3, 1)
         
 
     def __fillColorList(self, comboBox):
@@ -195,7 +200,7 @@ class MainWidget(QWidget):
             index += 1
             pix = QPixmap(70,20)
             pix.fill(QColor(color))
-            comboBox.addItem(QIcon(pix),None)
+            comboBox.addItem(QIcon(pix),color)
             comboBox.setIconSize(QSize(70,20))
             comboBox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
@@ -276,29 +281,38 @@ class MainWidget(QWidget):
         P2_y = int(data[1].split(',')[1])
         self.__paintBoard.paintLine(P1_x, P1_y, P2_x, P2_y)
 
-
-    '''
+    
     def on_cbtn_DrawArc_clicked(self):
         painter = QPainter(self)
-        window = Dialog(['center', 'upper left point'])
-        data = window.getData(['center', 'upper left point'])
+        window = Dialog(['center', 'start point', 'end point'])
+        data = window.getData(['center', 'start point', 'end point'])
         center_x = int(data[0].split(',')[0])
         center_y = int(data[0].split(',')[1])
-        upper_left_x = int(data[1].split(',')[0])
-        upper_left_y = int(data[1].split(',')[1])
-        self.__paintBoard.paintRect(center_x, center_y, upper_left_x, upper_left_y)
+        start_x = int(data[1].split(',')[0])
+        start_y = int(data[1].split(',')[1])
+        end_x = int(data[2].split(',')[0])
+        end_y = int(data[2].split(',')[1])
+        self.__paintBoard.paintArc(center_x, center_y, start_x, start_y, end_x, end_y)
 
-    def on_cbtn_DrawSpline_clicked(self):
+    #10,20;20,30;90,40;60,70;90,90;130,150;100,120;130,190
+    def on_cbtn_DrawBezierSpline_clicked(self):
         painter = QPainter(self)
-        window = Dialog(['center', 'upper left point'])
-        data = window.getData(['center', 'upper left point'])
-        center_x = int(data[0].split(',')[0])
-        center_y = int(data[0].split(',')[1])
-        upper_left_x = int(data[1].split(',')[0])
-        upper_left_y = int(data[1].split(',')[1])
-        self.__paintBoard.paintRect(center_x, center_y, upper_left_x, upper_left_y)
-    '''
+        window = Dialog(['Points'])
+        data = window.getData(['Points'])
+        self.usingVP = False
+        pointList = data[0].split(';')
 
+        if(len(pointList)%4 is not 3):
+            print("Invalid point list!")
+            return
+        else:
+            pointListX = []
+            pointListY = []
+            for i in range(len(pointList)):
+                pointListX.append(pointList[i].split(',')[0])
+                pointListY.append(pointList[i].split(',')[1])
+            self.__paintBoard.paintBezierSpline(pointListX, pointListY)
+    
 
     # Free drawing functionalities
     def free_draw_updates(self, penDataList):
@@ -338,6 +352,16 @@ class MainWidget(QWidget):
                     print("Line")
                     self.usingVP = True
                     self.on_cbtn_DrawLine_clicked()
+                '''
+                elif(pen_x < self.VPCoord_Arc[2] and pen_y < self.VPCoord_Arc[3]):
+                    print("Arc")
+                    self.usingVP = True
+                    self.on_cbtn_DrawArc_clicked()
+                elif(pen_x < self.VPCoord_BezierSpline[2] and pen_y < self.VPCoord_BezierSpline[3]):
+                    print("BezierSpline")
+                    self.usingVP = True
+                    self.on_cbtn_DrawBezierSpline_clicked()
+                '''
                 
                 #self.__paintBoard.penVPEvent(self.penCoordinates, self.penPressure)
 
@@ -358,22 +382,22 @@ class Dialog(QDialog):
         super(Dialog, self).__init__(parent)
 
         # Layout and spacing
-        grid = QtWidgets.QGridLayout()
+        grid = QtGui.QGridLayout()
         grid.setSpacing(20)
         
         for x in range(len(fieldList)):
             # initialize the answer dictionary to store answers/inputs from the user
-            self.answer_dict[x] = QtWidgets.QLabel()
+            self.answer_dict[x] = QtGui.QLabel()
             # initialize the edit dictionary to associate variable value changes to edit changes  
-            self.edit_dict[x] = QtWidgets.QLineEdit()
+            self.edit_dict[x] = QtGui.QLineEdit()
             self.edit_dict[x].textChanged.connect(getattr(self, 'q'+str(x)+'Changed'))
 
             # Add the dialog label and corresponding input boxes
-            grid.addWidget(QtWidgets.QLabel(fieldList[x]), x, 0)
+            grid.addWidget(QtGui.QLabel(fieldList[x]), x, 0)
             grid.addWidget(self.edit_dict[x], x, 1)
             
         # Hit apply button to confirm inputs
-        applyBtn = QtWidgets.QPushButton('Apply', self)
+        applyBtn = QtGui.QPushButton('Apply', self)
         applyBtn.clicked.connect(self.close)
 
         grid.addWidget(applyBtn,3,2)
