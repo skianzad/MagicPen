@@ -8,7 +8,8 @@ from PyQt4 import QtGui
 from PyQt4.Qt import *
 # from PyQt4.QtCore import *
 from PaintBoard import PaintBoard
-from WiFi import WiFiThread
+# from WiFi import WiFiThread
+from Bluetooth import BluetoothThread
 
 
 class MainWidget(QWidget):
@@ -41,18 +42,30 @@ class MainWidget(QWidget):
 
         self.__InitData(paintSizeX, paintSizeY) #First initialize data, then initialize view/interface
         self.__InitView(mainSizeX, mainSizeY)
-        self.__InitWiFi()
+        #self.__InitWiFi()
+        self.__InitBluetooth()
 
-        
+    '''
     def __InitWiFi(self):
-        '''
-                  initialize the tcp server
-        '''
+        
+                  #initialize the tcp server
+        
         self.WiFiThread = WiFiThread()
         self.WiFiThread.sigOut.connect(self.free_draw_updates)
         # self.WiFiThread.sigOut.connect(self.VP_draw_updates)
         self.WiFiThread.start()
-
+    '''
+    
+    
+    def __InitBluetooth(self):
+        '''
+                 initialize the bluetooth
+        '''
+        self.BluetoothThread = BluetoothThread()
+        self.BluetoothThread.sigOut.connect(self.free_draw_updates)
+        # self.WiFiThread.sigOut.connect(self.VP_draw_updates)
+        self.BluetoothThread.start()
+    
 
     def __InitData(self, sizeX, sizeY):
         '''
