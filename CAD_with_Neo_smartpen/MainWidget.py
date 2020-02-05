@@ -2,7 +2,7 @@
 '''
 Created on 2019-01-01
 
-@author: Yuxiang, Guanxiong, Soheil
+@author: Yuxiang
 '''
 import collections
 from PyQt4 import QtGui
@@ -13,15 +13,13 @@ from PaintBoard import PaintBoard
 # from WiFi import WiFiThread
 from Bluetooth import BluetoothThread
 import math
-#from Control import ControlThread NOTE: do not use control thread for now
-import csv
-import time
+#from Control import ControlThread
 
 
 class MainWidget(QWidget):
     # 80 * 200 pallet
     # Define virtual panel coordinates for different shapes/regions
-    VPCoord_Start   =   [80, 250]            #LeftTopX, Y (originally 316, 332)
+    VPCoord_Start   =   [80, 200]            #LeftTopX, Y (originally 316, 332)
     VPCoord_Circle  =   [0,  0,   40, 50]    #LeftTopX, Y, RightBotX, Y 
     VPCoord_Rect    =   [40, 0,   80, 50] 
     VPCoord_Tri     =   [0,  50,  40, 100] 
@@ -30,7 +28,6 @@ class MainWidget(QWidget):
     VPCoord_Curve   =   [40, 100, 80, 150]
     VPCoord_Perspect    =   [0,  150, 40, 200] 
     VPCoord_Ruler   =   [40, 150, 80, 200] 
-    VPCoord_Save    =   [0, 200, 40, 250]
     # VPCoord_Copy    =   [0,  150, 40, 200] 
     #VPCoord_Paste   =   [40, 150, 80, 200] 
 
@@ -47,39 +44,30 @@ class MainWidget(QWidget):
     usingVP_Perspect= False
     usingVP_VPoint  = False
     usingVP_Ruler  = False
-    usingVP_Save    = False
-    
     
     # a flag to check if the user is using the motor to draw shapes
     usingMotor      = False
     usingMotor_Line = False
-    initTime=time.time()
-    tCoordinateX=[]
-    tCoordinateY=[]
-    tCoordinateP=[]
-    tTime=[]
+    
     vpPointCount = 0 
     vpShapePointList = []
     vpCopyPointList  = []
     vpVanishingPoint = []
     vpVpoint=[]
     
-    controlLineSignal   =   pyqtSignal(list)
-    controlRectSignal   =   pyqtSignal(list)
-    controlRectPSignal  =   pyqtSignal(list)
-    controlTriSignal    =   pyqtSignal(list)
-    controlCircSignal   =   pyqtSignal(list)
-    gcoordinate         =   pyqtSignal(list)
+    controlLineSignal = pyqtSignal(list)
+    controlRectSignal = pyqtSignal(list)
+    controlRectPSignal= pyqtSignal(list)
+    controlTriSignal  = pyqtSignal(list)
+    gcoordinate = pyqtSignal(list)
     
     # A deque used to store the recent "lifted" variable from the pen due to asynch bluetooth transmission
     liftedDeque = collections.deque(3*[True], 3)
 
-    # TODO: Data structures to hold parameterized objects
-    circList = []
-    rectList = []
-    triList = []
-    lineList = []
-    haList = []
+    # Lists for circle's radius and coordinates
+    list_circle_r = []
+    list_circle_x = []
+    list_circle_y = []
 
     def __init__(self, Parent=None):
         '''
@@ -101,7 +89,7 @@ class MainWidget(QWidget):
         self.__InitView(mainSizeX, mainSizeY)
         #self.__InitWiFi()
         self.__InitBluetooth()
-        # self.__InitControl() NOTE: control zeroed
+        #self.__InitControl()
 
     '''
     def __InitWiFi(self):
@@ -124,7 +112,8 @@ class MainWidget(QWidget):
         # self.WiFiThread.sigOut.connect(self.VP_draw_updates)
         self.BluetoothThread.start()
     
-    """ def __InitControl(self): NOTE: comment out for now
+    """
+    def __InitControl(self):
         '''
                  initialize the motor control
         '''
@@ -133,19 +122,19 @@ class MainWidget(QWidget):
         self.controlRectSignal.connect(self.ControlThread.receiveRectData)
         self.controlRectPSignal.connect(self.ControlThread.receiveRectPData)
         self.controlTriSignal.connect(self.ControlThread.receiveTriData)
-        self.controlCircSignal.connect(self.ControlThread.receiveCircData)
         self.gcoordinate.connect(self.ControlThread.gpos)
-        self.ControlThread.start() """
-
+        self.ControlThread.start()
+    """
+    
 
     def __InitData(self, sizeX, sizeY):
         '''
                   initialize data
         '''
-        self.__paintBoard   =   PaintBoard(sizeX, sizeY)
-        self.__colorList    =   QColor.colorNames() #Get a list of color names
-        self.penCoordinates =   [0,0]
-        self.penPressure    =   0
+        self.__paintBoard = PaintBoard(sizeX, sizeY)
+        self.__colorList = QColor.colorNames() #Get a list of color names
+        self.penCoordinates = [0,0]
+        self.penPressure = 0
         
     def __InitView(self, sizeX, sizeY):
         '''
@@ -299,27 +288,13 @@ class MainWidget(QWidget):
         self.__paintBoard.ChangePenThickness(penThickness)
 
     def on_btn_Save_Clicked(self):
-        with open("/home/pi/Desktop/experiement/time.txt",'w') as f:
-            csv.writer(f,delimiter=',').writerow(self.tTime)
-        with open("/home/pi/Desktop/experiement/X.txt",'w') as a:
-            csv.writer(a,delimiter=',').writerow(self.tCoordinateX)
-        with open("/home/pi/Desktop/experiement/Y.txt",'w') as f:
-            csv.writer(f,delimiter=',').writerow(self.tCoordinateY)
-        with open("/home/pi/Desktop/experiement/P.txt",'w') as f:
-            csv.writer(f,delimiter=',').writerow(self.tCoordinateP)
-            print('Saved data.txt')
-            tCoordinateX=[]
-            tCoordinateY=[]
-            tCoordinateP=[]
-            tTime=[]
-            
-        #savePath = QFileDialog.getSaveFileName(self, 'Save Your Paint', '.\\', '*.png')
-        #print(savePath)
-        #if savePath[0] == "":
-        #    print("Save cancel")
-        #    return
-        #image = self.__paintBoard.GetContentAsQImage()
-        #image.save(savePath[0])
+        savePath = QFileDialog.getSaveFileName(self, 'Save Your Paint', '.\\', '*.png')
+        print(savePath)
+        if savePath[0] == "":
+            print("Save cancel")
+            return
+        image = self.__paintBoard.GetContentAsQImage()
+        image.save(savePath[0])
         
     def on_cbtn_Eraser_clicked(self):
         if self.__cbtn_Eraser.isChecked():
@@ -416,10 +391,6 @@ class MainWidget(QWidget):
         self.gcoordinate.emit(penDataList)
         lifted = penDataList[3]
         self.liftedDeque.append(lifted)
-        self.tTime.append(time.time()-self.initTime)
-        self.tCoordinateX.append(penDataList[0])
-        self.tCoordinateY.append(penDataList[1])
-        self.tCoordinateP.append(penDataList[2])
         # print(penDataList)
         # print("calling free_draw_updates")   
         
@@ -430,12 +401,20 @@ class MainWidget(QWidget):
                 self.penCoordinates[0] = penDataList[0]
                 self.penCoordinates[1] = penDataList[1]
                 self.penPressure = penDataList[2]
+                # Check for relations
+                for circle_x in self.list_circle_x:
+                    if(abs(penDataList[0]-circle_x) < 10):
+                        print("Same x, wanna stop?")
+                for circle_y in self.list_circle_y:
+                    if(abs(penDataList[1]-circle_y) < 10):
+                        print("Same y, wanna stop?")
+                    
                 #print("calling penMoveEvent" + str(self.liftedDeque) + str(penDataList))
                 self.__paintBoard.penMoveEvent(self.penCoordinates, self.penPressure, self.liftedDeque)
                 return
 
             # State 2: click with force within the VP boundary to begin using the VP functions
-            elif(self.usingVP is False): #penDataList[2] > 10 and 
+            elif(self.usingVP is False): # penDataList[2] > 10 and 
                 '''
                 self.penCoordinates[0] = penDataList[0]
                 self.penCoordinates[1] = penDataList[1]
@@ -541,30 +520,6 @@ class MainWidget(QWidget):
                     self.BluetoothThread.beep()
                     return
                     
-                # There is no need to go to the next state after saving the file. Directly go back to state 1. 
-                elif(pen_x < self.VPCoord_Save[2] and pen_y < self.VPCoord_Save[3] and lifted==True):
-                    print("Saving the drawing")
-                    
-                    with open("/home/pi/Desktop/experiement/time.txt",'w') as f:
-                        csv.writer(f,delimiter=',').writerow(self.tTime)
-                    with open("/home/pi/Desktop/experiement/X.txt",'w') as a:
-                        csv.writer(a,delimiter=',').writerow(self.tCoordinateX)
-                    with open("/home/pi/Desktop/experiement/Y.txt",'w') as f:
-                        csv.writer(f,delimiter=',').writerow(self.tCoordinateY)
-                    with open("/home/pi/Desktop/experiement/P.txt",'w') as f:
-                        csv.writer(f,delimiter=',').writerow(self.tCoordinateP)
-                    self.BluetoothThread.beep()
-                    time.sleep(0.5)
-                    self.BluetoothThread.beep()
-                    print("saving data")
-                    tCoordinateX=[]
-                    tCoordinateY=[]
-                    tCoordinateP=[]
-                    tTime=[]
-                    self.usingVP_Save= False
-                    self.usingVP = False
-                    return
-                    
                 # Copy and Paste condition is currently not used. Put them in the end.
                 #elif(pen_x < self.VPCoord_Perspect[2] and pen_y < self.VPCoord_Perspect[3] and lifted==True):
                     #print("Ready to choose vanishing point")
@@ -601,45 +556,19 @@ class MainWidget(QWidget):
                     print("drawing the circle")
                     radius = math.sqrt(math.pow(self.vpShapePointList[0]-self.vpShapePointList[2], 2) + math.pow(self.vpShapePointList[1]-self.vpShapePointList[3], 2))
                     self.__paintBoard.paintEllipse(self.vpShapePointList[0], self.vpShapePointList[1], radius, radius)
+
+                    # Add the x,y and radius to the list of circle
+                    self.list_circle_x.append(self.vpShapePointList[0])
+                    self.list_circle_y.append(self.vpShapePointList[1])
+                    self.list_circle_r.append(radius)
+                    
                     # clear the flags and points data to go back to State 1
-                    # TODO: store parameterized circle here
-                    objCircle = {
-                        "center_x": vpShapePointList[0],
-                        "center_y": vpShapePointList[1],
-                        "radius": radius
-                    }
-                    circList.append(objCircle)
-                    controlCircList = self.vpShapePointList + penDataList
-                    self.controlCircSignal.emit(controlCircList)
-                    # self.ControlThread.controlStartDrawCirc() NOTE: control zeroed
                     self.vpShapePointList = []
                     self.vpPointCount = 0
                     self.usingVP = False
                     self.usingVP_Circle = False
                     return
                     
-            # State 2-a: Draw a circle/ellipse in Perspective using VP function
-            if(self.usingVP_Circle is True and self.usingVP_Perspect is True):
-                print(self.vpPointCount)
-                # if the pen is lifted off the paper, append the last new point to the list
-                if(lifted==True and self.vpPointCount < 2 and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
-                    self.vpPointCount += 1
-                    print("Adding points to the list")
-                    self.vpShapePointList.append(penDataList[0])
-                    self.vpShapePointList.append(penDataList[1])
-                    self.BluetoothThread.beep()
-                    
-                if(self.vpPointCount >= 2):
-                    print("drawing the circle in Perspective")
-                    radius = math.sqrt(math.pow(self.vpShapePointList[0]-self.vpShapePointList[2], 2) + math.pow(self.vpShapePointList[1]-self.vpShapePointList[3], 2))
-                    self.__paintBoard.paintPCircle(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2],self.vpShapePointList[3],self.vpVpoint[0],self.vpVpoint[1])
-                    # clear the flags and points data to go back to State 1
-                    self.vpShapePointList = []
-                    self.vpPointCount = 0
-                    self.usingVP = False
-                    self.usingVP_Circle = False
-                    self.usingVP_Perspect=False
-                    return
                     
             # State 2-b: Draw a rectangle using VP function
             elif(self.usingVP_Rect is True and self.usingVP_Perspect is False):
@@ -655,18 +584,11 @@ class MainWidget(QWidget):
                 if(self.vpPointCount >= 2):
                     print("drawing the rect")
                     self.__paintBoard.paintRect(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
-                    objRect = {
-                        "center_x": vpShapePointList[0],
-                        "center_y": vpShapePointList[1],
-                        "upper_left_x": vpShapePointList[2],
-                        "upper_left_y": vpShapePointList[3]
-                    }
-                    rectList.append(objRect)
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlRectList = self.vpShapePointList + penDataList
                     self.controlRectSignal.emit(controlRectList)
                     # clear the flags and points data to go back to State 1
-                    #self.ControlThread.controlStartDrawRect() NOTE: control zeroed
+                    #self.ControlThread.controlStartDrawRect()
                     self.vpPointCount = 0
                     self.usingVP = False
                     self.usingVP_Rect = False
@@ -706,7 +628,7 @@ class MainWidget(QWidget):
                     controlRectPList = [firstPoint[0],firstPoint[1],secondPoint[0],secondPoint[1],thirdPoint[0],thirdPoint[1],fourthPoint[0],fourthPoint[1]]
                     self.controlRectPSignal.emit(controlRectPList)
                     # clear the flags and points data to go back to State 1
-                    #self.ControlThread.controlStartDrawRectP() NOTE: control zeroed
+                    #self.ControlThread.controlStartDrawRectP()
                     self.vpPointCount = 0
                     self.usingVP = False
                     self.usingVP_Rect = False
@@ -733,19 +655,10 @@ class MainWidget(QWidget):
                         QPoint(self.vpShapePointList[4], self.vpShapePointList[5])]
                     )   
                     self.__paintBoard.paintTriangle(points)
-                    objTri = {
-                        "x_0": vpShapePointList[0],
-                        "y_0": vpShapePointList[1],
-                        "x_1": vpShapePointList[2],
-                        "y_1": vpShapePointList[3],
-                        "x_2": vpShapePointList[4],
-                        "y_2": vpShapePointList[5]
-                    }
-                    triList.append(objTri)
                     # clear the flags and points data to go back to State 1
                     controlTriList = [self.vpShapePointList[0], self.vpShapePointList[1],self.vpShapePointList[2], self.vpShapePointList[3],self.vpShapePointList[4], self.vpShapePointList[5]]
                     self.controlTriSignal.emit(controlTriList)
-                    # self.ControlThread.ControlStartDrawTri() NOTE: control zeroed
+                    #self.ControlThread.ControlStartDrawTri()
                     self.vpShapePointList = []
                     self.vpPointCount = 0
                     self.usingVP = False
@@ -768,20 +681,14 @@ class MainWidget(QWidget):
                     print("drawing the line")
                     if(len(self.vpShapePointList)>=4):
                         self.__paintBoard.paintLine(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
-                    objLine = {
-                        "x_0": vpShapePointList[0],
-                        "y_0": vpShapePointList[1],
-                        "x_1": vpShapePointList[2],
-                        "y_1": vpShapePointList[3]
-                    }
-                    lineList.append(objLine)
+                    
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlLineList = self.vpShapePointList + penDataList
                     self.controlLineSignal.emit(controlLineList)
                 
                     # clear the flags and points data to go back to State 1
                     # self.vpShapePointList = []
-                    #self.ControlThread.controlStartDrawLine() NOTE: control zeroed
+                    #self.ControlThread.controlStartDrawLine()
                     self.vpPointCount = 0
                     self.vpShapePointList = []
                     self.usingVP = False
@@ -881,7 +788,7 @@ class MainWidget(QWidget):
                 
                     # clear the flags and points data to go back to State 1
                     # self.vpShapePointList = []
-                    # self.ControlThread.controlStartRuler() NOTE: control zeroed
+                    #self.ControlThread.controlStartRuler()
                     self.vpPointCount = 0
                     self.vpShapePointList = []
                     self.usingVP = False
