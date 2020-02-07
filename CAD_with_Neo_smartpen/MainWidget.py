@@ -2,7 +2,7 @@
 '''
 Created on 2019-01-01
 
-@author: Yuxiang
+@author: Yuxiang, Guanxiong, Soheil
 '''
 import collections
 from PyQt4 import QtGui
@@ -64,10 +64,11 @@ class MainWidget(QWidget):
     # A deque used to store the recent "lifted" variable from the pen due to asynch bluetooth transmission
     liftedDeque = collections.deque(3*[True], 3)
 
-    # Lists for circle's radius and coordinates
-    list_circle_r = []
-    list_circle_x = []
-    list_circle_y = []
+    # TODO: Data structures to hold parameterized objects
+    circList = []
+    rectList = []
+    triList = []
+    lineList = []
 
     def __init__(self, Parent=None):
         '''
@@ -402,12 +403,11 @@ class MainWidget(QWidget):
                 self.penCoordinates[1] = penDataList[1]
                 self.penPressure = penDataList[2]
                 # Check for relations
-                for circle_x in self.list_circle_x:
-                    if(abs(penDataList[0]-circle_x) < 10):
+                for circle in self.circList:
+                    if(abs(penDataList[0]-circle["center_x"]) < 10):
                         print("Same x, wanna stop?")
-                for circle_y in self.list_circle_y:
-                    if(abs(penDataList[1]-circle_y) < 10):
-                        print("Same y, wanna stop?")
+                    if(abs(penDataList[1]-circle["center_y"]) < 10):
+                        print("Same y, wanna stop?")                        
                     
                 #print("calling penMoveEvent" + str(self.liftedDeque) + str(penDataList))
                 self.__paintBoard.penMoveEvent(self.penCoordinates, self.penPressure, self.liftedDeque)
@@ -556,12 +556,14 @@ class MainWidget(QWidget):
                     print("drawing the circle")
                     radius = math.sqrt(math.pow(self.vpShapePointList[0]-self.vpShapePointList[2], 2) + math.pow(self.vpShapePointList[1]-self.vpShapePointList[3], 2))
                     self.__paintBoard.paintEllipse(self.vpShapePointList[0], self.vpShapePointList[1], radius, radius)
-
-                    # Add the x,y and radius to the list of circle
-                    self.list_circle_x.append(self.vpShapePointList[0])
-                    self.list_circle_y.append(self.vpShapePointList[1])
-                    self.list_circle_r.append(radius)
-                    
+                    # store parameterized circle here
+                    objCircle = {
+                        "center_x": self.vpShapePointList[0],
+                        "center_y": self.vpShapePointList[1],
+                        "radius": radius
+                    }
+                    self.circList.append(objCircle)
+                    print("added circle: x - " + str(objCircle["center_x"]) + ", y - " + str(objCircle["center_y"]) + ", radius - " + str(objCircle["radius"]))
                     # clear the flags and points data to go back to State 1
                     self.vpShapePointList = []
                     self.vpPointCount = 0
@@ -584,6 +586,15 @@ class MainWidget(QWidget):
                 if(self.vpPointCount >= 2):
                     print("drawing the rect")
                     self.__paintBoard.paintRect(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
+                    # store parameterized rectangle here
+                    objRect = {
+                        "center_x": self.vpShapePointList[0],
+                        "center_y": self.vpShapePointList[1],
+                        "upper_left_x": self.vpShapePointList[2],
+                        "upper_left_y": self.vpShapePointList[3]
+                    }
+                    self.rectList.append(objRect)
+                    print("added rectangle: center_x - " + str(objRect["center_x"]) + " center_y - " + str(objRect["center_y"]) + " upper_left_x - " + str(objRect["upper_left_x"]) + " upper_left_y - " + str(objRect["upper_left_y"]))
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlRectList = self.vpShapePointList + penDataList
                     self.controlRectSignal.emit(controlRectList)
@@ -655,6 +666,17 @@ class MainWidget(QWidget):
                         QPoint(self.vpShapePointList[4], self.vpShapePointList[5])]
                     )   
                     self.__paintBoard.paintTriangle(points)
+                    # store parameterized triangle here
+                    objTri = {
+                        "x_0": self.vpShapePointList[0],
+                        "y_0": self.vpShapePointList[1],
+                        "x_1": self.vpShapePointList[2],
+                        "y_1": self.vpShapePointList[3],
+                        "x_2": self.vpShapePointList[4],
+                        "y_2": self.vpShapePointList[5]
+                    }
+                    self.triList.append(objTri)
+                    print("added triangle: x_0 - " + str(objTri["x_0"]) + " y_0 - " + str(objTri["y_0"]) + " x_1 - " + str(objTri["x_1"]) + " y_1 - " + str(objTri["y_1"]) + " x_2 - " + str(objTri["x_2"]) + " y_2 - " + str(objTri["y_2"]))
                     # clear the flags and points data to go back to State 1
                     controlTriList = [self.vpShapePointList[0], self.vpShapePointList[1],self.vpShapePointList[2], self.vpShapePointList[3],self.vpShapePointList[4], self.vpShapePointList[5]]
                     self.controlTriSignal.emit(controlTriList)
@@ -681,7 +703,15 @@ class MainWidget(QWidget):
                     print("drawing the line")
                     if(len(self.vpShapePointList)>=4):
                         self.__paintBoard.paintLine(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
-                    
+                    # store parameterized line here
+                    objLine = {
+                        "x_0": self.vpShapePointList[0],
+                        "y_0": self.vpShapePointList[1],
+                        "x_1": self.vpShapePointList[2],
+                        "y_1": self.vpShapePointList[3]
+                    }
+                    self.lineList.append(objLine)
+                    print("added line: x_0 - " + str(objLine["x_0"]) + " x_1 - " + str(objLine["x_1"]) + " y_0 - " + str(objLine["y_0"]) + " y_1 - " + str(objLine["y_1"]))
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlLineList = self.vpShapePointList + penDataList
                     self.controlLineSignal.emit(controlLineList)
