@@ -13,6 +13,7 @@ from PaintBoard import PaintBoard
 # from WiFi import WiFiThread
 from Bluetooth import BluetoothThread
 import math
+from Shapes import *
 #from Control import ControlThread
 
 
@@ -69,6 +70,9 @@ class MainWidget(QWidget):
     rectList = []
     triList = []
     lineList = []
+    
+    # the current object being drawn on paper
+    currObject = None
 
     def __init__(self, Parent=None):
         '''
@@ -385,7 +389,47 @@ class MainWidget(QWidget):
                 pointListX.append(pointList[i].split(',')[0])
                 pointListY.append(pointList[i].split(',')[1])
             self.__paintBoard.paintBezierSpline(pointListX, pointListY)
-            
+
+    # Select center coordinates based on proximity to centers of previous objects;
+    # Choose center x/y for min separation in x/y direction from a previous object
+    def select_center_for_circ_or_rect(self):
+        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+        new_center_x = self.currObject.center_x
+        new_center_y = self.currObject.center_y
+        min_x_sep = 9999
+        min_y_sep = 9999
+
+        for circle in self.circList:
+            x_sep = abs(self.currObject.center_x - circle.center_x)
+            if x_sep < 10 and x_sep < min_x_sep:
+                min_x_sep = x_sep
+                print("new x selected")
+                new_center_x = circle.center_x
+        
+        for circle in self.circList:
+            y_sep = abs(self.currObject.center_y -circle.center_y)
+            if y_sep < 10 and y_sep < min_y_sep:
+                min_y_sep = y_sep
+                print("new y selected")
+                new_center_y = circle.center_y
+        
+        for rectangle in self.rectList:
+            x_sep = abs(self.currObject.center_x - rectangle.center_x)
+            if  x_sep < 10 and x_sep < min_x_sep:
+                min_x_sep = x_sep
+                print("new x selected")
+                new_center_x = rectangle.center_x
+        
+        for rectangle in self.rectList:
+            y_sep =  abs(self.currObject.center_y - rectangle.center_y)
+            if y_sep < 10 and y_sep < min_y_sep:
+                min_y_sep = y_sep
+                print("new y selected")
+                new_center_y = rectangle.center_y
+        
+        self.currObject.center_x = new_center_x
+        self.currObject.center_y = new_center_y
+        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
         
     # Free drawing functionalities; also a state machine
     def free_draw_updates(self, penDataList):
@@ -402,13 +446,6 @@ class MainWidget(QWidget):
                 self.penCoordinates[0] = penDataList[0]
                 self.penCoordinates[1] = penDataList[1]
                 self.penPressure = penDataList[2]
-                # Check for relations
-                for circle in self.circList:
-                    if(abs(penDataList[0]-circle["center_x"]) < 10):
-                        print("Same x, wanna stop?")
-                    if(abs(penDataList[1]-circle["center_y"]) < 10):
-                        print("Same y, wanna stop?")                        
-                    
                 #print("calling penMoveEvent" + str(self.liftedDeque) + str(penDataList))
                 self.__paintBoard.penMoveEvent(self.penCoordinates, self.penPressure, self.liftedDeque)
                 return
@@ -435,6 +472,7 @@ class MainWidget(QWidget):
                     self.usingVP_Circle = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.currObject = Circle(0, 0, 0)
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -447,6 +485,7 @@ class MainWidget(QWidget):
                     self.usingVP_Rect = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.currObject = Rectangle(0, 0, 0, 0)
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -458,6 +497,7 @@ class MainWidget(QWidget):
                     self.usingVP_Tri = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.currObject = Triangle(0, 0, 0, 0, 0, 0)
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -469,6 +509,7 @@ class MainWidget(QWidget):
                     self.usingVP_Line = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.currObject = Line(0, 0, 0, 0)
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -551,19 +592,21 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
-                    
-                if(self.vpPointCount >= 2):
+
+                # reposition center based on relations
+                if (self.vpPointCount == 1):
+                    print("one point only")
+                    self.currObject.center_x = self.vpShapePointList[0]
+                    self.currObject.center_y = self.vpShapePointList[1]
+                    self.select_center_for_circ_or_rect()
+
+                elif(self.vpPointCount >= 2):
                     print("drawing the circle")
-                    radius = math.sqrt(math.pow(self.vpShapePointList[0]-self.vpShapePointList[2], 2) + math.pow(self.vpShapePointList[1]-self.vpShapePointList[3], 2))
-                    self.__paintBoard.paintEllipse(self.vpShapePointList[0], self.vpShapePointList[1], radius, radius)
+                    radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
+                    self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
                     # store parameterized circle here
-                    objCircle = {
-                        "center_x": self.vpShapePointList[0],
-                        "center_y": self.vpShapePointList[1],
-                        "radius": radius
-                    }
-                    self.circList.append(objCircle)
-                    print("added circle: x - " + str(objCircle["center_x"]) + ", y - " + str(objCircle["center_y"]) + ", radius - " + str(objCircle["radius"]))
+                    self.currObject.radius = radius
+                    self.circList.append(self.currObject)
                     # clear the flags and points data to go back to State 1
                     self.vpShapePointList = []
                     self.vpPointCount = 0
@@ -582,19 +625,20 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
-                    
-                if(self.vpPointCount >= 2):
+
+                # reposition center based on relations
+                if (self.vpPointCount == 1):
+                    self.currObject.center_x = self.vpShapePointList[0]
+                    self.currObject.center_y = self.vpShapePointList[1]
+                    self.select_center_for_circ_or_rect()
+
+                elif(self.vpPointCount >= 2):
                     print("drawing the rect")
-                    self.__paintBoard.paintRect(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
+                    self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.vpShapePointList[2], self.vpShapePointList[3])
                     # store parameterized rectangle here
-                    objRect = {
-                        "center_x": self.vpShapePointList[0],
-                        "center_y": self.vpShapePointList[1],
-                        "upper_left_x": self.vpShapePointList[2],
-                        "upper_left_y": self.vpShapePointList[3]
-                    }
-                    self.rectList.append(objRect)
-                    print("added rectangle: center_x - " + str(objRect["center_x"]) + " center_y - " + str(objRect["center_y"]) + " upper_left_x - " + str(objRect["upper_left_x"]) + " upper_left_y - " + str(objRect["upper_left_y"]))
+                    self.currObject.upper_left_x = self.vpShapePointList[2]
+                    self.currObject.upper_left_y = self.vpShapePointList[3]
+                    self.rectList.append(self.currObject)
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlRectList = self.vpShapePointList + penDataList
                     self.controlRectSignal.emit(controlRectList)
@@ -667,16 +711,13 @@ class MainWidget(QWidget):
                     )   
                     self.__paintBoard.paintTriangle(points)
                     # store parameterized triangle here
-                    objTri = {
-                        "x_0": self.vpShapePointList[0],
-                        "y_0": self.vpShapePointList[1],
-                        "x_1": self.vpShapePointList[2],
-                        "y_1": self.vpShapePointList[3],
-                        "x_2": self.vpShapePointList[4],
-                        "y_2": self.vpShapePointList[5]
-                    }
-                    self.triList.append(objTri)
-                    print("added triangle: x_0 - " + str(objTri["x_0"]) + " y_0 - " + str(objTri["y_0"]) + " x_1 - " + str(objTri["x_1"]) + " y_1 - " + str(objTri["y_1"]) + " x_2 - " + str(objTri["x_2"]) + " y_2 - " + str(objTri["y_2"]))
+                    self.currObject.x_0 = self.vpShapePointList[0]
+                    self.currObject.y_0 = self.vpShapePointList[1]
+                    self.currObject.x_1 = self.vpShapePointList[2]
+                    self.currObject.y_1 = self.vpShapePointList[3]
+                    self.currObject.x_2 = self.vpShapePointList[4]
+                    self.currObject.y_2 = self.vpShapePointList[5]
+                    self.triList.append(self.currObject)
                     # clear the flags and points data to go back to State 1
                     controlTriList = [self.vpShapePointList[0], self.vpShapePointList[1],self.vpShapePointList[2], self.vpShapePointList[3],self.vpShapePointList[4], self.vpShapePointList[5]]
                     self.controlTriSignal.emit(controlTriList)
@@ -704,14 +745,11 @@ class MainWidget(QWidget):
                     if(len(self.vpShapePointList)>=4):
                         self.__paintBoard.paintLine(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
                     # store parameterized line here
-                    objLine = {
-                        "x_0": self.vpShapePointList[0],
-                        "y_0": self.vpShapePointList[1],
-                        "x_1": self.vpShapePointList[2],
-                        "y_1": self.vpShapePointList[3]
-                    }
-                    self.lineList.append(objLine)
-                    print("added line: x_0 - " + str(objLine["x_0"]) + " x_1 - " + str(objLine["x_1"]) + " y_0 - " + str(objLine["y_0"]) + " y_1 - " + str(objLine["y_1"]))
+                    self.currObject.x_0 = self.vpShapePointList[0]
+                    self.currObject.y_0 = self.vpShapePointList[1]
+                    self.currObject.x_1 = self.vpShapePointList[2]
+                    self.currObject.y_1 = self.vpShapePointList[3]
+                    self.lineList.append(self.currObject)
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlLineList = self.vpShapePointList + penDataList
                     self.controlLineSignal.emit(controlLineList)
