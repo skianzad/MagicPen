@@ -899,21 +899,20 @@ class MainWidget(QWidget):
             # TODO: modify this state
             elif(self.usingVP_Ruler is True):
                 print(self.vpPointCount)
-                # if the pen is lifted off the papert and is outside of the virtual pallet, append the last new point to the list
-                if(lifted==True and self.vpPointCount < 2 and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):#
+                # if the pen is lifted off the paper, and is inside the virtual ruler space, append the last new point to the list
+                if lifted==True and self.vpPointCount < 1 and penDataList[0]<self.VRCoord[2] and penDataList[1]<self.VRCoord[3]:#
                     self.vpPointCount += 1
                     print("Adding points to the list")
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
-                if(self.vpPointCount >= 2):
+                if(self.vpPointCount >= 1):
                     print("Ruler mode activated")
-                    if(len(self.vpShapePointList)>=2):
-                        self.__paintBoard.paintLine(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
                     
                     # store parameterized DistMeasurement here
-                    self.currObject.set_dist(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
+                    self.currObject.set_dist(self.vpShapePointList[0])
+                    print("distance set to: " + str(self.currObject.dist))
                     self.distMeasurementList.append(self.currObject)
 
                     self.constraintDist_enabled = True
