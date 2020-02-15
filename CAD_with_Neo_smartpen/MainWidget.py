@@ -31,6 +31,8 @@ class MainWidget(QWidget):
     VPCoord_Ruler   =   [40, 150, 80, 200] 
     # VPCoord_Copy    =   [0,  150, 40, 200] 
     #VPCoord_Paste   =   [40, 150, 80, 200] 
+    # TODO: Define virtual ruler coordinates
+    VRCoord = [80, 0, 180, 50]
 
     # A flag to check if the user is currently using the virtual panel
     usingVP         = False
@@ -65,14 +67,22 @@ class MainWidget(QWidget):
     # A deque used to store the recent "lifted" variable from the pen due to asynch bluetooth transmission
     liftedDeque = collections.deque(3*[True], 3)
 
-    # TODO: Data structures to hold parameterized objects
+    # Data structures to hold parameterized objects
     circList = []
     rectList = []
     triList = []
     lineList = []
+    distMeasurementList = []
+
+    # flags representing if a constraint has been applied
+    constraintAlignment_enabled = True
+    constraintDist_enabled = False
     
     # the current object being drawn on paper
     currObject = None
+
+    # the last object being drawn; used when distance constraint applied
+    lastObject = None
 
     def __init__(self, Parent=None):
         '''
@@ -390,9 +400,9 @@ class MainWidget(QWidget):
                 pointListY.append(pointList[i].split(',')[1])
             self.__paintBoard.paintBezierSpline(pointListX, pointListY)
 
-    # Select center coordinates based on proximity to centers of previous objects;
+    # Reset current object's center coordinates based on proximity to centers of previous objects;
     # Choose center x/y for min separation in x/y direction from a previous object
-    def select_center_for_circ_or_rect(self):
+    def alignment_circ_or_rect(self):
         print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
         new_center_x = self.currObject.center_x
         new_center_y = self.currObject.center_y
@@ -430,7 +440,34 @@ class MainWidget(QWidget):
         self.currObject.center_x = new_center_x
         self.currObject.center_y = new_center_y
         print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+    
+    # Reset current object's center coordinates so the center is at the specified
+    # distance from the last object
+    def distance_circ_or_rect(self):
+        if (isinstance(self.currObject, Circle) is False) and (isinstance(self.currObject, Rectangle) is False):
+            print("need the current object being a rectangle or a circle")
+            return
+        if (isinstance(self.lastObject, Circle) is False) and (isinstance(self.lastObject, Rectangle) is False):
+            print("need the last object being a rectangle or a circle")
+            return
         
+        current_x = self.currObject.center_x
+        current_y = self.currObject.center_y
+        last_x = self.lastObject.center_x
+        last_y = self.lastObject.center_y
+        assert len(self.distMeasurementList)>=1
+        dist = self.distMeasurementList[len(self.distMeasurementList)-1].dist
+
+        slope = (current_y - last_y) / (current_x - last_x)
+        dx = math.sqrt(math.pow(dist,2) / (1 + math.pow(slope, 2)))
+        if (current_x - last_x) < 0:
+            dx = -1 * dx
+        dy = slope * dx
+        
+        self.currObject.center_x = last_x + dx
+        self.currObject.center_y = last_y + dy
+
+
     # Free drawing functionalities; also a state machine
     def free_draw_updates(self, penDataList):
         self.gcoordinate.emit(penDataList)
@@ -552,9 +589,12 @@ class MainWidget(QWidget):
                     
                 elif(pen_x < self.VPCoord_Ruler[2] and pen_y < self.VPCoord_Ruler[3] and lifted==True):
                     print("Ruler Mode")
+                    # TODO: modify this state
                     self.usingVP = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.lastObject = self.currObject
+                    self.currObject = DistMeasurement()
                     self.usingVP_Ruler = True
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
@@ -598,9 +638,19 @@ class MainWidget(QWidget):
                     print("one point only")
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
-                    self.select_center_for_circ_or_rect()
+                    if self.constraintDist_enabled is True:
+                        # automatically nullify alignment constraint when distance constraint is enabled
+                        self.constraintAlignment_enabled = False
+                        print("applying distance constraint")
+                        self.distance_circ_or_rect()
+                    elif self.constraintAlignment_enabled is True:
+                        print("applying alignment constraint")
+                        self.alignment_circ_or_rect()
 
                 elif(self.vpPointCount >= 2):
+                    if self.constraintDist_enabled is True:
+                        self.constraintDist_enabled = False
+                        self.constraintAlignment_enabled = True
                     print("drawing the circle")
                     radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
                     self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
@@ -630,9 +680,20 @@ class MainWidget(QWidget):
                 if (self.vpPointCount == 1):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
-                    self.select_center_for_circ_or_rect()
+                    if self.constraintDist_enabled is True:
+                        # automatically nullify alignment constraint when distance constraint is enabled
+                        self.constraintAlignment_enabled = False
+                        print("applying distance constraint")
+                        self.distance_circ_or_rect()
+                    elif self.constraintAlignment_enabled is True:
+                        print("applying alignment constraint")
+                        self.alignment_circ_or_rect()
+
 
                 elif(self.vpPointCount >= 2):
+                    if self.constraintDist_enabled is True:
+                        self.constraintDist_enabled = False
+                        self.constraintAlignment_enabled = True
                     print("drawing the rect")
                     self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.vpShapePointList[2], self.vpShapePointList[3])
                     # store parameterized rectangle here
@@ -835,6 +896,7 @@ class MainWidget(QWidget):
                     return                   
            
             # State 2-h: Ruler Mode using VP function
+            # TODO: modify this state
             elif(self.usingVP_Ruler is True):
                 print(self.vpPointCount)
                 # if the pen is lifted off the papert and is outside of the virtual pallet, append the last new point to the list
@@ -847,9 +909,15 @@ class MainWidget(QWidget):
                     
                 if(self.vpPointCount >= 2):
                     print("Ruler mode activated")
-                    if(len(self.vpShapePointList)>=4):
+                    if(len(self.vpShapePointList)>=2):
                         self.__paintBoard.paintLine(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
                     
+                    # store parameterized DistMeasurement here
+                    self.currObject.set_dist(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
+                    self.distMeasurementList.append(self.currObject)
+
+                    self.constraintDist_enabled = True
+
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlLineList = self.vpShapePointList + penDataList
                     self.controlLineSignal.emit(controlLineList)
