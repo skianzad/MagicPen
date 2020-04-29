@@ -14,6 +14,7 @@ from PaintBoard import PaintBoard
 from Bluetooth import BluetoothThread
 import math
 from Shapes import *
+from Relations import *
 #from Control import ControlThread
 
 
@@ -400,47 +401,6 @@ class MainWidget(QWidget):
                 pointListY.append(pointList[i].split(',')[1])
             self.__paintBoard.paintBezierSpline(pointListX, pointListY)
 
-    # Reset current object's center coordinates based on proximity to centers of previous objects;
-    # Choose center x/y for min separation in x/y direction from a previous object
-    def alignment_circ_or_rect(self):
-        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-        new_center_x = self.currObject.center_x
-        new_center_y = self.currObject.center_y
-        min_x_sep = 9999
-        min_y_sep = 9999
-
-        for circle in self.circList:
-            x_sep = abs(self.currObject.center_x - circle.center_x)
-            if x_sep < 10 and x_sep < min_x_sep:
-                min_x_sep = x_sep
-                print("new x selected")
-                new_center_x = circle.center_x
-        
-        for circle in self.circList:
-            y_sep = abs(self.currObject.center_y -circle.center_y)
-            if y_sep < 10 and y_sep < min_y_sep:
-                min_y_sep = y_sep
-                print("new y selected")
-                new_center_y = circle.center_y
-        
-        for rectangle in self.rectList:
-            x_sep = abs(self.currObject.center_x - rectangle.center_x)
-            if  x_sep < 10 and x_sep < min_x_sep:
-                min_x_sep = x_sep
-                print("new x selected")
-                new_center_x = rectangle.center_x
-        
-        for rectangle in self.rectList:
-            y_sep =  abs(self.currObject.center_y - rectangle.center_y)
-            if y_sep < 10 and y_sep < min_y_sep:
-                min_y_sep = y_sep
-                print("new y selected")
-                new_center_y = rectangle.center_y
-        
-        self.currObject.center_x = new_center_x
-        self.currObject.center_y = new_center_y
-        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-    
     # Reset current object's center coordinates so the center is at the specified
     # distance from the last object
     def distance_circ_or_rect(self):
@@ -633,9 +593,8 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                # reposition center based on relations
+                # align center based on relations
                 if (self.vpPointCount == 1):
-                    print("one point only")
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
                     if self.constraintDist_enabled is True:
@@ -644,8 +603,12 @@ class MainWidget(QWidget):
                         print("applying distance constraint")
                         self.distance_circ_or_rect()
                     elif self.constraintAlignment_enabled is True:
-                        print("applying alignment constraint")
-                        self.alignment_circ_or_rect()
+                        print("applying alignment constraint on center;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        alignment_center = Alignment()
+                        alignment_center.align_center(self.currObject, self.circList, self.rectList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(alignment_center.delta_x)  + ", delta y: " + str(alignment_center.delta_y))
 
                 elif(self.vpPointCount >= 2):
                     if self.constraintDist_enabled is True:
@@ -676,7 +639,7 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                # reposition center based on relations
+                # align center based on relations
                 if (self.vpPointCount == 1):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
@@ -686,19 +649,28 @@ class MainWidget(QWidget):
                         print("applying distance constraint")
                         self.distance_circ_or_rect()
                     elif self.constraintAlignment_enabled is True:
-                        print("applying alignment constraint")
-                        self.alignment_circ_or_rect()
-
+                        print("applying alignment constraint on center;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        alignment_center = Alignment()
+                        alignment_center.align_center(self.currObject, self.circList, self.rectList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(alignment_center.delta_x)  + ", delta y: " + str(alignment_center.delta_y))
 
                 elif(self.vpPointCount >= 2):
                     if self.constraintDist_enabled is True:
                         self.constraintDist_enabled = False
                         self.constraintAlignment_enabled = True
+                    if self.vpPointCount == 2:
+                        self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
+                        print("applying alignment constraint on UL corner")
+                        print("old x: " + str(self.currObject.upperleft_x) + ", old y: " + str(self.currObject.upperleft_y))
+                        alignment_ul = Alignment()
+                        alignment_ul.align_corner(self.currObject, self.circList, self.rectList)
+                        print("new x: " + str(self.currObject.upperleft_x) + ", new y: " + str(self.currObject.upperleft_y))
+                        print("delta x: " + str(alignment_ul.delta_x)  + ", delta y: " + str(alignment_ul.delta_y))
                     print("drawing the rect")
-                    self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.vpShapePointList[2], self.vpShapePointList[3])
+                    self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
                     # store parameterized rectangle here
-                    self.currObject.upper_left_x = self.vpShapePointList[2]
-                    self.currObject.upper_left_y = self.vpShapePointList[3]
                     self.rectList.append(self.currObject)
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlRectList = self.vpShapePointList + penDataList
