@@ -15,16 +15,21 @@ class Point():
 
 class Alignment():
     # max separations for alignment
-    MAX_X_SEP = 10
-    MAX_Y_SEP = 10
+    MAX_X_SEP = 40
+    MAX_Y_SEP = 40
 
     def __init__(self):
         self.delta_x = 0
         self.delta_y = 0
+        self.init_x = 0 # keeps old x and y for auxiliary lines
+        self.init_y = 0
 
     # reset current object's center coordinates based on proximity to centers/corners of previous objects;
     # choose center x/y for min separation in x/y direction from previous object(s)
     def align_center(self, currObject, circList, rectList):
+        # first record old x and y
+        self.init_x = currObject.center_x
+        self.init_y = currObject.center_y
         # identify all points within alignment range (MAX_X_SEP x MAX_X_SEP box)
         pt_list_x = []
         pt_list_y = []
@@ -133,6 +138,10 @@ class Alignment():
     # choose corner x/y for min separation in x/y direction from previous object(s)
     # require current object being a rectangle
     def align_corner(self, currObject, circList, rectList):
+        # first record old x and y
+        self.init_x = currObject.upperleft_x
+        self.init_y = currObject.upperleft_y
+
         # identify all points within alignment range (MAX_X_SEP x MAX_X_SEP box)
         pt_list_x = []
         pt_list_y = []

@@ -78,6 +78,10 @@ class MainWidget(QWidget):
     # flags representing if a constraint has been applied
     constraintAlignment_enabled = True
     constraintDist_enabled = False
+
+    # Data structures for alignments. Always refer to the current object
+    alignmentCenter = None
+    alignmentUL = None
     
     # the current object being drawn on paper
     currObject = None
@@ -470,6 +474,8 @@ class MainWidget(QWidget):
                     self.vpShapePointList = []
                     self.vpPointCount = 0
                     self.currObject = Circle(0, 0, 0)
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -483,6 +489,8 @@ class MainWidget(QWidget):
                     self.vpShapePointList = []
                     self.vpPointCount = 0
                     self.currObject = Rectangle(0, 0, 0, 0)
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -495,6 +503,8 @@ class MainWidget(QWidget):
                     self.vpShapePointList = []
                     self.vpPointCount = 0
                     self.currObject = Triangle(0, 0, 0, 0, 0, 0)
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -507,6 +517,8 @@ class MainWidget(QWidget):
                     self.vpShapePointList = []
                     self.vpPointCount = 0
                     self.currObject = Line(0, 0, 0, 0)
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -593,7 +605,7 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                # align center based on relations
+                # adjust based on relations
                 if (self.vpPointCount == 1):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
@@ -605,10 +617,10 @@ class MainWidget(QWidget):
                     elif self.constraintAlignment_enabled is True:
                         print("applying alignment constraint on center;")
                         print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        alignment_center = Alignment()
-                        alignment_center.align_center(self.currObject, self.circList, self.rectList)
+                        self.alignmentCenter = Alignment()
+                        self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
                         print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(alignment_center.delta_x)  + ", delta y: " + str(alignment_center.delta_y))
+                        print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
 
                 elif(self.vpPointCount >= 2):
                     if self.constraintDist_enabled is True:
@@ -616,13 +628,19 @@ class MainWidget(QWidget):
                         self.constraintAlignment_enabled = True
                     print("drawing the circle")
                     radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
-                    self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
-                    # store parameterized circle here
                     self.currObject.radius = radius
+                    self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
+                    # draw auxiliary line to show alignment
+                    if (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
+                        print("drawing aux line for center")
+                        self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
+                    # store parameterized circle here
                     self.circList.append(self.currObject)
                     # clear the flags and points data to go back to State 1
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.usingVP = False
                     self.usingVP_Circle = False
                     return
@@ -639,7 +657,7 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                # align center based on relations
+                # adjust based on relations
                 if (self.vpPointCount == 1):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
@@ -651,10 +669,10 @@ class MainWidget(QWidget):
                     elif self.constraintAlignment_enabled is True:
                         print("applying alignment constraint on center;")
                         print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        alignment_center = Alignment()
-                        alignment_center.align_center(self.currObject, self.circList, self.rectList)
+                        self.alignmentCenter = Alignment()
+                        self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
                         print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(alignment_center.delta_x)  + ", delta y: " + str(alignment_center.delta_y))
+                        print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
 
                 elif(self.vpPointCount >= 2):
                     if self.constraintDist_enabled is True:
@@ -664,12 +682,19 @@ class MainWidget(QWidget):
                         self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
                         print("applying alignment constraint on UL corner")
                         print("old x: " + str(self.currObject.upperleft_x) + ", old y: " + str(self.currObject.upperleft_y))
-                        alignment_ul = Alignment()
-                        alignment_ul.align_corner(self.currObject, self.circList, self.rectList)
+                        self.alignmentUL = Alignment()
+                        self.alignmentUL.align_corner(self.currObject, self.circList, self.rectList)
                         print("new x: " + str(self.currObject.upperleft_x) + ", new y: " + str(self.currObject.upperleft_y))
-                        print("delta x: " + str(alignment_ul.delta_x)  + ", delta y: " + str(alignment_ul.delta_y))
+                        print("delta x: " + str(self.alignmentUL.delta_x)  + ", delta y: " + str(self.alignmentUL.delta_y))
                     print("drawing the rect")
                     self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
+                    # draw auxiliary lines to show alignment
+                    if (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
+                        print("drawing aux line for center")
+                        self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
+                    if (self.alignmentUL is not None) and (self.alignmentUL.delta_x > 0 or self.alignmentUL.delta_y > 0):
+                        print("drawing aux line for UL corner")
+                        self.__paintBoard.paintAuxLine(self.alignmentUL.init_x, self.alignmentUL.init_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
                     # store parameterized rectangle here
                     self.rectList.append(self.currObject)
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
@@ -678,6 +703,8 @@ class MainWidget(QWidget):
                     # clear the flags and points data to go back to State 1
                     #self.ControlThread.controlStartDrawRect()
                     self.vpPointCount = 0
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.usingVP = False
                     self.usingVP_Rect = False
                     return
@@ -757,6 +784,8 @@ class MainWidget(QWidget):
                     #self.ControlThread.ControlStartDrawTri()
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.usingVP = False
                     self.usingVP_Tri = False
                     return
@@ -792,6 +821,8 @@ class MainWidget(QWidget):
                     #self.ControlThread.controlStartDrawLine()
                     self.vpPointCount = 0
                     self.vpShapePointList = []
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.usingVP = False
                     self.usingVP_Line = False
                     self.usingMotor = True

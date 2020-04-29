@@ -2,7 +2,7 @@
 '''
 Created on 2019-01-01
 
-@author: Yuxiang
+@author: Yuxiang, Guanxiong
 '''
 from PyQt4 import QtGui
 from PyQt4.QtGui import QWidget
@@ -199,6 +199,18 @@ class PaintBoard(QWidget):
         
         self.__painter.begin(self.__board)
         self.__penColor=QColor("black")
+        self.__painter.setPen(QPen(self.__penColor,self.__thickness)) 
+        self.__painter.drawLine(P1, P2)
+        self.__painter.end()
+                
+        self.update() #Show updates
+    
+    def paintAuxLine(self, P1_x, P1_y, P2_x, P2_y):
+        P1 = QPoint(P1_x, P1_y)
+        P2 = QPoint(P2_x, P2_y)
+        
+        self.__painter.begin(self.__board)
+        self.__penColor=QColor("red")
         self.__painter.setPen(QPen(self.__penColor,self.__thickness)) 
         self.__painter.drawLine(P1, P2)
         self.__painter.end()
