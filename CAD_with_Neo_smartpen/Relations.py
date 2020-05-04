@@ -15,8 +15,8 @@ class Point():
 
 class Alignment():
     # max separations for alignment
-    MAX_X_SEP = 40
-    MAX_Y_SEP = 40
+    MAX_X_SEP = 10
+    MAX_Y_SEP = 10
 
     def __init__(self):
         self.delta_x = 0
