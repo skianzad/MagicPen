@@ -77,7 +77,8 @@ class NotificationHandler(DefaultDelegate):
 class BluetoothThread(QThread):	
 	sigOut = pyqtSignal(list)
 
-	def runNeoPen(self, dev):
+	# initialize the pen
+	def initPen(self, dev):
 		global X_coord, Y_coord, force ,lifted
 		self.beepflag=False
 		self.p = Peripheral(dev.addr, ADDR_TYPE_RANDOM).withDelegate(NotificationHandler())
@@ -133,19 +134,28 @@ class BluetoothThread(QThread):
 		self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
 		self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 
+	def runNeoPen(self, dev):
+		global X_coord, Y_coord, force ,lifted
+		self.initPen(dev)
+
 		while True:
 			# wait for notification from the pen, if there is a new notification, send it out as a signal 
-			if(self.p.waitForNotifications(10.0)):
-				if(self.beepflag==False):
-					dataList = [X_coord, Y_coord, force, lifted]
-					self.sigOut.emit(dataList)
-			if (self.beepflag==True):
-				self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
-				self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
-				lifted=0
-				time.sleep(0.50)				
-				self.beepflag=False
-				# print(dataList)
+			try:
+				if(self.p.waitForNotifications(10.0)):
+					if(self.beepflag==False):
+						dataList = [X_coord, Y_coord, force, lifted]
+						self.sigOut.emit(dataList)
+				if (self.beepflag==True):
+					self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
+					self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
+					lifted=0
+					time.sleep(0.50)				
+					self.beepflag=False
+					# print(dataList)
+			except BTLEDisconnectError:
+				print("Pen disconnected!")
+				return
+
 	def beep(self):
 		self.beepflag=True
 		#self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
