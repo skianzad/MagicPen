@@ -61,7 +61,7 @@ class Triangle():
         self.y_2 = y_2
 
 class Line():
-    def __Init__(self, x_0, y_0, x_1, y_1):
+    def __init__(self, x_0, y_0, x_1, y_1):
         self.x_0 = x_0
         self.y_0 = y_0
         self.x_1 = x_1

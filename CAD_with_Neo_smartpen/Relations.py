@@ -244,3 +244,43 @@ class Alignment():
                 self.delta_y = abs(pt_pair_chosen[1].y - currObject.upperleft_y)
                 currObject.upperleft_x = pt_pair_chosen[0].x
                 currObject.upperleft_y = pt_pair_chosen[1].y
+
+class Concentric():
+    # max separation radius for center coordinates
+    MAX_SEP = 10
+
+    def __init__(self):
+        self.delta_x = 0
+        self.delta_y = 0
+        self.init_x = 0 # keeps old x and y for auxiliary lines
+        self.init_y = 0
+    
+    # make current circle concentric with previous circles
+    def make_concentric(self, currObject, circList):
+        # check if current object is circle
+        if isinstance(currObject, Circle) is False:
+            print("need the current object being a circle")
+            return
+
+        # first record old x and y
+        self.init_x = currObject.center_x
+        self.init_y = currObject.center_y
+        
+        # identify closest center within alignment range (circular region with radius MAX_SEP)
+        chosen_center_x = 0
+        chosen_center_y = 0
+        min_dist_squared = math.pow(Concentric.MAX_SEP, 2) + math.pow(Concentric.MAX_SEP, 2)
+        for circle in circList:
+            dx = currObject.center_x - circle.center_x
+            dy = currObject.center_y - circle.center_y
+            dist_squared = math.pow(dx, 2) + math.pow(dy, 2)
+            if dist_squared <= min_dist_squared:
+                min_dist_squared = dist_squared
+                chosen_center_x = circle.center_x
+                chosen_center_y = circle.center_y
+        currObject.center_x = chosen_center_x
+        currObject.center_y = chosen_center_y
+        self.delta_x = abs(currObject.center_x - self.init_x)
+        self.delta_y = abs(currObject.center_y - self.init_y)
+
+

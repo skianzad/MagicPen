@@ -21,7 +21,7 @@ from Relations import *
 class MainWidget(QWidget):
     # 80 * 200 pallet
     # Define virtual panel coordinates for different shapes/regions
-    VPCoord_Start   =   [80, 200]            #LeftTopX, Y (originally 316, 332)
+    VPCoord_Start   =   [80, 275]            #LeftTopX, Y (originally 316, 332)
     VPCoord_Circle  =   [0,  0,   40, 50]    #LeftTopX, Y, RightBotX, Y 
     VPCoord_Rect    =   [40, 0,   80, 50] 
     VPCoord_Tri     =   [0,  50,  40, 100] 
@@ -32,8 +32,14 @@ class MainWidget(QWidget):
     VPCoord_Ruler   =   [40, 150, 80, 200] 
     # VPCoord_Copy    =   [0,  150, 40, 200] 
     #VPCoord_Paste   =   [40, 150, 80, 200] 
-    # TODO: Define virtual ruler coordinates
+    # Define virtual ruler coordinates
     VRCoord = [80, 0, 180, 50]
+    #Define virtual panel coordinates for different constraints
+    VPCoord_Alignment = [0, 200, 40, 225]
+    VPCoord_Distance = [40, 200, 80, 225]
+    VPCoord_Concentric = [0, 225, 40, 250]
+    VPCoord_Parallel = [40, 225, 80, 250]
+    VPCoord_Perpendicular = [0, 250, 40, 275]
 
     # A flag to check if the user is currently using the virtual panel
     usingVP         = False
@@ -78,6 +84,16 @@ class MainWidget(QWidget):
     # flags representing if a constraint has been applied
     constraintAlignment_enabled = True
     constraintDist_enabled = False
+    constraintConcentric_enabled = False
+    constraintParallel_enabled = False
+    constraintPerpendicular_enabled = False
+
+    # macros for constraints
+    CONSTRAINT_ALIGNMENT = "constraint"
+    CONSTRAINT_CONCENTRIC = "concentric"
+    CONSTRAINT_DIST = "distance"
+    CONSTRAINT_PARALLEL = "parallel"
+    CONSTRAINT_PERP = "perpendicular"
 
     # Data structures for alignments. Always refer to the current object
     alignmentCenter = None
@@ -405,8 +421,28 @@ class MainWidget(QWidget):
                 pointListY.append(pointList[i].split(',')[1])
             self.__paintBoard.paintBezierSpline(pointListX, pointListY)
 
+    # toggle the given constraint on and others off
+    def turn_on_constraint(self, constraint):
+        self.constraintAlignment_enabled = False
+        self.constraintConcentric_enabled = False
+        self.constraintDist_enabled = False
+        self.constraintParallel_enabled = False
+        self.constraintPerpendicular_enabled = False
+        if constraint == self.CONSTRAINT_ALIGNMENT:
+            self.constraintAlignment_enabled = True
+        elif constraint == self.CONSTRAINT_CONCENTRIC:
+            self.constraintConcentric_enabled = True
+        elif constraint == self.CONSTRAINT_DIST:
+            self.constraintDist_enabled = True
+        elif constraint == self.CONSTRAINT_PARALLEL:
+            self.constraintParallel_enabled = True
+        elif constraint == self.CONSTRAINT_PERP:
+            self.constraintPerpendicular_enabled = True
+        return
+
     # Reset current object's center coordinates so the center is at the specified
-    # distance from the last object
+    # distance from the last object;
+    # requires at least one distance measurement
     def distance_circ_or_rect(self):
         if (isinstance(self.currObject, Circle) is False) and (isinstance(self.currObject, Rectangle) is False):
             print("need the current object being a rectangle or a circle")
@@ -561,7 +597,6 @@ class MainWidget(QWidget):
                     
                 elif(pen_x < self.VPCoord_Ruler[2] and pen_y < self.VPCoord_Ruler[3] and lifted==True):
                     print("Ruler Mode")
-                    # TODO: modify this state
                     self.usingVP = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
@@ -572,7 +607,50 @@ class MainWidget(QWidget):
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
                     return
-                    
+                
+                elif(pen_x < self.VPCoord_Alignment[2] and pen_y < self.VPCoord_Alignment[3] and lifted==True):
+                    print("Alignment enabled")
+                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
+                    self.BluetoothThread.beep()
+                    time.sleep(0.5)
+                    self.BluetoothThread.beep()
+                    return
+                
+                elif(pen_x < self.VPCoord_Distance[2] and pen_y < self.VPCoord_Distance[3] and lifted==True):
+                    print("Distance Enabled; Please use ruler to set distance")
+                    self.turn_on_constraint(self.CONSTRAINT_DIST)
+                    self.BluetoothThread.beep()
+                    time.sleep(0.5)
+                    self.BluetoothThread.beep()
+                    return
+                
+                elif(pen_x < self.VPCoord_Concentric[2] and pen_y < self.VPCoord_Concentric[3] and lifted==True):
+                    print("Concentric enabled")
+                    self.turn_on_constraint(self.CONSTRAINT_CONCENTRIC)
+                    self.concen = None
+                    self.BluetoothThread.beep()
+                    time.sleep(0.5)
+                    self.BluetoothThread.beep()
+                    return
+            
+                elif(pen_x < self.VPCoord_Parallel[2] and pen_y < self.VPCoord_Parallel[3] and lifted==True):
+                    print("Parallel enabled")
+                    self.turn_on_constraint(self.CONSTRAINT_PARALLEL)          
+                    self.BluetoothThread.beep()
+                    time.sleep(0.5)
+                    self.BluetoothThread.beep()
+                    return
+                
+                elif(pen_x < self.VPCoord_Perpendicular[2] and pen_y < self.VPCoord_Perpendicular[3] and lifted==True):
+                    print("Perpendicular enabled")
+                    self.turn_on_constraint(self.CONSTRAINT_PERP)                    
+                    self.BluetoothThread.beep()
+                    time.sleep(0.5)
+                    self.BluetoothThread.beep()
+                    return
+                
                 # Copy and Paste condition is currently not used. Put them in the end.
                 #elif(pen_x < self.VPCoord_Perspect[2] and pen_y < self.VPCoord_Perspect[3] and lifted==True):
                     #print("Ready to choose vanishing point")
@@ -609,23 +687,25 @@ class MainWidget(QWidget):
                 if (self.vpPointCount == 1):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
-                    if self.constraintDist_enabled is True:
-                        # automatically nullify alignment constraint when distance constraint is enabled
-                        self.constraintAlignment_enabled = False
-                        print("applying distance constraint")
-                        self.distance_circ_or_rect()
-                    elif self.constraintAlignment_enabled is True:
+                    if self.constraintAlignment_enabled is True:
                         print("applying alignment constraint on center;")
                         print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                         self.alignmentCenter = Alignment()
                         self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
                         print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
                         print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                    elif self.constraintDist_enabled is True:
+                        print("applying distance constraint")
+                        self.distance_circ_or_rect()
+                    elif self.constraintConcentric_enabled is True:
+                        print("applying concentric constraint;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        self.concen = Concentric()
+                        self.concen.make_concentric(self.currObject, self.circList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
 
                 elif(self.vpPointCount >= 2):
-                    if self.constraintDist_enabled is True:
-                        self.constraintDist_enabled = False
-                        self.constraintAlignment_enabled = True
                     print("drawing the circle")
                     radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
                     self.currObject.radius = radius
@@ -643,6 +723,7 @@ class MainWidget(QWidget):
                     self.alignmentUL = None
                     self.usingVP = False
                     self.usingVP_Circle = False
+                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
                     return
                     
                     
@@ -662,8 +743,6 @@ class MainWidget(QWidget):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
                     if self.constraintDist_enabled is True:
-                        # automatically nullify alignment constraint when distance constraint is enabled
-                        self.constraintAlignment_enabled = False
                         print("applying distance constraint")
                         self.distance_circ_or_rect()
                     elif self.constraintAlignment_enabled is True:
@@ -675,10 +754,8 @@ class MainWidget(QWidget):
                         print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
 
                 elif(self.vpPointCount >= 2):
-                    if self.constraintDist_enabled is True:
-                        self.constraintDist_enabled = False
-                        self.constraintAlignment_enabled = True
-                    if self.vpPointCount == 2:
+                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
+                    if self.vpPointCount == 2 and self.constraintAlignment_enabled is True:
                         self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
                         print("applying alignment constraint on UL corner")
                         print("old x: " + str(self.currObject.upperleft_x) + ", old y: " + str(self.currObject.upperleft_y))
@@ -899,7 +976,6 @@ class MainWidget(QWidget):
                     return                   
            
             # State 2-h: Ruler Mode using VP function
-            # TODO: modify this state
             elif(self.usingVP_Ruler is True):
                 print(self.vpPointCount)
                 # if the pen is lifted off the paper, and is inside the virtual ruler space, append the last new point to the list
@@ -912,13 +988,11 @@ class MainWidget(QWidget):
                     
                 if(self.vpPointCount >= 1):
                     print("Ruler mode activated")
-                    
+
                     # store parameterized DistMeasurement here
                     self.currObject.set_dist(self.vpShapePointList[0])
                     print("distance set to: " + str(self.currObject.dist))
                     self.distMeasurementList.append(self.currObject)
-
-                    self.constraintDist_enabled = True
 
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlLineList = self.vpShapePointList + penDataList
