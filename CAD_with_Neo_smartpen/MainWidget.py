@@ -82,7 +82,7 @@ class MainWidget(QWidget):
     distMeasurementList = []
 
     # flags representing if a constraint has been applied
-    constraintAlignment_enabled = True
+    constraintAlignment_enabled = True # default enabled relation is alignment
     constraintDist_enabled = False
     constraintConcentric_enabled = False
     constraintParallel_enabled = False
@@ -98,6 +98,10 @@ class MainWidget(QWidget):
     # Data structures for alignments. Always refer to the current object
     alignmentCenter = None
     alignmentUL = None
+
+    # Data structures for distance relations. Always refer to the current object
+
+    # Data structures for concentric relations. Always refer to the current object
     
     # the current object being drawn on paper
     currObject = None
@@ -440,34 +444,6 @@ class MainWidget(QWidget):
             self.constraintPerpendicular_enabled = True
         return
 
-    # Reset current object's center coordinates so the center is at the specified
-    # distance from the last object;
-    # requires at least one distance measurement
-    def distance_circ_or_rect(self):
-        if (isinstance(self.currObject, Circle) is False) and (isinstance(self.currObject, Rectangle) is False):
-            print("need the current object being a rectangle or a circle")
-            return
-        if (isinstance(self.lastObject, Circle) is False) and (isinstance(self.lastObject, Rectangle) is False):
-            print("need the last object being a rectangle or a circle")
-            return
-        
-        current_x = self.currObject.center_x
-        current_y = self.currObject.center_y
-        last_x = self.lastObject.center_x
-        last_y = self.lastObject.center_y
-        assert len(self.distMeasurementList)>=1
-        dist = self.distMeasurementList[len(self.distMeasurementList)-1].dist
-
-        slope = (current_y - last_y) / (current_x - last_x)
-        dx = math.sqrt(math.pow(dist,2) / (1 + math.pow(slope, 2)))
-        if (current_x - last_x) < 0:
-            dx = -1 * dx
-        dy = slope * dx
-        
-        self.currObject.center_x = last_x + dx
-        self.currObject.center_y = last_y + dy
-
-
     # Free drawing functionalities; also a state machine
     def free_draw_updates(self, penDataList):
         self.gcoordinate.emit(penDataList)
@@ -619,8 +595,9 @@ class MainWidget(QWidget):
                     return
                 
                 elif(pen_x < self.VPCoord_Distance[2] and pen_y < self.VPCoord_Distance[3] and lifted==True):
-                    print("Distance Enabled; Please use ruler to set distance")
+                    print("Distance enabled; Please use ruler to set distance")
                     self.turn_on_constraint(self.CONSTRAINT_DIST)
+                    self.dist = None
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -695,8 +672,12 @@ class MainWidget(QWidget):
                         print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
                         print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
                     elif self.constraintDist_enabled is True:
-                        print("applying distance constraint")
-                        self.distance_circ_or_rect()
+                        print("applying distance constraint;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        self.dist = Distance()
+                        self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
                     elif self.constraintConcentric_enabled is True:
                         print("applying concentric constraint;")
                         print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
@@ -710,10 +691,16 @@ class MainWidget(QWidget):
                     radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
                     self.currObject.radius = radius
                     self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
-                    # draw auxiliary line to show alignment
-                    if (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
-                        print("drawing aux line for center")
+                    # draw auxiliary lines
+                    if (self.constraintAlignment_enabled is True) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
+                        print("drawing aux line for alignment of center")
                         self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
+                    if (self.constraintConcentric_enabled is True) and (self.concen.delta_x > 0 or self.concen.delta_y > 0):
+                        print("drawing aux line for concentric on center")
+                        self.__paintBoard.paintAuxLine(self.concen.init_x, self.concen.init_y, self.currObject.center_x, self.currObject.center_y)
+                    if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
+                        print("drawing aux line for fix distance at center")
+                        self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
                     # store parameterized circle here
                     self.circList.append(self.currObject)
                     # clear the flags and points data to go back to State 1
@@ -743,8 +730,12 @@ class MainWidget(QWidget):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
                     if self.constraintDist_enabled is True:
-                        print("applying distance constraint")
-                        self.distance_circ_or_rect()
+                        print("applying distance constraint;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        self.dist = Distance()
+                        self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
                     elif self.constraintAlignment_enabled is True:
                         print("applying alignment constraint on center;")
                         print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
@@ -754,7 +745,6 @@ class MainWidget(QWidget):
                         print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
 
                 elif(self.vpPointCount >= 2):
-                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
                     if self.vpPointCount == 2 and self.constraintAlignment_enabled is True:
                         self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
                         print("applying alignment constraint on UL corner")
@@ -765,13 +755,16 @@ class MainWidget(QWidget):
                         print("delta x: " + str(self.alignmentUL.delta_x)  + ", delta y: " + str(self.alignmentUL.delta_y))
                     print("drawing the rect")
                     self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
-                    # draw auxiliary lines to show alignment
-                    if (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
+                    # draw auxiliary lines
+                    if (self.constraintAlignment_enabled is True) and (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
                         print("drawing aux line for center")
                         self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
-                    if (self.alignmentUL is not None) and (self.alignmentUL.delta_x > 0 or self.alignmentUL.delta_y > 0):
+                    if (self.constraintAlignment_enabled is True) and (self.alignmentUL is not None) and (self.alignmentUL.delta_x > 0 or self.alignmentUL.delta_y > 0):
                         print("drawing aux line for UL corner")
                         self.__paintBoard.paintAuxLine(self.alignmentUL.init_x, self.alignmentUL.init_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
+                    if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
+                        print("drawing aux line for fix distance at center")
+                        self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
                     # store parameterized rectangle here
                     self.rectList.append(self.currObject)
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
@@ -784,6 +777,7 @@ class MainWidget(QWidget):
                     self.alignmentUL = None
                     self.usingVP = False
                     self.usingVP_Rect = False
+                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
                     return
                     
             
@@ -990,7 +984,7 @@ class MainWidget(QWidget):
                     print("Ruler mode activated")
 
                     # store parameterized DistMeasurement here
-                    self.currObject.set_dist(self.vpShapePointList[0])
+                    self.currObject.set_dist(self.vpShapePointList[0] - self.VRCoord[0])
                     print("distance set to: " + str(self.currObject.dist))
                     self.distMeasurementList.append(self.currObject)
 

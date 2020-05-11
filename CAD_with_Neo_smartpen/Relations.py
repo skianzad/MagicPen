@@ -245,6 +245,46 @@ class Alignment():
                 currObject.upperleft_x = pt_pair_chosen[0].x
                 currObject.upperleft_y = pt_pair_chosen[1].y
 
+class Distance():
+    def __init__(self):
+        self.delta_x = 0
+        self.delta_y = 0
+        self.init_x = 0 # keeps old x and y for auxiliary lines
+        self.init_y = 0
+
+    # Reset current object's center coordinates so the center is at the specified
+    # distance from the last object;
+    # Require at least one distance measurement;
+    # Require current & last object being circle/rectangle
+    def fix_distance(self, currObject, lastObject, distMeasurementList):
+        if (isinstance(currObject, Circle) is False) and (isinstance(currObject, Rectangle) is False):
+            print("need the current object being a rectangle or a circle")
+            return
+        if (isinstance(lastObject, Circle) is False) and (isinstance(lastObject, Rectangle) is False):
+            print("need the last object being a rectangle or a circle")
+            return
+        
+        current_x = currObject.center_x
+        current_y = currObject.center_y
+        last_x = lastObject.center_x
+        last_y = lastObject.center_y
+        assert len(distMeasurementList)>=1
+        dist = distMeasurementList[len(distMeasurementList)-1].dist
+
+        slope = (current_y - last_y) / (current_x - last_x)
+        dx = math.sqrt(math.pow(dist,2) / (1 + math.pow(slope, 2)))
+        if (current_x - last_x) < 0:
+            dx = -1 * dx
+        dy = slope * dx
+        
+        currObject.center_x = last_x + dx
+        currObject.center_y = last_y + dy
+
+        self.init_x = current_x
+        self.init_y = current_y
+        self.delta_x = abs(dx)
+        self.delta_y = abs(dy)
+
 class Concentric():
     # max separation radius for center coordinates
     MAX_SEP = 10
