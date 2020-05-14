@@ -725,10 +725,10 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                # adjust based on relations
                 if (self.vpPointCount == 1):
                     self.currObject.center_x = self.vpShapePointList[0]
                     self.currObject.center_y = self.vpShapePointList[1]
+                    # adjust based on relations
                     if self.constraintDist_enabled is True:
                         print("applying distance constraint;")
                         print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
@@ -745,6 +745,7 @@ class MainWidget(QWidget):
                         print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
 
                 elif(self.vpPointCount >= 2):
+                    # adjust based on relations
                     if self.vpPointCount == 2 and self.constraintAlignment_enabled is True:
                         self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
                         print("applying alignment constraint on UL corner")
@@ -875,14 +876,26 @@ class MainWidget(QWidget):
                     
                 if(self.vpPointCount >= 2):
                     print("drawing the line")
-                    if(len(self.vpShapePointList)>=4):
-                        self.__paintBoard.paintLine(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
                     # store parameterized line here
-                    self.currObject.x_0 = self.vpShapePointList[0]
-                    self.currObject.y_0 = self.vpShapePointList[1]
-                    self.currObject.x_1 = self.vpShapePointList[2]
-                    self.currObject.y_1 = self.vpShapePointList[3]
+                    self.currObject.set_coords(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
+                    # adjust based on relations
+                    if self.vpPointCount == 2:
+                        if self.constraintParallel_enabled is True:
+                            print("applying parallel constraint on the second point")
+                            print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
+                            self.para = Parallel()
+                            self.para.make_para(self.currObject, self.lineList)
+                            print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
+                        elif self.constraintPerpendicular_enabled is True:
+                            print("applying perpendicular constraint on the second point")
+                            print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
+                            self.perp = Perpendicular()
+                            self.perp.make_perp(self.currObject, self.lineList)
+                            print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
                     self.lineList.append(self.currObject)
+                    # draw the line
+                    if(len(self.vpShapePointList)>=4):
+                        self.__paintBoard.paintLine(self.currObject.x_0, self.currObject.y_0, self.currObject.x_1, self.currObject.y_1)
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlLineList = self.vpShapePointList + penDataList
                     self.controlLineSignal.emit(controlLineList)
@@ -898,6 +911,7 @@ class MainWidget(QWidget):
                     self.usingVP_Line = False
                     self.usingMotor = True
                     self.usingMotor_Line = True
+                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
                     return
                     
                     
