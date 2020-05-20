@@ -896,6 +896,13 @@ class MainWidget(QWidget):
                     # draw the line
                     if(len(self.vpShapePointList)>=4):
                         self.__paintBoard.paintLine(self.currObject.x_0, self.currObject.y_0, self.currObject.x_1, self.currObject.y_1)
+                    # draw auxiliary lines
+                    if (self.constraintParallel_enabled is True) or (self.constraintPerpendicular_enabled is True):
+                        print("drawing aux arc")
+                        if (self.constraintParallel_enabled is True):
+                            self.__paintBoard.paintAuxArc(self.currObject.x_0, self.currObject.y_0, self.para.init_x, self.para.init_y, self.currObject.x_1, self.currObject.y_1) 
+                        else:
+                            self.__paintBoard.paintAuxArc(self.currObject.x_0, self.currObject.y_0, self.perp.init_x, self.perp.init_y, self.currObject.x_1, self.currObject.y_1) 
                     # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
                     controlLineList = self.vpShapePointList + penDataList
                     self.controlLineSignal.emit(controlLineList)

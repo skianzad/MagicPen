@@ -336,17 +336,38 @@ class Parallel():
     # drags the second point of currLine to make it parallel to refLine
     # modifies delta_x and delta_y
     def drag_second_point(self, currLine, refLine):
-        # define currLine with polar representation
+        # define currLine with polar representation (-pi < theta <= pi)
         r_curr = currLine.get_magnitude()
-        theta_curr = math.atan2((currLine.y_1-currLine.y_0), (currLine.x_1-currLine.x_0))
-        # define refLine with polar representation
-        theta_ref = math.atan2((refLine.y_1-refLine.y_0), (refLine.x_1-refLine.x_0))
-        if abs(theta_curr - theta_ref) > math.asin(Parallel.MAX_SIN_VAL) + 0.0872:
-            currLine.x_1 = currLine.x_0 + r_curr * math.cos(theta_ref + math.pi)
-            currLine.y_1 = currLine.y_0 + r_curr * math.sin(theta_ref + math.pi)
+        theta_curr = math.atan2((currLine.y_0-currLine.y_1), (currLine.x_1-currLine.x_0))
+        
+        # get the acute angle between the two lines
+        cross_product_mag = currLine.get_cross_product(refLine)
+        mag_curr = currLine.get_magnitude()
+        mag_ref = refLine.get_magnitude()
+        sin_val_abs = abs(cross_product_mag / (mag_curr * mag_ref))
+        theta_delta = math.asin(sin_val_abs)
+        
+        # rotate in both CW and CCW direction, and get respective final point
+        theta_final_A = theta_curr + theta_delta
+        new_x_1_A = currLine.x_0 + r_curr * math.cos(theta_final_A)
+        new_y_1_A = currLine.y_0 - r_curr * math.sin(theta_final_A)
+        line_A = Line(currLine.x_0, currLine.y_0, new_x_1_A, new_y_1_A)
+        theta_final_B = theta_curr - theta_delta
+        new_x_1_B = currLine.x_0 + r_curr * math.cos(theta_final_B)
+        new_y_1_B = currLine.y_0 - r_curr * math.sin(theta_final_B)
+        line_B = Line(currLine.x_0, currLine.y_0, new_x_1_B, new_y_1_B)
+        
+        # compare cross product magnitudes to figure out which direction should
+        # adopt
+        cross_mag_A = refLine.get_cross_product(line_A)
+        cross_mag_B = refLine.get_cross_product(line_B)
+        if abs(cross_mag_A) < abs(cross_mag_B):
+            currLine.x_1 = new_x_1_A
+            currLine.y_1 = new_y_1_A
         else:
-            currLine.x_1 = currLine.x_0 + r_curr * math.cos(theta_ref)
-            currLine.y_1 = currLine.y_0 + r_curr * math.sin(theta_ref)
+            currLine.x_1 = new_x_1_B
+            currLine.y_1 = new_y_1_B
+        
         self.delta_x = abs(currLine.x_1 - self.init_x)
         self.delta_y = abs(currLine.y_1 - self.init_y)
             
@@ -359,13 +380,13 @@ class Parallel():
 
         min_sin_val = Parallel.MAX_SIN_VAL
         for line in lineList:
-            print("checking line")
+            #print("checking line")
             cross_product_mag = currObject.get_cross_product(line)
-            print("cross product mag is " + str(cross_product_mag))
+            #print("cross product mag is " + str(cross_product_mag))
             mag_line = line.get_magnitude()
-            print("line mag is " + str(mag_line))
+            #print("line mag is " + str(mag_line))
             sin_val_abs = abs(cross_product_mag / (mag_curr * mag_line))
-            print("sine val abs is " + str(sin_val_abs))
+            #print("sine val abs is " + str(sin_val_abs))
             if sin_val_abs > 0 and sin_val_abs <= Parallel.MAX_SIN_VAL and sin_val_abs <= min_sin_val:
                 min_sin_val = sin_val_abs
                 self.drag_second_point(currObject, line)
@@ -383,17 +404,38 @@ class Perpendicular():
     # drags the second point of currLine to make it perpendicular to refLine
     # modifies delta_x and delta_y
     def drag_second_point(self, currLine, refLine):
-        # define currLine with polar representation
+        # define currLine with polar representation (-pi < theta <= pi)
         r_curr = currLine.get_magnitude()
-        theta_curr = math.atan2((currLine.y_1-currLine.y_0), (currLine.x_1-currLine.x_0))
-        # define refLine with polar representation
-        theta_ref = math.atan2((refLine.y_1-refLine.y_0), (refLine.x_1-refLine.x_0))
-        if theta_curr > theta_ref:
-            currLine.x_1 = currLine.x_0 + r_curr * math.cos(theta_ref + (math.pi / 2))
-            currLine.y_1 = currLine.y_0 + r_curr * math.sin(theta_ref + (math.pi / 2))
+        theta_curr = math.atan2((currLine.y_0-currLine.y_1), (currLine.x_1-currLine.x_0))
+        
+        # get the acute angle between the two lines
+        dot_product_mag = currLine.get_dot_product(refLine)
+        mag_curr = currLine.get_magnitude()
+        mag_ref = refLine.get_magnitude()
+        cos_val_abs = abs(dot_product_mag / (mag_curr * mag_ref))
+        theta_delta = (math.pi / 2) - math.acos(cos_val_abs)
+        
+        # rotate in both CW and CCW direction, and get respective final point
+        theta_final_A = theta_curr + theta_delta
+        new_x_1_A = currLine.x_0 + r_curr * math.cos(theta_final_A)
+        new_y_1_A = currLine.y_0 - r_curr * math.sin(theta_final_A)
+        line_A = Line(currLine.x_0, currLine.y_0, new_x_1_A, new_y_1_A)
+        theta_final_B = theta_curr - theta_delta
+        new_x_1_B = currLine.x_0 + r_curr * math.cos(theta_final_B)
+        new_y_1_B = currLine.y_0 - r_curr * math.sin(theta_final_B)
+        line_B = Line(currLine.x_0, currLine.y_0, new_x_1_B, new_y_1_B)
+        
+        # compare cross product magnitudes to figure out which direction should
+        # adopt
+        dot_mag_A = refLine.get_dot_product(line_A)
+        dot_mag_B = refLine.get_dot_product(line_B)
+        if abs(dot_mag_A) < abs(dot_mag_B):
+            currLine.x_1 = new_x_1_A
+            currLine.y_1 = new_y_1_A
         else:
-            currLine.x_1 = currLine.x_0 + r_curr * math.cos(theta_ref - (math.pi / 2))
-            currLine.y_1 = currLine.y_0 + r_curr * math.sin(theta_ref - (math.pi / 2))
+            currLine.x_1 = new_x_1_B
+            currLine.y_1 = new_y_1_B
+        
         self.delta_x = abs(currLine.x_1 - self.init_x)
         self.delta_y = abs(currLine.y_1 - self.init_y)
 
@@ -402,7 +444,7 @@ class Perpendicular():
         self.init_x = currObject.x_1
         self.init_y = currObject.y_1
         mag_curr = currObject.get_magnitude()
-        print("curr line mag is " + str(mag_curr))
+        #print("curr line mag is " + str(mag_curr))
         min_cos_val = Perpendicular.MAX_COS_VAL
         for line in lineList:
             dot_product_mag = currObject.get_dot_product(line)
