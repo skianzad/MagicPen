@@ -239,7 +239,23 @@ class PaintBoard(QWidget):
             self.__painter.drawPoint(round(x[0]+center[0],3),round(x[1]/1.00+center[1],3))    
         
         self.__painter.end()
-#        
+    
+    # returns true if given angle is in the second quadrant;
+    # requires angle in degree and in range -180 to 180
+    def _isAngleInSecondQuadrant(self, angle):
+        if angle>90 and angle<180:
+            return True
+        else:
+            return False
+    
+    # returns true if given angle is in the third quadrant;
+    # requires angle in degree and in range -180 to 180
+    def _isAngleInThirdQuadrant(self, angle):
+        if angle<-90 and angle>-180:
+            return True
+        else:
+            return False
+
     
     def paintArc(self, center_x, center_y, start_x, start_y, end_x, end_y):
         radius = math.sqrt(math.pow(center_x-start_x, 2) + math.pow(center_y-start_y, 2))
@@ -250,19 +266,12 @@ class PaintBoard(QWidget):
         endAngle = math.degrees(math.atan2(center_y - end_y, end_x - center_x))
         
         # span angle calculation
-        spanAngle = 0
-        if (startAngle<0 and endAngle>0) or (startAngle>0 and endAngle<0):
-            if startAngle < 0:
-                spanAngle = endAngle - (startAngle + 360)
-            else:
-                spanAngle = (endAngle + 360) - startAngle
-        else:
-            spanAngle = endAngle - startAngle
+        spanAngle = endAngle - startAngle
         # assume user always wants to draw clock-wise
         if spanAngle > 0:
             spanAngle = -1 * (360 - spanAngle)
-        print("start angle is " + str(startAngle))
-        print("span angle is " + str(spanAngle))
+        #print("start angle is " + str(startAngle))
+        #print("span angle is " + str(spanAngle))
 
         self.__painter.begin(self.__board)
         self.__penColor=QColor("black")
@@ -282,13 +291,15 @@ class PaintBoard(QWidget):
 
         # span angle calculation
         spanAngle = 0
-        if (startAngle<0 and endAngle>0) or (startAngle>0 and endAngle<0):
-            if startAngle < 0:
+        if (self._isAngleInThirdQuadrant(startAngle) and self._isAngleInSecondQuadrant(endAngle)) or (self._isAngleInThirdQuadrant(endAngle) and self._isAngleInSecondQuadrant(startAngle)) or (startAngle==180 and self._isAngleInThirdQuadrant(endAngle)) or (startAngle==-180 and self._isAngleInSecondQuadrant(endAngle)) or (endAngle==180 and self._isAngleInThirdQuadrant(startAngle)) or (endAngle==-180 and self._isAngleInSecondQuadrant(startAngle)):
+            if startAngle==180 or self._isAngleInThirdQuadrant(startAngle):
                 spanAngle = endAngle - (startAngle + 360)
             else:
                 spanAngle = (endAngle + 360) - startAngle
         else:
             spanAngle = endAngle - startAngle
+        #print("start angle is " + str(startAngle))
+        #print("span angle is " + str(spanAngle))
 
         self.__painter.begin(self.__board)
         self.__penColor=QColor("red")
