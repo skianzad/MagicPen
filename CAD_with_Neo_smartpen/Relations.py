@@ -342,6 +342,7 @@ class Parallel():
         # define currLine with polar representation (-pi < theta <= pi)
         r_curr = currLine.get_magnitude()
         theta_curr = math.atan2((currLine.y_0-currLine.y_1), (currLine.x_1-currLine.x_0))
+        #print("theta_curr: " + str(math.degrees(theta_curr)))
         
         # get the acute angle between the two lines
         cross_product_mag = currLine.get_cross_product(refLine)
@@ -349,6 +350,7 @@ class Parallel():
         mag_ref = refLine.get_magnitude()
         sin_val_abs = abs(cross_product_mag / (mag_curr * mag_ref))
         theta_delta = math.asin(sin_val_abs)
+        #print("theta_delta: " + str(math.degrees(theta_delta)))
         
         # rotate in both CW and CCW direction, and get respective final point
         theta_final_A = theta_curr + theta_delta
@@ -359,6 +361,8 @@ class Parallel():
         new_x_1_B = currLine.x_0 + r_curr * math.cos(theta_final_B)
         new_y_1_B = currLine.y_0 - r_curr * math.sin(theta_final_B)
         line_B = Line(currLine.x_0, currLine.y_0, new_x_1_B, new_y_1_B)
+        #("theta_final_A: " + str(math.degrees(theta_final_A)))
+        #print("theta_final_B: " + str(math.degrees(theta_final_B)))
         
         # compare cross product magnitudes to figure out which direction should
         # adopt
@@ -379,7 +383,7 @@ class Parallel():
         self.init_x = currObject.x_1
         self.init_y = currObject.y_1
         mag_curr = currObject.get_magnitude()
-        print("curr line mag is " + str(mag_curr))
+        #print("curr line mag is " + str(mag_curr))
 
         min_sin_val = Parallel.MAX_SIN_VAL
         for line in lineList:

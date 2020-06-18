@@ -961,6 +961,16 @@ class MainWidget(QWidget):
                             print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
 
                     elif(self.vpPointCount >= 3):
+                        # draw auxiliary lines
+                        if (self.constraintAlignment_enabled is True) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
+                            print("drawing aux line for alignment of center")
+                            self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
+                        if (self.constraintConcentric_enabled is True) and (self.concen.delta_x > 0 or self.concen.delta_y > 0):
+                            print("drawing aux line for concentric on center")
+                            self.__paintBoard.paintAuxLine(self.concen.init_x, self.concen.init_y, self.currObject.center_x, self.currObject.center_y)
+                        if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
+                            print("drawing aux line for fix distance at center")
+                            self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
                         # store parameterized arc here
                         self.currObject.set_start(self.vpShapePointList[2], self.vpShapePointList[3])
                         self.currObject.set_end(self.vpShapePointList[4], self.vpShapePointList[5])
