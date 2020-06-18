@@ -663,58 +663,58 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                # adjust based on relations
-                if (self.vpPointCount == 1):
-                    self.currObject.center_x = self.vpShapePointList[0]
-                    self.currObject.center_y = self.vpShapePointList[1]
-                    if self.constraintAlignment_enabled is True:
-                        print("applying alignment constraint on center;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.alignmentCenter = Alignment()
-                        self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
-                    elif self.constraintDist_enabled is True:
-                        print("applying distance constraint;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.dist = Distance()
-                        self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
-                    elif self.constraintConcentric_enabled is True:
-                        print("applying concentric constraint;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.concen = Concentric()
-                        self.concen.make_concentric(self.currObject, self.circList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
+                    # adjust based on relations
+                    if (self.vpPointCount == 1):
+                        self.currObject.center_x = self.vpShapePointList[0]
+                        self.currObject.center_y = self.vpShapePointList[1]
+                        if self.constraintAlignment_enabled is True:
+                            print("applying alignment constraint on center;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.alignmentCenter = Alignment()
+                            self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                        elif self.constraintDist_enabled is True:
+                            print("applying distance constraint;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.dist = Distance()
+                            self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
+                        elif self.constraintConcentric_enabled is True:
+                            print("applying concentric constraint;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.concen = Concentric()
+                            self.concen.make_concentric(self.currObject, self.circList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
 
-                elif(self.vpPointCount >= 2):
-                    print("drawing the circle")
-                    radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
-                    self.currObject.radius = radius
-                    self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
-                    # draw auxiliary lines
-                    if (self.constraintAlignment_enabled is True) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
-                        print("drawing aux line for alignment of center")
-                        self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
-                    if (self.constraintConcentric_enabled is True) and (self.concen.delta_x > 0 or self.concen.delta_y > 0):
-                        print("drawing aux line for concentric on center")
-                        self.__paintBoard.paintAuxLine(self.concen.init_x, self.concen.init_y, self.currObject.center_x, self.currObject.center_y)
-                    if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
-                        print("drawing aux line for fix distance at center")
-                        self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
-                    # store parameterized circle here
-                    self.circList.append(self.currObject)
-                    # clear the flags and points data to go back to State 1
-                    self.vpShapePointList = []
-                    self.vpPointCount = 0
-                    self.alignmentCenter = None
-                    self.alignmentUL = None
-                    self.usingVP = False
-                    self.usingVP_Circle = False
-                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
-                    return
+                    elif(self.vpPointCount >= 2):
+                        print("drawing the circle")
+                        radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
+                        self.currObject.radius = radius
+                        self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
+                        # draw auxiliary lines
+                        if (self.constraintAlignment_enabled is True) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
+                            print("drawing aux line for alignment of center")
+                            self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
+                        if (self.constraintConcentric_enabled is True) and (self.concen.delta_x > 0 or self.concen.delta_y > 0):
+                            print("drawing aux line for concentric on center")
+                            self.__paintBoard.paintAuxLine(self.concen.init_x, self.concen.init_y, self.currObject.center_x, self.currObject.center_y)
+                        if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
+                            print("drawing aux line for fix distance at center")
+                            self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
+                        # store parameterized circle here
+                        self.circList.append(self.currObject)
+                        # clear the flags and points data to go back to State 1
+                        self.vpShapePointList = []
+                        self.vpPointCount = 0
+                        self.alignmentCenter = None
+                        self.alignmentUL = None
+                        self.usingVP = False
+                        self.usingVP_Circle = False
+                        self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
+                        return
                     
                     
             # State 2-b: Draw a rectangle using VP function
@@ -728,61 +728,61 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                if (self.vpPointCount == 1):
-                    self.currObject.center_x = self.vpShapePointList[0]
-                    self.currObject.center_y = self.vpShapePointList[1]
-                    # adjust based on relations
-                    if self.constraintDist_enabled is True:
-                        print("applying distance constraint;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.dist = Distance()
-                        self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
-                    elif self.constraintAlignment_enabled is True:
-                        print("applying alignment constraint on center;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.alignmentCenter = Alignment()
-                        self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                    if (self.vpPointCount == 1):
+                        self.currObject.center_x = self.vpShapePointList[0]
+                        self.currObject.center_y = self.vpShapePointList[1]
+                        # adjust based on relations
+                        if self.constraintDist_enabled is True:
+                            print("applying distance constraint;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.dist = Distance()
+                            self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
+                        elif self.constraintAlignment_enabled is True:
+                            print("applying alignment constraint on center;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.alignmentCenter = Alignment()
+                            self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
 
-                elif(self.vpPointCount >= 2):
-                    # adjust based on relations
-                    if self.vpPointCount == 2 and self.constraintAlignment_enabled is True:
-                        self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
-                        print("applying alignment constraint on UL corner")
-                        print("old x: " + str(self.currObject.upperleft_x) + ", old y: " + str(self.currObject.upperleft_y))
-                        self.alignmentUL = Alignment()
-                        self.alignmentUL.align_corner(self.currObject, self.circList, self.rectList)
-                        print("new x: " + str(self.currObject.upperleft_x) + ", new y: " + str(self.currObject.upperleft_y))
-                        print("delta x: " + str(self.alignmentUL.delta_x)  + ", delta y: " + str(self.alignmentUL.delta_y))
-                    print("drawing the rect")
-                    self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
-                    # draw auxiliary lines
-                    if (self.constraintAlignment_enabled is True) and (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
-                        print("drawing aux line for center")
-                        self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
-                    if (self.constraintAlignment_enabled is True) and (self.alignmentUL is not None) and (self.alignmentUL.delta_x > 0 or self.alignmentUL.delta_y > 0):
-                        print("drawing aux line for UL corner")
-                        self.__paintBoard.paintAuxLine(self.alignmentUL.init_x, self.alignmentUL.init_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
-                    if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
-                        print("drawing aux line for fix distance at center")
-                        self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
-                    # store parameterized rectangle here
-                    self.rectList.append(self.currObject)
-                    # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
-                    controlRectList = self.vpShapePointList + penDataList
-                    self.controlRectSignal.emit(controlRectList)
-                    # clear the flags and points data to go back to State 1
-                    #self.ControlThread.controlStartDrawRect()
-                    self.vpPointCount = 0
-                    self.alignmentCenter = None
-                    self.alignmentUL = None
-                    self.usingVP = False
-                    self.usingVP_Rect = False
-                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
-                    return
+                    elif(self.vpPointCount >= 2):
+                        # adjust based on relations
+                        if self.vpPointCount == 2 and self.constraintAlignment_enabled is True:
+                            self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
+                            print("applying alignment constraint on UL corner")
+                            print("old x: " + str(self.currObject.upperleft_x) + ", old y: " + str(self.currObject.upperleft_y))
+                            self.alignmentUL = Alignment()
+                            self.alignmentUL.align_corner(self.currObject, self.circList, self.rectList)
+                            print("new x: " + str(self.currObject.upperleft_x) + ", new y: " + str(self.currObject.upperleft_y))
+                            print("delta x: " + str(self.alignmentUL.delta_x)  + ", delta y: " + str(self.alignmentUL.delta_y))
+                        print("drawing the rect")
+                        self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
+                        # draw auxiliary lines
+                        if (self.constraintAlignment_enabled is True) and (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
+                            print("drawing aux line for center")
+                            self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
+                        if (self.constraintAlignment_enabled is True) and (self.alignmentUL is not None) and (self.alignmentUL.delta_x > 0 or self.alignmentUL.delta_y > 0):
+                            print("drawing aux line for UL corner")
+                            self.__paintBoard.paintAuxLine(self.alignmentUL.init_x, self.alignmentUL.init_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
+                        if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
+                            print("drawing aux line for fix distance at center")
+                            self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
+                        # store parameterized rectangle here
+                        self.rectList.append(self.currObject)
+                        # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
+                        controlRectList = self.vpShapePointList + penDataList
+                        self.controlRectSignal.emit(controlRectList)
+                        # clear the flags and points data to go back to State 1
+                        #self.ControlThread.controlStartDrawRect()
+                        self.vpPointCount = 0
+                        self.alignmentCenter = None
+                        self.alignmentUL = None
+                        self.usingVP = False
+                        self.usingVP_Rect = False
+                        self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
+                        return
                     
             
             # The state to draw a perspective rectangle, still in progress
@@ -877,52 +877,52 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
-                if(self.vpPointCount >= 2):
-                    print("drawing the line")
-                    # store parameterized line here
-                    self.currObject.set_coords(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
-                    # adjust based on relations
-                    if self.vpPointCount == 2:
-                        if self.constraintParallel_enabled is True:
-                            print("applying parallel constraint on the second point")
-                            print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
-                            self.para = Parallel()
-                            self.para.make_para(self.currObject, self.lineList)
-                            print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
-                        elif self.constraintPerpendicular_enabled is True:
-                            print("applying perpendicular constraint on the second point")
-                            print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
-                            self.perp = Perpendicular()
-                            self.perp.make_perp(self.currObject, self.lineList)
-                            print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
-                    self.lineList.append(self.currObject)
-                    # draw the line
-                    if(len(self.vpShapePointList)>=4):
-                        self.__paintBoard.paintLine(self.currObject.x_0, self.currObject.y_0, self.currObject.x_1, self.currObject.y_1)
-                    # draw auxiliary lines
-                    if (self.constraintParallel_enabled is True) or (self.constraintPerpendicular_enabled is True):
-                        print("drawing aux arc")
-                        if (self.constraintParallel_enabled is True):
-                            self.__paintBoard.paintAuxArc(self.currObject.x_0, self.currObject.y_0, self.para.init_x, self.para.init_y, self.currObject.x_1, self.currObject.y_1) 
-                        else:
-                            self.__paintBoard.paintAuxArc(self.currObject.x_0, self.currObject.y_0, self.perp.init_x, self.perp.init_y, self.currObject.x_1, self.currObject.y_1) 
-                    # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
-                    controlLineList = self.vpShapePointList + penDataList
-                    self.controlLineSignal.emit(controlLineList)
-                
-                    # clear the flags and points data to go back to State 1
-                    # self.vpShapePointList = []
-                    #self.ControlThread.controlStartDrawLine()
-                    self.vpPointCount = 0
-                    self.vpShapePointList = []
-                    self.alignmentCenter = None
-                    self.alignmentUL = None
-                    self.usingVP = False
-                    self.usingVP_Line = False
-                    self.usingMotor = True
-                    self.usingMotor_Line = True
-                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
-                    return
+                    if(self.vpPointCount >= 2):
+                        print("drawing the line")
+                        # store parameterized line here
+                        self.currObject.set_coords(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
+                        # adjust based on relations
+                        if self.vpPointCount == 2:
+                            if self.constraintParallel_enabled is True:
+                                print("applying parallel constraint on the second point")
+                                print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
+                                self.para = Parallel()
+                                self.para.make_para(self.currObject, self.lineList)
+                                print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
+                            elif self.constraintPerpendicular_enabled is True:
+                                print("applying perpendicular constraint on the second point")
+                                print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
+                                self.perp = Perpendicular()
+                                self.perp.make_perp(self.currObject, self.lineList)
+                                print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
+                        self.lineList.append(self.currObject)
+                        # draw the line
+                        if(len(self.vpShapePointList)>=4):
+                            self.__paintBoard.paintLine(self.currObject.x_0, self.currObject.y_0, self.currObject.x_1, self.currObject.y_1)
+                        # draw auxiliary lines
+                        if (self.constraintParallel_enabled is True) or (self.constraintPerpendicular_enabled is True):
+                            print("drawing aux arc")
+                            if (self.constraintParallel_enabled is True):
+                                self.__paintBoard.paintAuxArc(self.currObject.x_0, self.currObject.y_0, self.para.init_x, self.para.init_y, self.currObject.x_1, self.currObject.y_1) 
+                            else:
+                                self.__paintBoard.paintAuxArc(self.currObject.x_0, self.currObject.y_0, self.perp.init_x, self.perp.init_y, self.currObject.x_1, self.currObject.y_1) 
+                        # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
+                        controlLineList = self.vpShapePointList + penDataList
+                        self.controlLineSignal.emit(controlLineList)
+                    
+                        # clear the flags and points data to go back to State 1
+                        # self.vpShapePointList = []
+                        #self.ControlThread.controlStartDrawLine()
+                        self.vpPointCount = 0
+                        self.vpShapePointList = []
+                        self.alignmentCenter = None
+                        self.alignmentUL = None
+                        self.usingVP = False
+                        self.usingVP_Line = False
+                        self.usingMotor = True
+                        self.usingMotor_Line = True
+                        self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
+                        return
                     
                     
             # State 2-e: Draw an arc using VP function
@@ -936,46 +936,46 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
 
-                if self.vpPointCount == 1:
-                    self.currObject.set_center(self.vpShapePointList[0], self.vpShapePointList[1])
-                    if self.constraintAlignment_enabled is True:
-                        print("applying alignment constraint on center;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.alignmentCenter = Alignment()
-                        self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
-                    elif self.constraintDist_enabled is True:
-                        print("applying distance constraint;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.dist = Distance()
-                        self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
-                    elif self.constraintConcentric_enabled is True:
-                        print("applying concentric constraint;")
-                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
-                        self.concen = Concentric()
-                        self.concen.make_concentric(self.currObject, self.circList)
-                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                        print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
+                    if self.vpPointCount == 1:
+                        self.currObject.set_center(self.vpShapePointList[0], self.vpShapePointList[1])
+                        if self.constraintAlignment_enabled is True:
+                            print("applying alignment constraint on center;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.alignmentCenter = Alignment()
+                            self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                        elif self.constraintDist_enabled is True:
+                            print("applying distance constraint;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.dist = Distance()
+                            self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
+                        elif self.constraintConcentric_enabled is True:
+                            print("applying concentric constraint;")
+                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            self.concen = Concentric()
+                            self.concen.make_concentric(self.currObject, self.circList)
+                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
 
-                elif(self.vpPointCount >= 3):
-                    # store parameterized arc here
-                    self.currObject.set_start(self.vpShapePointList[2], self.vpShapePointList[3])
-                    self.currObject.set_end(self.vpShapePointList[4], self.vpShapePointList[5])
-                    self.circList.append(self.currObject)
-                    print("drawing the arc")
-                    self.__paintBoard.paintArc(self.currObject.center_x, self.currObject.center_y, self.currObject.start_x, self.currObject.start_y, self.currObject.end_x, self.currObject.end_y)
-                    # clear the flags and points data to go back to State 1
-                    self.vpShapePointList = []
-                    self.vpPointCount = 0
-                    self.alignmentCenter = None
-                    self.alignmentUL = None
-                    self.usingVP = False
-                    self.usingVP_Arc = False
-                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
-                    return
+                    elif(self.vpPointCount >= 3):
+                        # store parameterized arc here
+                        self.currObject.set_start(self.vpShapePointList[2], self.vpShapePointList[3])
+                        self.currObject.set_end(self.vpShapePointList[4], self.vpShapePointList[5])
+                        self.circList.append(self.currObject)
+                        print("drawing the arc")
+                        self.__paintBoard.paintArc(self.currObject.center_x, self.currObject.center_y, self.currObject.start_x, self.currObject.start_y, self.currObject.end_x, self.currObject.end_y)
+                        # clear the flags and points data to go back to State 1
+                        self.vpShapePointList = []
+                        self.vpPointCount = 0
+                        self.alignmentCenter = None
+                        self.alignmentUL = None
+                        self.usingVP = False
+                        self.usingVP_Arc = False
+                        self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
+                        return
                     
                     
             # State 2-f: Draw an Bezier curve using VP function
@@ -1035,26 +1035,26 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
-                if(self.vpPointCount >= 1):
-                    print("Ruler mode activated")
+                    if(self.vpPointCount >= 1):
+                        print("Ruler mode activated")
 
-                    # store parameterized DistMeasurement here
-                    self.currObject.set_dist(self.vpShapePointList[0] - self.VRCoord[0])
-                    print("distance set to: " + str(self.currObject.dist))
-                    self.distMeasurementList.append(self.currObject)
+                        # store parameterized DistMeasurement here
+                        self.currObject.set_dist(self.vpShapePointList[0] - self.VRCoord[0])
+                        print("distance set to: " + str(self.currObject.dist))
+                        self.distMeasurementList.append(self.currObject)
 
-                    # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
-                    controlLineList = self.vpShapePointList + penDataList
-                    self.controlLineSignal.emit(controlLineList)
-                
-                    # clear the flags and points data to go back to State 1
-                    # self.vpShapePointList = []
-                    #self.ControlThread.controlStartRuler()
-                    self.vpPointCount = 0
-                    self.vpShapePointList = []
-                    self.usingVP = False
-                    self.usingVP_Line = False
-                    return
+                        # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
+                        controlLineList = self.vpShapePointList + penDataList
+                        self.controlLineSignal.emit(controlLineList)
+                    
+                        # clear the flags and points data to go back to State 1
+                        # self.vpShapePointList = []
+                        #self.ControlThread.controlStartRuler()
+                        self.vpPointCount = 0
+                        self.vpShapePointList = []
+                        self.usingVP = False
+                        self.usingVP_Line = False
+                        return
                     
                     
             # State 2-g: Copy a list of points of the shape being drawn by the user
