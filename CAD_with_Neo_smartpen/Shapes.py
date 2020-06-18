@@ -19,6 +19,27 @@ class Circle():
     def set_radius(self, radius):
         self.radius = radius
 
+class Arc():
+    def __init__(self, center_x, center_y, start_x, start_y, end_x, end_y):
+        self.center_x = center_x
+        self.center_y = center_y
+        self.start_x = start_x
+        self.start_y = start_y
+        self.end_x = end_x
+        self.end_y = end_y
+    
+    def set_center(self, center_x, center_y):
+        self.center_x = center_x
+        self.center_y = center_y
+    
+    def set_start(self, start_x, start_y):
+        self.start_x = start_x
+        self.start_y = start_y
+    
+    def set_end(self, end_x, end_y):
+        self.end_x = end_x
+        self.end_y = end_y
+
 class Rectangle():
     def __init__(self, upperleft_x, upperleft_y, center_x, center_y):
         self.upperleft_x = upperleft_x

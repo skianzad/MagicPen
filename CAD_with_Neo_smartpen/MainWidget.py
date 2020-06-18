@@ -75,7 +75,7 @@ class MainWidget(QWidget):
     liftedDeque = collections.deque(3*[True], 3)
 
     # Data structures to hold parameterized objects
-    circList = []
+    circList = [] # stores previous circles and arcs
     rectList = []
     triList = []
     lineList = []
@@ -543,6 +543,9 @@ class MainWidget(QWidget):
                     self.usingVP_Arc = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.currObject = Arc(0, 0, 0, 0, 0, 0)
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
                     self.BluetoothThread.beep()
@@ -932,15 +935,46 @@ class MainWidget(QWidget):
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
-                    
-                if(self.vpPointCount >= 3):
+
+                if self.vpPointCount == 1:
+                    self.currObject.set_center(self.vpShapePointList[0], self.vpShapePointList[1])
+                    if self.constraintAlignment_enabled is True:
+                        print("applying alignment constraint on center;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        self.alignmentCenter = Alignment()
+                        self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                    elif self.constraintDist_enabled is True:
+                        print("applying distance constraint;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        self.dist = Distance()
+                        self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
+                    elif self.constraintConcentric_enabled is True:
+                        print("applying concentric constraint;")
+                        print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                        self.concen = Concentric()
+                        self.concen.make_concentric(self.currObject, self.circList)
+                        print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                        print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
+
+                elif(self.vpPointCount >= 3):
+                    # store parameterized arc here
+                    self.currObject.set_start(self.vpShapePointList[2], self.vpShapePointList[3])
+                    self.currObject.set_end(self.vpShapePointList[4], self.vpShapePointList[5])
+                    self.circList.append(self.currObject)
                     print("drawing the arc")
-                    self.__paintBoard.paintArc(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3], self.vpShapePointList[4], self.vpShapePointList[5])
+                    self.__paintBoard.paintArc(self.currObject.center_x, self.currObject.center_y, self.currObject.start_x, self.currObject.start_y, self.currObject.end_x, self.currObject.end_y)
                     # clear the flags and points data to go back to State 1
                     self.vpShapePointList = []
                     self.vpPointCount = 0
+                    self.alignmentCenter = None
+                    self.alignmentUL = None
                     self.usingVP = False
                     self.usingVP_Arc = False
+                    self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
                     return
                     
                     

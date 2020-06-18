@@ -244,14 +244,30 @@ class PaintBoard(QWidget):
     def paintArc(self, center_x, center_y, start_x, start_y, end_x, end_y):
         radius = math.sqrt(math.pow(center_x-start_x, 2) + math.pow(center_y-start_y, 2))
         rect = QRectF(center_x - radius, center_y - radius, radius*2, radius*2)
-        startAngle = 16 * math.atan2(start_y - center_y, start_x - center_x) * 180.0/math.pi
-        endAngle = 16 * math.atan2(end_y - center_y, end_x - center_x) * 180.0/math.pi
-        spanAngle = endAngle - startAngle
+        # start angle calculation
+        startAngle = math.degrees(math.atan2(center_y - start_y, start_x - center_x))
+        # end angle calculation
+        endAngle = math.degrees(math.atan2(center_y - end_y, end_x - center_x))
+        
+        # span angle calculation
+        spanAngle = 0
+        if (startAngle<0 and endAngle>0) or (startAngle>0 and endAngle<0):
+            if startAngle < 0:
+                spanAngle = endAngle - (startAngle + 360)
+            else:
+                spanAngle = (endAngle + 360) - startAngle
+        else:
+            spanAngle = endAngle - startAngle
+        # assume user always wants to draw clock-wise
+        if spanAngle > 0:
+            spanAngle = -1 * (360 - spanAngle)
+        print("start angle is " + str(startAngle))
+        print("span angle is " + str(spanAngle))
 
         self.__painter.begin(self.__board)
         self.__penColor=QColor("black")
         self.__painter.setPen(QPen(self.__penColor,self.__thickness)) 
-        self.__painter.drawArc(rect, startAngle, spanAngle)
+        self.__painter.drawArc(rect, 16*startAngle, 16*spanAngle)
         self.__painter.end()
 
         self.update() #Show updates
@@ -263,8 +279,16 @@ class PaintBoard(QWidget):
         startAngle = math.degrees(math.atan2(center_y - start_y, start_x - center_x))
         # end angle calculation
         endAngle = math.degrees(math.atan2(center_y - end_y, end_x - center_x))
-                
-        spanAngle = endAngle - startAngle
+
+        # span angle calculation
+        spanAngle = 0
+        if (startAngle<0 and endAngle>0) or (startAngle>0 and endAngle<0):
+            if startAngle < 0:
+                spanAngle = endAngle - (startAngle + 360)
+            else:
+                spanAngle = (endAngle + 360) - startAngle
+        else:
+            spanAngle = endAngle - startAngle
 
         self.__painter.begin(self.__board)
         self.__penColor=QColor("red")
