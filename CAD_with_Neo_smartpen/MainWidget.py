@@ -116,8 +116,8 @@ class MainWidget(QWidget):
         super(MainWidget, self).__init__(Parent)
 
         #The NeoSmartpen custom paper is 88.3 x 114.2 in raw coordinates
-        rawLimitX = 88
-        rawLimitY = 114
+        rawLimitX =100
+        rawLimitY = 85
         multiplier = 8
         
         paintSizeX = rawLimitX * multiplier
