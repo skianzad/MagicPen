@@ -13,7 +13,9 @@ pen_Code = 0
 global lifted
 lifted= False
 flag = 	False
-	
+
+FORCE_HOVERING_MAX = 5.0 # max force a user can apply on pen tip while hovering 
+
 def isNeoPen(dev):
 	for adtype, desc, value in dev.getScanData():
 		if desc == 'Complete Local Name' and (value == 'Neosmartpen_M1' or value == 'Neosmartpen_N2'):

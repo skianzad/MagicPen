@@ -16,7 +16,7 @@ import math
 from Shapes import *
 from Relations import *
 #from Control import ControlThread
-
+from Bluetooth import FORCE_HOVERING_MAX
 
 class MainWidget(QWidget):
     # 80 * 200 pallet
@@ -446,19 +446,24 @@ class MainWidget(QWidget):
 
     # Free drawing functionalities; also a state machine
     def free_draw_updates(self, penDataList):
-        self.gcoordinate.emit(penDataList)
-        lifted = penDataList[3]
-        self.liftedDeque.append(lifted)
-        # print(penDataList)
-        # print("calling free_draw_updates")   
-        
+
         if penDataList is not None:
+            self.gcoordinate.emit(penDataList)
+            pen_x = penDataList[0]
+            pen_y = penDataList[1]
+            pen_pressure = penDataList[2]
+            lifted = penDataList[3]
+            self.liftedDeque.append(lifted)
             # print(penDataList)
+            # print("calling free_draw_updates")
+            # print(penDataList)
+
             # State 1: free drawing
-            if(not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1]) and self.usingVP is False):
+            if self.usingVP is False and pen_pressure > FORCE_HOVERING_MAX and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1]):
+                print("free drawing!")
                 self.penCoordinates[0] = penDataList[0]
                 self.penCoordinates[1] = penDataList[1]
-                self.penPressure = penDataList[2]
+                self.penPressure = pen_pressure
                 #print("calling penMoveEvent" + str(self.liftedDeque) + str(penDataList))
                 self.__paintBoard.penMoveEvent(self.penCoordinates, self.penPressure, self.liftedDeque)
                 return
@@ -471,9 +476,6 @@ class MainWidget(QWidget):
                 self.penPressure = penDataList[2]
                 '''
                 #print(penDataList)
-                pen_x = penDataList[0]
-                pen_y = penDataList[1]
-                pen_pressure = penDataList[2]
                 self.usingMotor=False
                 self.vpShapePointList = []
                 self.vpPointCount = 0
@@ -653,18 +655,40 @@ class MainWidget(QWidget):
                 
             
             # State 2-a: Draw a circle/ellipse using VP function
-            if(self.usingVP_Circle is True and self.usingVP_Perspect is False):
-                print(self.vpPointCount)
-                # if the pen is lifted off the paper, append the last new point to the list
-                if(lifted==True and self.vpPointCount < 2 and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
+            elif(self.usingVP_Circle is True and self.usingVP_Perspect is False):
+                
+                # hovering
+                if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
+                    print("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #print("pressure: " + str(pen_pressure))
+                    #print("lifted: " + str(lifted)) 
+                    if self.vpPointCount == 0:
+                        print("Assisting center placement...")
+                        fakeCirc = Circle(pen_x, pen_y, 1.0)
+                        if self.constraintAlignment_enabled is True:
+                            alignHoveringCirc = Alignment()
+                            alignHoveringCirc.align_center(fakeCirc, self.circList, self.rectList)
+                            print("delta x: " + str(alignHoveringCirc.delta_x)  + ", delta y: " + str(alignHoveringCirc.delta_y))
+                        elif self.constraintDist_enabled is True:
+                            distHoveringCirc = Distance()
+                            distHoveringCirc.fix_distance(fakeCirc, self.lastObject, self.distMeasurementList)
+                            print("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
+                        elif self.constraintConcentric_enabled is True:
+                            concenHoveringCirc = Concentric()
+                            concenHoveringCirc.make_concentric(fakeCirc, self.circList)
+                            print("delta x: " + str(concenHoveringCirc.delta_x)  + ", delta y: " + str(concenHoveringCirc.delta_y))
+                
+                # register point upon lifting pen tip
+                elif lifted==True and not(pen_x < self.VPCoord_Start[0] and pen_y < self.VPCoord_Start[1]):
+                    # add point of lift to list
                     self.vpPointCount += 1
-                    print("Adding points to the list")
-                    self.vpShapePointList.append(penDataList[0])
-                    self.vpShapePointList.append(penDataList[1])
+                    self.vpShapePointList.append(pen_x)
+                    self.vpShapePointList.append(pen_y)
                     self.BluetoothThread.beep()
 
-                    # adjust based on relations
-                    if (self.vpPointCount == 1):
+                    if self.vpPointCount == 1:
+                        print("registered center")
+                        # adjust based on relations
                         self.currObject.center_x = self.vpShapePointList[0]
                         self.currObject.center_y = self.vpShapePointList[1]
                         if self.constraintAlignment_enabled is True:
@@ -688,9 +712,8 @@ class MainWidget(QWidget):
                             self.concen.make_concentric(self.currObject, self.circList)
                             print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
                             print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
-
-                    elif(self.vpPointCount >= 2):
-                        print("drawing the circle")
+                    elif self.vpPointCount == 2:
+                        print("registered corner")
                         radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
                         self.currObject.radius = radius
                         self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
@@ -704,6 +727,7 @@ class MainWidget(QWidget):
                         if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
                             print("drawing aux line for fix distance at center")
                             self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
+                        print("drawing the circle")
                         # store parameterized circle here
                         self.circList.append(self.currObject)
                         # clear the flags and points data to go back to State 1
@@ -719,16 +743,41 @@ class MainWidget(QWidget):
                     
             # State 2-b: Draw a rectangle using VP function
             elif(self.usingVP_Rect is True and self.usingVP_Perspect is False):
-                print(self.vpPointCount)
-                # if the pen is lifted off the paper, append the last new point to the list
-                if(lifted==True and self.vpPointCount < 2 and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
+
+                # hovering
+                if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
+                    print("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #print("pressure: " + str(pen_pressure))
+                    #print("lifted: " + str(lifted)) 
+                    if self.vpPointCount == 0:
+                        print("Assisting center placement...")
+                        fakeRect = Rectangle(0.0, 0.0, pen_x, pen_y)
+                        if self.constraintAlignment_enabled is True:
+                            alignHoveringRect = Alignment()
+                            alignHoveringRect.align_center(fakeRect, self.circList, self.rectList)
+                            print("delta x: " + str(alignHoveringRect.delta_x)  + ", delta y: " + str(alignHoveringRect.delta_y))
+                        elif self.constraintDist_enabled is True:
+                            distHoveringRect = Distance()
+                            distHoveringRect.fix_distance(fakeRect, self.lastObject, self.distMeasurementList)
+                            print("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
+                    elif self.vpPointCount == 1:
+                        print("Assisting upper-left corner placement...")
+                        fakeRect = Rectangle(pen_x, pen_y, 0.0, 0.0)
+                        if self.constraintAlignment_enabled is True:
+                            alignHoveringRect = Alignment()
+                            alignHoveringRect.align_corner(fakeRect, self.circList, self.rectList)
+                            print("delta x: " + str(alignHoveringRect.delta_x)  + ", delta y: " + str(alignHoveringRect.delta_y))
+                
+                # register point upon lifting pen tip
+                elif lifted==True and not(pen_x < self.VPCoord_Start[0] and pen_y < self.VPCoord_Start[1]):
+                    # add point of lift to list
                     self.vpPointCount += 1
-                    print("Adding points to the list")
-                    self.vpShapePointList.append(penDataList[0])
-                    self.vpShapePointList.append(penDataList[1])
+                    self.vpShapePointList.append(pen_x)
+                    self.vpShapePointList.append(pen_y)
                     self.BluetoothThread.beep()
 
                     if (self.vpPointCount == 1):
+                        print("registered center")
                         self.currObject.center_x = self.vpShapePointList[0]
                         self.currObject.center_y = self.vpShapePointList[1]
                         # adjust based on relations
@@ -746,8 +795,8 @@ class MainWidget(QWidget):
                             self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
                             print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
                             print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
-
-                    elif(self.vpPointCount >= 2):
+                    elif(self.vpPointCount == 2):
+                        print("registered upper-left corner")
                         # adjust based on relations
                         if self.vpPointCount == 2 and self.constraintAlignment_enabled is True:
                             self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
@@ -868,16 +917,33 @@ class MainWidget(QWidget):
                     
             # State 2-d: Draw a line using VP function
             elif(self.usingVP_Line is True and self.usingVP_Perspect is False):
-                print(self.vpPointCount)
-                # if the pen is lifted off the papert and is outside of the virtual pallet, append the last new point to the list
-                if(lifted==True and self.vpPointCount < 2 and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):#
+
+                # hovering
+                if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
+                    print("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #print("pressure: " + str(pen_pressure))
+                    #print("lifted: " + str(lifted)) 
+                    if self.vpPointCount == 1:
+                        print("Assisting second point placement...")
+                        fakeLine = Line(self.vpShapePointList[0], self.vpShapePointList[1], pen_x, pen_y)
+                        if self.constraintParallel_enabled is True:
+                            paraHoveringLine = Parallel()
+                            paraHoveringLine.make_para(fakeLine, self.lineList)
+                            print("delta x: " + str(paraHoveringLine.delta_x)  + ", delta y: " + str(paraHoveringLine.delta_y))
+                        elif self.constraintPerpendicular_enabled is True:
+                            perpHoveringLine = Perpendicular()
+                            perpHoveringLine.make_perp(fakeLine, self.lineList)
+                            print("delta x: " + str(perpHoveringLine.delta_x)  + ", delta y: " + str(perpHoveringLine.delta_y))
+                            
+                # register point upon lifting pen tip
+                elif lifted==True and not(pen_x < self.VPCoord_Start[0] and pen_y < self.VPCoord_Start[1]):
+                    # add point of lift to list
                     self.vpPointCount += 1
-                    print("Adding points to the list")
-                    self.vpShapePointList.append(penDataList[0])
-                    self.vpShapePointList.append(penDataList[1])
+                    self.vpShapePointList.append(pen_x)
+                    self.vpShapePointList.append(pen_y)
                     self.BluetoothThread.beep()
-                    
-                    if(self.vpPointCount >= 2):
+
+                    if(self.vpPointCount == 2):
                         print("drawing the line")
                         # store parameterized line here
                         self.currObject.set_coords(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
@@ -927,15 +993,36 @@ class MainWidget(QWidget):
                     
             # State 2-e: Draw an arc using VP function
             elif(self.usingVP_Arc is True and self.usingVP_Perspect is False):
-                print(self.vpPointCount)
-                # if the pen is lifted off the paper, append the last new point to the list
-                if(lifted==True and self.vpPointCount < 3 and  not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
-                    self.vpPointCount += 1
-                    print("Adding points to the list")
-                    self.vpShapePointList.append(penDataList[0])
-                    self.vpShapePointList.append(penDataList[1])
-                    self.BluetoothThread.beep()
 
+                # hovering
+                if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
+                    print("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #print("pressure: " + str(pen_pressure))
+                    #print("lifted: " + str(lifted)) 
+                    if self.vpPointCount == 0:
+                        print("Assisting center placement...")
+                        fakeArc = Arc(pen_x, pen_y, 0.0, 0.0, 100.0, 100.0)
+                        if self.constraintAlignment_enabled is True:
+                            alignHoveringArc = Alignment()
+                            alignHoveringArc.align_center(fakeArc, self.circList, self.rectList)
+                            print("delta x: " + str(alignHoveringArc.delta_x)  + ", delta y: " + str(alignHoveringArc.delta_y))
+                        elif self.constraintDist_enabled is True:
+                            distHoveringArc = Distance()
+                            distHoveringArc.fix_distance(fakeArc, self.lastObject, self.distMeasurementList)
+                            print("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
+                        elif self.constraintConcentric_enabled is True:
+                            concenHoveringArc = Concentric()
+                            concenHoveringArc.make_concentric(fakeArc, self.circList)
+                            print("delta x: " + str(concenHoveringArc.delta_x)  + ", delta y: " + str(concenHoveringArc.delta_y))
+                    
+                
+                # register point upon lifting pen tip
+                elif lifted==True and not(pen_x < self.VPCoord_Start[0] and pen_y < self.VPCoord_Start[1]):
+                    # add point of lift to list
+                    self.vpPointCount += 1
+                    self.vpShapePointList.append(pen_x)
+                    self.vpShapePointList.append(pen_y)
+                    self.BluetoothThread.beep()
                     if self.vpPointCount == 1:
                         self.currObject.set_center(self.vpShapePointList[0], self.vpShapePointList[1])
                         if self.constraintAlignment_enabled is True:
@@ -959,8 +1046,7 @@ class MainWidget(QWidget):
                             self.concen.make_concentric(self.currObject, self.circList)
                             print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
                             print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
-
-                    elif(self.vpPointCount >= 3):
+                    elif(self.vpPointCount == 3):
                         # draw auxiliary lines
                         if (self.constraintAlignment_enabled is True) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
                             print("drawing aux line for alignment of center")
