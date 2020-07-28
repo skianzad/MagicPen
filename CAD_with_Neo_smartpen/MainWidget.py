@@ -94,14 +94,6 @@ class MainWidget(QWidget):
     CONSTRAINT_DIST = "distance"
     CONSTRAINT_PARALLEL = "parallel"
     CONSTRAINT_PERP = "perpendicular"
-
-    # Data structures for alignments. Always refer to the current object
-    alignmentCenter = None
-    alignmentUL = None
-
-    # Data structures for distance relations. Always refer to the current object
-
-    # Data structures for concentric relations. Always refer to the current object
     
     # the current object being drawn on paper
     currObject = None
