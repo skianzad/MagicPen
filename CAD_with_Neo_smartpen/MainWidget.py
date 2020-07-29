@@ -17,6 +17,8 @@ from Shapes import *
 from Relations import *
 #from Control import ControlThread
 from Bluetooth import FORCE_HOVERING_MAX
+import logging.config
+logging.config.fileConfig("./logging.conf", disable_existing_loggers=False)
 
 class MainWidget(QWidget):
     # 80 * 200 pallet
@@ -172,7 +174,7 @@ class MainWidget(QWidget):
         '''
                   initialize UI
         '''
-        print("inside MainWidget")
+        logging.debug("inside MainWidget")
         self.setFixedSize(sizeX,sizeY)
         self.setWindowTitle("PaintBoard Example PyQt5")
         
@@ -321,9 +323,9 @@ class MainWidget(QWidget):
 
     def on_btn_Save_Clicked(self):
         savePath = QFileDialog.getSaveFileName(self, 'Save Your Paint', '.\\', '*.png')
-        print(savePath)
+        logging.debug(savePath)
         if savePath[0] == "":
-            print("Save cancel")
+            logging.debug("Save cancel")
             return
         image = self.__paintBoard.GetContentAsQImage()
         image.save(savePath[0])
@@ -407,7 +409,7 @@ class MainWidget(QWidget):
         pointList = data[0].split(';')
 
         if(len(pointList)%4 is not 0):
-            print("Invalid point list!")
+            logging.debug("Invalid point list!")
             return
         else:
             pointListX = []
@@ -446,17 +448,17 @@ class MainWidget(QWidget):
             pen_pressure = penDataList[2]
             lifted = penDataList[3]
             self.liftedDeque.append(lifted)
-            # print(penDataList)
-            # print("calling free_draw_updates")
-            # print(penDataList)
+            # logging.debug(penDataList)
+            # logging.debug("calling free_draw_updates")
+            # logging.debug(penDataList)
 
             # State 1: free drawing
             if self.usingVP is False and pen_pressure > FORCE_HOVERING_MAX and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1]):
-                print("free drawing!")
+                logging.debug("free drawing!")
                 self.penCoordinates[0] = penDataList[0]
                 self.penCoordinates[1] = penDataList[1]
                 self.penPressure = pen_pressure
-                #print("calling penMoveEvent" + str(self.liftedDeque) + str(penDataList))
+                #logging.debug("calling penMoveEvent" + str(self.liftedDeque) + str(penDataList))
                 self.__paintBoard.penMoveEvent(self.penCoordinates, self.penPressure, self.liftedDeque)
                 return
 
@@ -467,14 +469,14 @@ class MainWidget(QWidget):
                 self.penCoordinates[1] = penDataList[1]
                 self.penPressure = penDataList[2]
                 '''
-                #print(penDataList)
+                #logging.debug(penDataList)
                 self.usingMotor=False
                 self.vpShapePointList = []
                 self.vpPointCount = 0
                 # lifted = True means the pen has been lifted
                 # Check which region the pen is in and prepare enter different states accordingly
                 if(pen_x < self.VPCoord_Circle[2] and pen_y < self.VPCoord_Circle[3] and pen_x!=0 and lifted==True):
-                    print("Circle")
+                    logging.debug("Circle")
                     self.usingVP = True
                     self.usingVP_Circle = True
                     self.vpShapePointList = []
@@ -489,7 +491,7 @@ class MainWidget(QWidget):
                     # self.on_cbtn_DrawCircle_clicked()
                     
                 elif(pen_x < self.VPCoord_Rect[2] and pen_y < self.VPCoord_Rect[3] and lifted==True):
-                    print("Rect")
+                    logging.debug("Rect")
                     self.usingVP = True
                     self.usingVP_Rect = True
                     self.vpShapePointList = []
@@ -503,7 +505,7 @@ class MainWidget(QWidget):
                     return
 
                 elif(pen_x < self.VPCoord_Tri[2] and pen_y < self.VPCoord_Tri[3] and lifted==True):
-                    print("Tri")
+                    logging.debug("Tri")
                     self.usingVP = True
                     self.usingVP_Tri = True
                     self.vpShapePointList = []
@@ -517,7 +519,7 @@ class MainWidget(QWidget):
                     return
 
                 elif(pen_x < self.VPCoord_Line[2] and pen_y < self.VPCoord_Line[3] and lifted==True):
-                    print("Line")
+                    logging.debug("Line")
                     self.usingVP = True
                     self.usingVP_Line = True
                     self.vpShapePointList = []
@@ -532,7 +534,7 @@ class MainWidget(QWidget):
                     return
 
                 elif(pen_x < self.VPCoord_Arc[2] and pen_y < self.VPCoord_Arc[3] and lifted==True):
-                    print("Arc")
+                    logging.debug("Arc")
                     self.usingVP = True
                     self.usingVP_Arc = True
                     self.vpShapePointList = []
@@ -546,7 +548,7 @@ class MainWidget(QWidget):
                     return
 
                 elif(pen_x < self.VPCoord_Curve[2] and pen_y < self.VPCoord_Curve[3] and lifted==True):
-                    print("Bezier Curve")
+                    logging.debug("Bezier Curve")
                     self.usingVP = True
                     self.usingVP_Curve = True
                     self.vpShapePointList = []
@@ -557,7 +559,7 @@ class MainWidget(QWidget):
                     return
                 
                 elif(pen_x < self.VPCoord_Perspect[2] and pen_y < self.VPCoord_Perspect[3] and lifted==True):
-                    print("Perspective Drawing")
+                    logging.debug("Perspective Drawing")
                     self.usingVP = True
                     self.usingVP_Perspect = True
                     self.usingVP_VPoint= True 
@@ -569,7 +571,7 @@ class MainWidget(QWidget):
                     return
                     
                 elif(pen_x < self.VPCoord_Ruler[2] and pen_y < self.VPCoord_Ruler[3] and lifted==True):
-                    print("Ruler Mode")
+                    logging.debug("Ruler Mode")
                     self.usingVP = True
                     self.vpShapePointList = []
                     self.vpPointCount = 0
@@ -582,7 +584,7 @@ class MainWidget(QWidget):
                     return
                 
                 elif(pen_x < self.VPCoord_Alignment[2] and pen_y < self.VPCoord_Alignment[3] and lifted==True):
-                    print("Alignment enabled")
+                    logging.debug("Alignment enabled")
                     self.turn_on_constraint(self.CONSTRAINT_ALIGNMENT)
                     self.alignmentCenter = None
                     self.alignmentUL = None
@@ -592,7 +594,7 @@ class MainWidget(QWidget):
                     return
                 
                 elif(pen_x < self.VPCoord_Distance[2] and pen_y < self.VPCoord_Distance[3] and lifted==True):
-                    print("Distance enabled; Please use ruler to set distance")
+                    logging.debug("Distance enabled; Please use ruler to set distance")
                     self.turn_on_constraint(self.CONSTRAINT_DIST)
                     self.dist = None
                     self.BluetoothThread.beep()
@@ -601,7 +603,7 @@ class MainWidget(QWidget):
                     return
                 
                 elif(pen_x < self.VPCoord_Concentric[2] and pen_y < self.VPCoord_Concentric[3] and lifted==True):
-                    print("Concentric enabled")
+                    logging.debug("Concentric enabled")
                     self.turn_on_constraint(self.CONSTRAINT_CONCENTRIC)
                     self.concen = None
                     self.BluetoothThread.beep()
@@ -610,7 +612,7 @@ class MainWidget(QWidget):
                     return
             
                 elif(pen_x < self.VPCoord_Parallel[2] and pen_y < self.VPCoord_Parallel[3] and lifted==True):
-                    print("Parallel enabled")
+                    logging.debug("Parallel enabled")
                     self.turn_on_constraint(self.CONSTRAINT_PARALLEL)          
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
@@ -618,7 +620,7 @@ class MainWidget(QWidget):
                     return
                 
                 elif(pen_x < self.VPCoord_Perpendicular[2] and pen_y < self.VPCoord_Perpendicular[3] and lifted==True):
-                    print("Perpendicular enabled")
+                    logging.debug("Perpendicular enabled")
                     self.turn_on_constraint(self.CONSTRAINT_PERP)                    
                     self.BluetoothThread.beep()
                     time.sleep(0.5)
@@ -627,7 +629,7 @@ class MainWidget(QWidget):
                 
                 # Copy and Paste condition is currently not used. Put them in the end.
                 #elif(pen_x < self.VPCoord_Perspect[2] and pen_y < self.VPCoord_Perspect[3] and lifted==True):
-                    #print("Ready to choose vanishing point")
+                    #logging.debug("Ready to choose vanishing point")
                     ## Upon user's every new click to start the copy, clear the previous list of points first
                     #if(self.usingVP_Copy is False):
                         #self.vpCopyPointList = []
@@ -638,7 +640,7 @@ class MainWidget(QWidget):
                 
                 
                 #elif(pen_x < self.VPCoord_Paste[2] and pen_y < self.VPCoord_Paste[3] and lifted==True):
-                    #print("Ready to paste")
+                    #logging.debug("Ready to paste")
                     #self.usingVP = True
                     #self.usingVP_Paste = True
                     ## return to prevent going further down
@@ -651,24 +653,24 @@ class MainWidget(QWidget):
                 
                 # hovering
                 if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
-                    print("x: " + str(pen_x) + " y: " + str(pen_y))
-                    #print("pressure: " + str(pen_pressure))
-                    #print("lifted: " + str(lifted)) 
+                    logging.debug("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #logging.debug("pressure: " + str(pen_pressure))
+                    #logging.debug("lifted: " + str(lifted)) 
                     if self.vpPointCount == 0:
-                        print("Assisting center placement...")
+                        logging.debug("Assisting center placement...")
                         fakeCirc = Circle(pen_x, pen_y, 1.0)
                         if self.constraintAlignment_enabled is True:
                             alignHoveringCirc = Alignment()
                             alignHoveringCirc.align_center(fakeCirc, self.circList, self.rectList)
-                            print("delta x: " + str(alignHoveringCirc.delta_x)  + ", delta y: " + str(alignHoveringCirc.delta_y))
+                            logging.debug("delta x: " + str(alignHoveringCirc.delta_x)  + ", delta y: " + str(alignHoveringCirc.delta_y))
                         elif self.constraintDist_enabled is True:
                             distHoveringCirc = Distance()
                             distHoveringCirc.fix_distance(fakeCirc, self.lastObject, self.distMeasurementList)
-                            print("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
+                            logging.debug("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
                         elif self.constraintConcentric_enabled is True:
                             concenHoveringCirc = Concentric()
                             concenHoveringCirc.make_concentric(fakeCirc, self.circList)
-                            print("delta x: " + str(concenHoveringCirc.delta_x)  + ", delta y: " + str(concenHoveringCirc.delta_y))
+                            logging.debug("delta x: " + str(concenHoveringCirc.delta_x)  + ", delta y: " + str(concenHoveringCirc.delta_y))
                 
                 # register point upon lifting pen tip
                 elif lifted==True and not(pen_x < self.VPCoord_Start[0] and pen_y < self.VPCoord_Start[1]):
@@ -679,47 +681,47 @@ class MainWidget(QWidget):
                     self.BluetoothThread.beep()
 
                     if self.vpPointCount == 1:
-                        print("registered center")
+                        logging.debug("registered center")
                         # adjust based on relations
                         self.currObject.center_x = self.vpShapePointList[0]
                         self.currObject.center_y = self.vpShapePointList[1]
                         if self.constraintAlignment_enabled is True:
-                            print("applying alignment constraint on center;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying alignment constraint on center;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.alignmentCenter = Alignment()
                             self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
                         elif self.constraintDist_enabled is True:
-                            print("applying distance constraint;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying distance constraint;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.dist = Distance()
                             self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
                         elif self.constraintConcentric_enabled is True:
-                            print("applying concentric constraint;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying concentric constraint;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.concen = Concentric()
                             self.concen.make_concentric(self.currObject, self.circList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
                     elif self.vpPointCount == 2:
-                        print("registered corner")
+                        logging.debug("registered corner")
                         radius = math.sqrt(math.pow(self.currObject.center_x-self.vpShapePointList[2], 2) + math.pow(self.currObject.center_y-self.vpShapePointList[3], 2))
                         self.currObject.radius = radius
                         self.__paintBoard.paintEllipse(self.currObject.center_x, self.currObject.center_y, radius, radius)
                         # draw auxiliary lines
                         if (self.constraintAlignment_enabled is True) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
-                            print("drawing aux line for alignment of center")
+                            logging.debug("drawing aux line for alignment of center")
                             self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
                         if (self.constraintConcentric_enabled is True) and (self.concen.delta_x > 0 or self.concen.delta_y > 0):
-                            print("drawing aux line for concentric on center")
+                            logging.debug("drawing aux line for concentric on center")
                             self.__paintBoard.paintAuxLine(self.concen.init_x, self.concen.init_y, self.currObject.center_x, self.currObject.center_y)
                         if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
-                            print("drawing aux line for fix distance at center")
+                            logging.debug("drawing aux line for fix distance at center")
                             self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
-                        print("drawing the circle")
+                        logging.debug("drawing the circle")
                         # store parameterized circle here
                         self.circList.append(self.currObject)
                         # clear the flags and points data to go back to State 1
@@ -738,27 +740,27 @@ class MainWidget(QWidget):
 
                 # hovering
                 if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
-                    print("x: " + str(pen_x) + " y: " + str(pen_y))
-                    #print("pressure: " + str(pen_pressure))
-                    #print("lifted: " + str(lifted)) 
+                    logging.debug("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #logging.debug("pressure: " + str(pen_pressure))
+                    #logging.debug("lifted: " + str(lifted)) 
                     if self.vpPointCount == 0:
-                        print("Assisting center placement...")
+                        logging.debug("Assisting center placement...")
                         fakeRect = Rectangle(0.0, 0.0, pen_x, pen_y)
                         if self.constraintAlignment_enabled is True:
                             alignHoveringRect = Alignment()
                             alignHoveringRect.align_center(fakeRect, self.circList, self.rectList)
-                            print("delta x: " + str(alignHoveringRect.delta_x)  + ", delta y: " + str(alignHoveringRect.delta_y))
+                            logging.debug("delta x: " + str(alignHoveringRect.delta_x)  + ", delta y: " + str(alignHoveringRect.delta_y))
                         elif self.constraintDist_enabled is True:
                             distHoveringRect = Distance()
                             distHoveringRect.fix_distance(fakeRect, self.lastObject, self.distMeasurementList)
-                            print("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
+                            logging.debug("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
                     elif self.vpPointCount == 1:
-                        print("Assisting upper-left corner placement...")
+                        logging.debug("Assisting upper-left corner placement...")
                         fakeRect = Rectangle(pen_x, pen_y, 0.0, 0.0)
                         if self.constraintAlignment_enabled is True:
                             alignHoveringRect = Alignment()
                             alignHoveringRect.align_corner(fakeRect, self.circList, self.rectList)
-                            print("delta x: " + str(alignHoveringRect.delta_x)  + ", delta y: " + str(alignHoveringRect.delta_y))
+                            logging.debug("delta x: " + str(alignHoveringRect.delta_x)  + ", delta y: " + str(alignHoveringRect.delta_y))
                 
                 # register point upon lifting pen tip
                 elif lifted==True and not(pen_x < self.VPCoord_Start[0] and pen_y < self.VPCoord_Start[1]):
@@ -769,46 +771,46 @@ class MainWidget(QWidget):
                     self.BluetoothThread.beep()
 
                     if (self.vpPointCount == 1):
-                        print("registered center")
+                        logging.debug("registered center")
                         self.currObject.center_x = self.vpShapePointList[0]
                         self.currObject.center_y = self.vpShapePointList[1]
                         # adjust based on relations
                         if self.constraintDist_enabled is True:
-                            print("applying distance constraint;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying distance constraint;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.dist = Distance()
                             self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
                         elif self.constraintAlignment_enabled is True:
-                            print("applying alignment constraint on center;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying alignment constraint on center;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.alignmentCenter = Alignment()
                             self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
                     elif(self.vpPointCount == 2):
-                        print("registered upper-left corner")
+                        logging.debug("registered upper-left corner")
                         # adjust based on relations
                         if self.vpPointCount == 2 and self.constraintAlignment_enabled is True:
                             self.currObject.set_upper_left_coord(self.vpShapePointList[2], self.vpShapePointList[3])
-                            print("applying alignment constraint on UL corner")
-                            print("old x: " + str(self.currObject.upperleft_x) + ", old y: " + str(self.currObject.upperleft_y))
+                            logging.debug("applying alignment constraint on UL corner")
+                            logging.debug("old x: " + str(self.currObject.upperleft_x) + ", old y: " + str(self.currObject.upperleft_y))
                             self.alignmentUL = Alignment()
                             self.alignmentUL.align_corner(self.currObject, self.circList, self.rectList)
-                            print("new x: " + str(self.currObject.upperleft_x) + ", new y: " + str(self.currObject.upperleft_y))
-                            print("delta x: " + str(self.alignmentUL.delta_x)  + ", delta y: " + str(self.alignmentUL.delta_y))
-                        print("drawing the rect")
+                            logging.debug("new x: " + str(self.currObject.upperleft_x) + ", new y: " + str(self.currObject.upperleft_y))
+                            logging.debug("delta x: " + str(self.alignmentUL.delta_x)  + ", delta y: " + str(self.alignmentUL.delta_y))
+                        logging.debug("drawing the rect")
                         self.__paintBoard.paintRect(self.currObject.center_x, self.currObject.center_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
                         # draw auxiliary lines
                         if (self.constraintAlignment_enabled is True) and (self.alignmentCenter is not None) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
-                            print("drawing aux line for center")
+                            logging.debug("drawing aux line for center")
                             self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
                         if (self.constraintAlignment_enabled is True) and (self.alignmentUL is not None) and (self.alignmentUL.delta_x > 0 or self.alignmentUL.delta_y > 0):
-                            print("drawing aux line for UL corner")
+                            logging.debug("drawing aux line for UL corner")
                             self.__paintBoard.paintAuxLine(self.alignmentUL.init_x, self.alignmentUL.init_y, self.currObject.upperleft_x, self.currObject.upperleft_y)
                         if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
-                            print("drawing aux line for fix distance at center")
+                            logging.debug("drawing aux line for fix distance at center")
                             self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
                         # store parameterized rectangle here
                         self.rectList.append(self.currObject)
@@ -829,18 +831,18 @@ class MainWidget(QWidget):
             # The state to draw a perspective rectangle, still in progress
             # State 2-b-p: Draw a rectangle using VP function in perspective mode
             elif(self.usingVP_Rect is True and self.usingVP_Perspect is True):
-                print(self.vpPointCount)
+                logging.debug(self.vpPointCount)
                 # if the pen is lifted off the paper, append the last new point to the list
                 if(lifted==True and self.vpPointCount < 2 and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
                     self.vpPointCount += 1
-                    print("Adding points to the list")
+                    logging.debug("Adding points to the list")
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
                 if(self.vpPointCount >= 2):
-                    print("drawing the rect in perspective")
-                    print("the perspective coord is",self.vpVpoint)
+                    logging.debug("drawing the rect in perspective")
+                    logging.debug("the perspective coord is",self.vpVpoint)
                     
                     
                     #defining the orthogonal lines
@@ -869,17 +871,17 @@ class MainWidget(QWidget):
                     
             # State 2-c: Draw a triangle using VP function
             elif(self.usingVP_Tri is True and self.usingVP_Perspect is False):
-                print(self.vpPointCount)
+                logging.debug(self.vpPointCount)
                 # if the pen is lifted off the paper, append the last new point to the list
                 if(lifted==True and self.vpPointCount < 3 and  not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
                     self.vpPointCount += 1
-                    print("Adding points to the list")
+                    logging.debug("Adding points to the list")
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
                 if(self.vpPointCount >= 3):
-                    print("drawing the tri")
+                    logging.debug("drawing the tri")
                     points = QPolygon([
                         QPoint(self.vpShapePointList[0], self.vpShapePointList[1]),
                         QPoint(self.vpShapePointList[2], self.vpShapePointList[3]),
@@ -912,20 +914,20 @@ class MainWidget(QWidget):
 
                 # hovering
                 if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
-                    print("x: " + str(pen_x) + " y: " + str(pen_y))
-                    #print("pressure: " + str(pen_pressure))
-                    #print("lifted: " + str(lifted)) 
+                    logging.debug("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #logging.debug("pressure: " + str(pen_pressure))
+                    #logging.debug("lifted: " + str(lifted)) 
                     if self.vpPointCount == 1:
-                        print("Assisting second point placement...")
+                        logging.debug("Assisting second point placement...")
                         fakeLine = Line(self.vpShapePointList[0], self.vpShapePointList[1], pen_x, pen_y)
                         if self.constraintParallel_enabled is True:
                             paraHoveringLine = Parallel()
                             paraHoveringLine.make_para(fakeLine, self.lineList)
-                            print("delta x: " + str(paraHoveringLine.delta_x)  + ", delta y: " + str(paraHoveringLine.delta_y))
+                            logging.debug("delta x: " + str(paraHoveringLine.delta_x)  + ", delta y: " + str(paraHoveringLine.delta_y))
                         elif self.constraintPerpendicular_enabled is True:
                             perpHoveringLine = Perpendicular()
                             perpHoveringLine.make_perp(fakeLine, self.lineList)
-                            print("delta x: " + str(perpHoveringLine.delta_x)  + ", delta y: " + str(perpHoveringLine.delta_y))
+                            logging.debug("delta x: " + str(perpHoveringLine.delta_x)  + ", delta y: " + str(perpHoveringLine.delta_y))
                             
                 # register point upon lifting pen tip
                 elif lifted==True and not(pen_x < self.VPCoord_Start[0] and pen_y < self.VPCoord_Start[1]):
@@ -936,30 +938,30 @@ class MainWidget(QWidget):
                     self.BluetoothThread.beep()
 
                     if(self.vpPointCount == 2):
-                        print("drawing the line")
+                        logging.debug("drawing the line")
                         # store parameterized line here
                         self.currObject.set_coords(self.vpShapePointList[0], self.vpShapePointList[1], self.vpShapePointList[2], self.vpShapePointList[3])
                         # adjust based on relations
                         if self.vpPointCount == 2:
                             if self.constraintParallel_enabled is True:
-                                print("applying parallel constraint on the second point")
-                                print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
+                                logging.debug("applying parallel constraint on the second point")
+                                logging.debug("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
                                 self.para = Parallel()
                                 self.para.make_para(self.currObject, self.lineList)
-                                print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
+                                logging.debug("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
                             elif self.constraintPerpendicular_enabled is True:
-                                print("applying perpendicular constraint on the second point")
-                                print("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
+                                logging.debug("applying perpendicular constraint on the second point")
+                                logging.debug("old x_1: " + str(self.currObject.x_1) + ", old y_1: " + str(self.currObject.y_1))
                                 self.perp = Perpendicular()
                                 self.perp.make_perp(self.currObject, self.lineList)
-                                print("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
+                                logging.debug("new x_1: " + str(self.currObject.x_1) + ", new y_1: " + str(self.currObject.y_1))
                         self.lineList.append(self.currObject)
                         # draw the line
                         if(len(self.vpShapePointList)>=4):
                             self.__paintBoard.paintLine(self.currObject.x_0, self.currObject.y_0, self.currObject.x_1, self.currObject.y_1)
                         # draw auxiliary lines
                         if (self.constraintParallel_enabled is True) or (self.constraintPerpendicular_enabled is True):
-                            print("drawing aux arc")
+                            logging.debug("drawing aux arc")
                             if (self.constraintParallel_enabled is True):
                                 self.__paintBoard.paintAuxArc(self.currObject.x_0, self.currObject.y_0, self.para.init_x, self.para.init_y, self.currObject.x_1, self.currObject.y_1) 
                             else:
@@ -988,24 +990,24 @@ class MainWidget(QWidget):
 
                 # hovering
                 if lifted==False and pen_pressure <= FORCE_HOVERING_MAX:
-                    print("x: " + str(pen_x) + " y: " + str(pen_y))
-                    #print("pressure: " + str(pen_pressure))
-                    #print("lifted: " + str(lifted)) 
+                    logging.debug("x: " + str(pen_x) + " y: " + str(pen_y))
+                    #logging.debug("pressure: " + str(pen_pressure))
+                    #logging.debug("lifted: " + str(lifted)) 
                     if self.vpPointCount == 0:
-                        print("Assisting center placement...")
+                        logging.debug("Assisting center placement...")
                         fakeArc = Arc(pen_x, pen_y, 0.0, 0.0, 100.0, 100.0)
                         if self.constraintAlignment_enabled is True:
                             alignHoveringArc = Alignment()
                             alignHoveringArc.align_center(fakeArc, self.circList, self.rectList)
-                            print("delta x: " + str(alignHoveringArc.delta_x)  + ", delta y: " + str(alignHoveringArc.delta_y))
+                            logging.debug("delta x: " + str(alignHoveringArc.delta_x)  + ", delta y: " + str(alignHoveringArc.delta_y))
                         elif self.constraintDist_enabled is True:
                             distHoveringArc = Distance()
                             distHoveringArc.fix_distance(fakeArc, self.lastObject, self.distMeasurementList)
-                            print("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
+                            logging.debug("delta x: " + str(distHoveringCirc.delta_x)  + ", delta y: " + str(distHoveringCirc.delta_y))
                         elif self.constraintConcentric_enabled is True:
                             concenHoveringArc = Concentric()
                             concenHoveringArc.make_concentric(fakeArc, self.circList)
-                            print("delta x: " + str(concenHoveringArc.delta_x)  + ", delta y: " + str(concenHoveringArc.delta_y))
+                            logging.debug("delta x: " + str(concenHoveringArc.delta_x)  + ", delta y: " + str(concenHoveringArc.delta_y))
                     
                 
                 # register point upon lifting pen tip
@@ -1018,42 +1020,42 @@ class MainWidget(QWidget):
                     if self.vpPointCount == 1:
                         self.currObject.set_center(self.vpShapePointList[0], self.vpShapePointList[1])
                         if self.constraintAlignment_enabled is True:
-                            print("applying alignment constraint on center;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying alignment constraint on center;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.alignmentCenter = Alignment()
                             self.alignmentCenter.align_center(self.currObject, self.circList, self.rectList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.alignmentCenter.delta_x)  + ", delta y: " + str(self.alignmentCenter.delta_y))
                         elif self.constraintDist_enabled is True:
-                            print("applying distance constraint;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying distance constraint;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.dist = Distance()
                             self.dist.fix_distance(self.currObject, self.lastObject, self.distMeasurementList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.dist.delta_x)  + ", delta y: " + str(self.dist.delta_y))
                         elif self.constraintConcentric_enabled is True:
-                            print("applying concentric constraint;")
-                            print("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
+                            logging.debug("applying concentric constraint;")
+                            logging.debug("old x: " + str(self.currObject.center_x) + ", old y: " + str(self.currObject.center_y))
                             self.concen = Concentric()
                             self.concen.make_concentric(self.currObject, self.circList)
-                            print("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
-                            print("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
+                            logging.debug("new x: " + str(self.currObject.center_x) + ", new y: " + str(self.currObject.center_y))
+                            logging.debug("delta x: " + str(self.concen.delta_x)  + ", delta y: " + str(self.concen.delta_y))
                     elif(self.vpPointCount == 3):
                         # draw auxiliary lines
                         if (self.constraintAlignment_enabled is True) and (self.alignmentCenter.delta_x > 0 or self.alignmentCenter.delta_y > 0):
-                            print("drawing aux line for alignment of center")
+                            logging.debug("drawing aux line for alignment of center")
                             self.__paintBoard.paintAuxLine(self.alignmentCenter.init_x, self.alignmentCenter.init_y, self.currObject.center_x, self.currObject.center_y)
                         if (self.constraintConcentric_enabled is True) and (self.concen.delta_x > 0 or self.concen.delta_y > 0):
-                            print("drawing aux line for concentric on center")
+                            logging.debug("drawing aux line for concentric on center")
                             self.__paintBoard.paintAuxLine(self.concen.init_x, self.concen.init_y, self.currObject.center_x, self.currObject.center_y)
                         if (self.constraintDist_enabled is True) and (self.dist.delta_x > 0 or self.dist.delta_y > 0):
-                            print("drawing aux line for fix distance at center")
+                            logging.debug("drawing aux line for fix distance at center")
                             self.__paintBoard.paintAuxLine(self.dist.init_x, self.dist.init_y, self.currObject.center_x, self.currObject.center_y)
                         # store parameterized arc here
                         self.currObject.set_start(self.vpShapePointList[2], self.vpShapePointList[3])
                         self.currObject.set_end(self.vpShapePointList[4], self.vpShapePointList[5])
                         self.circList.append(self.currObject)
-                        print("drawing the arc")
+                        logging.debug("drawing the arc")
                         self.__paintBoard.paintArc(self.currObject.center_x, self.currObject.center_y, self.currObject.start_x, self.currObject.start_y, self.currObject.end_x, self.currObject.end_y)
                         # clear the flags and points data to go back to State 1
                         self.vpShapePointList = []
@@ -1068,17 +1070,17 @@ class MainWidget(QWidget):
                     
             # State 2-f: Draw an Bezier curve using VP function
             elif(self.usingVP_Curve is True and self.usingVP_Perspect is False):
-                print(self.vpPointCount)
+                logging.debug(self.vpPointCount)
                 # if the pen is lifted off the paper, append the last new point to the list
                 if(lifted==True and self.vpPointCount < 4 and  not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
                     self.vpPointCount += 1
-                    print("Adding points to the list")
+                    logging.debug("Adding points to the list")
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
                 if(self.vpPointCount == 4):
-                    print("drawing the Bezier curve")
+                    logging.debug("drawing the Bezier curve")
                     pointListX = [self.vpShapePointList[0], self.vpShapePointList[2], self.vpShapePointList[4], self.vpShapePointList[6]]
                     pointListY = [self.vpShapePointList[1], self.vpShapePointList[3], self.vpShapePointList[5], self.vpShapePointList[7]]
                     self.__paintBoard.paintBezierSpline(pointListX, pointListY)
@@ -1092,17 +1094,17 @@ class MainWidget(QWidget):
                     
              # State 2-g: Defining the vanishing point
             elif(self.usingVP_VPoint is True):
-                print(self.vpPointCount)
+                logging.debug(self.vpPointCount)
                 # if the pen is lifted off the paper, append the last new point to the list
                 if(lifted==True and self.vpPointCount < 2 and not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
                     self.vpPointCount += 1
-                    print("Adding points to the list")
+                    logging.debug("Adding points to the list")
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
                 if(self.vpPointCount == 1):
-                    print("Vanishing point is set")
+                    logging.debug("Vanishing point is set")
                     self.__paintBoard.paintEllipse(self.vpShapePointList[0], self.vpShapePointList[1], 2, 2)
                     # clear the flags and points data to go back to State 1
                     self.vpVpoint= [self.vpShapePointList[0],self.vpShapePointList[1]]
@@ -1114,21 +1116,21 @@ class MainWidget(QWidget):
            
             # State 2-h: Ruler Mode using VP function
             elif(self.usingVP_Ruler is True):
-                print(self.vpPointCount)
+                logging.debug(self.vpPointCount)
                 # if the pen is lifted off the paper, and is inside the virtual ruler space, append the last new point to the list
                 if lifted==True and self.vpPointCount < 1 and penDataList[0]<self.VRCoord[2] and penDataList[1]<self.VRCoord[3]:#
                     self.vpPointCount += 1
-                    print("Adding points to the list")
+                    logging.debug("Adding points to the list")
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                     self.BluetoothThread.beep()
                     
                     if(self.vpPointCount >= 1):
-                        print("Ruler mode activated")
+                        logging.debug("Ruler mode activated")
 
                         # store parameterized DistMeasurement here
                         self.currObject.set_dist(self.vpShapePointList[0] - self.VRCoord[0])
-                        print("distance set to: " + str(self.currObject.dist))
+                        logging.debug("distance set to: " + str(self.currObject.dist))
                         self.distMeasurementList.append(self.currObject)
 
                         # Emit the signal to the control thread, sending the 2 endpoints, current coordinates and force
@@ -1157,7 +1159,7 @@ class MainWidget(QWidget):
                 # even index for x, odd index for y
                 if(lifted==True and self.vpPointCount < 4):
                     self.vpPointCount += 1
-                    print("Adding points to the list")
+                    logging.debug("Adding points to the list")
                     self.vpShapePointList.append(penDataList[0])
                     self.vpShapePointList.append(penDataList[1])
                 # iterate through the point list and draw the points on the canvas, starting from the new point the user clicked
@@ -1175,12 +1177,12 @@ class MainWidget(QWidget):
                 # even index for x, odd index for y
                 if(lifted==True and self.vpPointCount < 1 and  not(penDataList[0] < self.VPCoord_Start[0] and penDataList[1] < self.VPCoord_Start[1])):
                     self.vpPointCount += 1
-                    print("Storing vanishing point")
+                    logging.debug("Storing vanishing point")
                     self.vpVanishingPoint.append(penDataList[0])
                     self.vpVanishingPoint.append(penDataList[1])
                     
                 if(self.vpPointCount >= 1):
-                    print("finished storing the vanishing point")
+                    logging.debug("finished storing the vanishing point")
                     # clear the flags and points data to go back to State 1
                     self.vpPointCount = 0
                     return
@@ -1188,11 +1190,11 @@ class MainWidget(QWidget):
             
                 '''
                 elif(pen_x < self.VPCoord_Arc[2] and pen_y < self.VPCoord_Arc[3]):
-                    print("Arc")
+                    logging.debug("Arc")
                     self.usingVP = True
                     self.on_cbtn_DrawArc_clicked()
                 elif(pen_x < self.VPCoord_BezierSpline[2] and pen_y < self.VPCoord_BezierSpline[3]):
-                    print("BezierSpline")
+                    logging.debug("BezierSpline")
                     self.usingVP = True
                     self.on_cbtn_DrawBezierSpline_clicked()
                 '''
@@ -1207,7 +1209,7 @@ class MainWidget(QWidget):
                 ##self.controlLineSignal.emit(controlLineList)
                 #diffX = self.vpShapePointList[0] - penDataList[0]
                 #diffY = self.vpShapePointList[1] - penDataList[1]
-                #print("in state 3-d")
+                #logging.debug("in state 3-d")
                 
                 ## show the real time drawing of the motor
                 #self.penCoordinates[0] = penDataList[0]
@@ -1282,7 +1284,7 @@ class Dialog(QDialog):
         for x in range(len(self.answer_dict)):
             answer_texts.append(self.answer_dict[x].text())
 
-        print(answer_texts[0])
+        logging.debug(answer_texts[0])
         return answer_texts
 
     # Return user inputs as a list

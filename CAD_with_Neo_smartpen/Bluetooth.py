@@ -5,7 +5,9 @@ import struct
 import time
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+import logging
 
+logger = logging.getLogger(__name__)
 X_coord = 0
 Y_coord = 0
 force = 0
@@ -167,7 +169,7 @@ class BluetoothThread(QThread):
 				return
 
 	def beep(self):
-			print("beep")
+			logging.debug("beep")
 			self.beepflag=True
 			# outchar = self.chars['2ba0']
 			# outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
@@ -175,7 +177,7 @@ class BluetoothThread(QThread):
 			# outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 	
 			#self.p.waitForNotifications(10.0)
-		#time.sleep(0.5)
+			#time.sleep(0.5)
 			#self.pw_response_char.write('0000' + '\x00' * 12, withResponse=True) # creating the beep sound
 
 

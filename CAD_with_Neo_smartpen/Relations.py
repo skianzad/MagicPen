@@ -6,6 +6,9 @@ Created on 2020-04-28
 
 import math
 from Shapes import *
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Point():
     def __init__(self, x, y, belongObject):
@@ -98,7 +101,7 @@ class Alignment():
         if len(pt_list_x) == 0 and len(pt_list_y) == 0: # no alignment needed
             pass
         elif len(pt_list_x) == 0: # align on y then
-            print("align on y only")
+            logging.debug("align on y only")
             pt_chosen = None
             self.delta_y = Alignment.MAX_Y_SEP
             for pt in pt_list_y:
@@ -108,7 +111,7 @@ class Alignment():
                     pt_chosen = pt
             currObject.center_y = pt_chosen.y     
         elif len(pt_list_y) == 0: # align on x then
-            print("align on x only")
+            logging.debug("align on x only")
             pt_chosen = None
             self.delta_x = Alignment.MAX_X_SEP
             for pt in pt_list_x:
@@ -126,7 +129,7 @@ class Alignment():
             if len(pt_pairs) == 0: # if no pairs found then no alignment
                 pass
             else:
-                print("align both")
+                logging.debug("align both")
                 pt_pair_chosen = pt_pairs[0] # for now, choosen the 1st one
                 self.delta_x = abs(pt_pair_chosen[0].x - currObject.center_x)
                 self.delta_y = abs(pt_pair_chosen[1].y - currObject.center_y)
@@ -210,7 +213,7 @@ class Alignment():
         if len(pt_list_x) == 0 and len(pt_list_y) == 0: # no alignment needed
             pass
         elif len(pt_list_x) == 0: # align on y then
-            print("align on y only")
+            logging.debug("align on y only")
             pt_chosen = None
             self.delta_y = Alignment.MAX_Y_SEP
             for pt in pt_list_y:
@@ -220,7 +223,7 @@ class Alignment():
                     pt_chosen = pt
             currObject.upperleft_y = pt_chosen.y     
         elif len(pt_list_y) == 0: # align on x then
-            print("align on x only")
+            logging.debug("align on x only")
             pt_chosen = None
             self.delta_x = Alignment.MAX_X_SEP
             for pt in pt_list_x:
@@ -238,7 +241,7 @@ class Alignment():
             if len(pt_pairs) == 0: # if no pairs found then no alignment
                 pass
             else:
-                print("align both")
+                logging.debug("align both")
                 pt_pair_chosen = pt_pairs[0] # for now, choosen the 1st one
                 self.delta_x = abs(pt_pair_chosen[0].x - currObject.upperleft_x)
                 self.delta_y = abs(pt_pair_chosen[1].y - currObject.upperleft_y)
@@ -258,10 +261,10 @@ class Distance():
     # Require current & last object being circle/rectangle
     def fix_distance(self, currObject, lastObject, distMeasurementList):
         if (isinstance(currObject, Circle) is False) and (isinstance(currObject, Rectangle) is False):
-            print("need the current object being a rectangle or a circle")
+            logging.debug("need the current object being a rectangle or a circle")
             return
         if (isinstance(lastObject, Circle) is False) and (isinstance(lastObject, Rectangle) is False):
-            print("need the last object being a rectangle or a circle")
+            logging.debug("need the last object being a rectangle or a circle")
             return
         
         current_x = currObject.center_x
@@ -299,7 +302,7 @@ class Concentric():
     def make_concentric(self, currObject, circList):
         # check if current object is circle
         if (isinstance(currObject, Circle) is False) and (isinstance(currObject, Arc) is False):
-            print("need the current object being a circle or an arc")
+            logging.debug("need the current object being a circle or an arc")
             return
 
         # first record old x and y
@@ -342,7 +345,7 @@ class Parallel():
         # define currLine with polar representation (-pi < theta <= pi)
         r_curr = currLine.get_magnitude()
         theta_curr = math.atan2((currLine.y_0-currLine.y_1), (currLine.x_1-currLine.x_0))
-        #print("theta_curr: " + str(math.degrees(theta_curr)))
+        #logging.debug("theta_curr: " + str(math.degrees(theta_curr)))
         
         # get the acute angle between the two lines
         cross_product_mag = currLine.get_cross_product(refLine)
@@ -350,7 +353,7 @@ class Parallel():
         mag_ref = refLine.get_magnitude()
         sin_val_abs = abs(cross_product_mag / (mag_curr * mag_ref))
         theta_delta = math.asin(sin_val_abs)
-        #print("theta_delta: " + str(math.degrees(theta_delta)))
+        #logging.debug("theta_delta: " + str(math.degrees(theta_delta)))
         
         # rotate in both CW and CCW direction, and get respective final point
         theta_final_A = theta_curr + theta_delta
@@ -362,7 +365,7 @@ class Parallel():
         new_y_1_B = currLine.y_0 - r_curr * math.sin(theta_final_B)
         line_B = Line(currLine.x_0, currLine.y_0, new_x_1_B, new_y_1_B)
         #("theta_final_A: " + str(math.degrees(theta_final_A)))
-        #print("theta_final_B: " + str(math.degrees(theta_final_B)))
+        #logging.debug("theta_final_B: " + str(math.degrees(theta_final_B)))
         
         # compare cross product magnitudes to figure out which direction should
         # adopt
@@ -383,17 +386,17 @@ class Parallel():
         self.init_x = currObject.x_1
         self.init_y = currObject.y_1
         mag_curr = currObject.get_magnitude()
-        #print("curr line mag is " + str(mag_curr))
+        #logging.debug("curr line mag is " + str(mag_curr))
 
         min_sin_val = Parallel.MAX_SIN_VAL
         for line in lineList:
-            #print("checking line")
+            #logging.debug("checking line")
             cross_product_mag = currObject.get_cross_product(line)
-            #print("cross product mag is " + str(cross_product_mag))
+            #logging.debug("cross product mag is " + str(cross_product_mag))
             mag_line = line.get_magnitude()
-            #print("line mag is " + str(mag_line))
+            #logging.debug("line mag is " + str(mag_line))
             sin_val_abs = abs(cross_product_mag / (mag_curr * mag_line))
-            #print("sine val abs is " + str(sin_val_abs))
+            #logging.debug("sine val abs is " + str(sin_val_abs))
             if sin_val_abs > 0 and sin_val_abs <= Parallel.MAX_SIN_VAL and sin_val_abs <= min_sin_val:
                 min_sin_val = sin_val_abs
                 self.drag_second_point(currObject, line)
@@ -451,7 +454,7 @@ class Perpendicular():
         self.init_x = currObject.x_1
         self.init_y = currObject.y_1
         mag_curr = currObject.get_magnitude()
-        #print("curr line mag is " + str(mag_curr))
+        #logging.debug("curr line mag is " + str(mag_curr))
         min_cos_val = Perpendicular.MAX_COS_VAL
         for line in lineList:
             dot_product_mag = currObject.get_dot_product(line)
