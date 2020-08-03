@@ -8,6 +8,9 @@ from MainWidget import MainWidget
 from PyQt4.QtGui import QApplication
 
 import sys
+import logging.config
+logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
 def main():
     app = QApplication(sys.argv) 

@@ -8,6 +8,7 @@ from PyQt4.QtCore import *
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 X_coord = 0
 Y_coord = 0
 force = 0
@@ -169,7 +170,7 @@ class BluetoothThread(QThread):
 				return
 
 	def beep(self):
-			logging.debug("beep")
+			logger.debug("beep")
 			self.beepflag=True
 			# outchar = self.chars['2ba0']
 			# outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
