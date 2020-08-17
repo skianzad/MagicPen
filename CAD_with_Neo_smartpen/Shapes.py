@@ -117,6 +117,15 @@ class Line():
         b1 = line.x_1 - line.x_0
         b2 = line.y_1 - line.y_0
         return (a1 * b1 + a2 * b2)
+    
+    # for an equation of the line, in the form Ax + By + C = 0; returns (A, B, C)
+    def get_line_equation(self):
+        if self.x_1 - self.x_0 == 0:
+            return (1, 0, -1 * self.x_1)
+        else:
+            k = float(self.y_1 - self.y_0) / float(self.x_1 - self.x_0)
+            b = self.y_1 - k * self.x_1
+            return (-1*k, 1, -1*b)
 
 class DistMeasurement():
     def __Init__(self):

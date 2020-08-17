@@ -17,6 +17,7 @@ from Shapes import *
 from Relations import *
 #from Control import ControlThread
 from Bluetooth import FORCE_HOVERING_MAX
+from Steering import Steering
 import logging
 
 logger = logging.getLogger(__name__)
@@ -69,10 +70,12 @@ class MainWidget(QWidget):
     vpVanishingPoint = []
     vpVpoint=[]
     
+    # signals for the control thread and the steering thread
     controlLineSignal = pyqtSignal(list)
     controlRectSignal = pyqtSignal(list)
     controlRectPSignal= pyqtSignal(list)
     controlTriSignal  = pyqtSignal(list)
+    controlCircSignal   =   pyqtSignal(list)
     gcoordinate = pyqtSignal(list)
     
     # A deque used to store the recent "lifted" variable from the pen due to asynch bluetooth transmission
@@ -105,7 +108,7 @@ class MainWidget(QWidget):
     # the last object being drawn; used when distance constraint applied
     lastObject = None
 
-    def __init__(self, Parent=None):
+    def __init__(self, indexOfDiff, Parent=None):
         '''
                 Constructor
         ''' 
@@ -126,6 +129,7 @@ class MainWidget(QWidget):
         #self.__InitWiFi()
         self.__InitBluetooth()
         #self.__InitControl()
+        self.__InitSteering(indexOfDiff)
 
     '''
     def __InitWiFi(self):
@@ -158,6 +162,7 @@ class MainWidget(QWidget):
         self.controlRectSignal.connect(self.ControlThread.receiveRectData)
         self.controlRectPSignal.connect(self.ControlThread.receiveRectPData)
         self.controlTriSignal.connect(self.ControlThread.receiveTriData)
+        self.controlCircSignal.connect(self.ControlThread.receiveCircData)
         self.gcoordinate.connect(self.ControlThread.gpos)
         self.ControlThread.start()
     """
@@ -171,6 +176,12 @@ class MainWidget(QWidget):
         self.__colorList = QColor.colorNames() #Get a list of color names
         self.penCoordinates = [0,0]
         self.penPressure = 0
+    
+    def __InitSteering(self, indexOfDiff):
+        '''
+                 initialize the steering law checker
+        '''
+        self.steering = Steering(indexOfDiff)
         
     def __InitView(self, sizeX, sizeY):
         '''
@@ -726,7 +737,10 @@ class MainWidget(QWidget):
                         logger.debug("drawing the circle")
                         # store parameterized circle here
                         self.circList.append(self.currObject)
+                        controlCircList = self.vpShapePointList + penDataList
                         # clear the flags and points data to go back to State 1
+                        self.controlCircSignal.emit(controlCircList)
+                        # self.ControlThread.controlStartDrawCirc() NOTE: control zeroed
                         self.vpShapePointList = []
                         self.vpPointCount = 0
                         self.alignmentCenter = None

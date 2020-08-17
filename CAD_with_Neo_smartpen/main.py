@@ -15,7 +15,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 def main():
     app = QApplication(sys.argv) 
     
-    mainWidget = MainWidget()
+    # pass in index of difficulty
+    mainWidget = MainWidget(float(sys.argv[1]))
     mainWidget.show()
     
     exit(app.exec_())
