@@ -1,33 +1,35 @@
 #!/usr/bin/env python
 '''
-Created on 2019-01-01
+Created on 2021-02-28
 
-@author: Yuxiang
+@author: Guanxiong, Yuxiang
 '''
-from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import RPi.GPIO as GPIO
 import socket
-
+import threading
 
 '''
-    A simple WiFi server to receive coordinates from the digital pen
+    A simple WiFi server to transmit pen data to a client upon request.
 '''
 class WiFiThread(QThread):
-
-    __TCP_IP = ''
-    __TCP_PORT = 8080
-    __BUFFER_SIZE = 21
-    conn = None
-    addr = None
-    sigOut = pyqtSignal(list)
     
-    def __init__(self, tcpIP='', tcpPort=8080, bufferSize = 21, parent=None):
+    def __init__(self, sigPenData=None, tcpIP='', tcpPort=8080, bufferSize = 21, parent=None):
         super(WiFiThread,self).__init__(parent)
         
         self.__TCP_IP = tcpIP
         self.__TCP_PORT = tcpPort
         self.__BUFFER_SIZE = bufferSize
+        self.conn = None
+        self.addr = None
+
+        self.xCoord = -1
+        self.yCoord = -1
+        self.pressure = -1
+        self.penDataLock = threading.Lock()
+
+        assert sigPenData is not None
+        sigPenData.connect(self.updatePenData)
+        return
 
         
     # Initialize WiFi connection
@@ -38,32 +40,47 @@ class WiFiThread(QThread):
         # Wait until a connection is established/accepted
         print("Waiting for connection...")
         self.conn, self.addr = s.accept()
-      
-        while(self.addr is None and self.conn is None):
-            self.conn, self.addr = s.accept()
-
-        print("Connection address:", self.addr)
+        assert (self.conn is not None) and (self.addr is not None)
+        return
 
 
-    # overwrite  the run method to continously receive data from the socket
+    # update pen x, y coordinate and pressure upon being called
+    # from the bluetooth thread
+    def updatePenData(self, penDataList):
+        #print("Updating pen data")
+        self.penDataLock.acquire()
+        self.xCoord = penDataList[0]
+        self.yCoord = penDataList[1]
+        self.pressure = penDataList[2]
+        self.penDataLock.release()
+        return
+
+
+    # Overwrite the run method to monitor request from client. Upon request, transmit
+    # pen data (pressure, etc.) to client 
     def run(self):
         self.socketInit()
         
+        # monitor request and transmit data upon request
         while(self.addr is not None and self.conn is not None):
-            data = self.conn.recv(self.__BUFFER_SIZE)
-            dataString = data.decode("utf-8")
-            # print(dataString)
-            
-            rawCoordinates = dataString.split("/")[0].split(",")
-            rawPressure = dataString.split("/")[1]
-            rawXCoord = rawCoordinates[0]
-            rawYCoord = rawCoordinates[1]
-            
-            QtXCoord = 4.0 + 4*float(rawXCoord)
-            QtYCoord = 4.0 + 4*float(rawYCoord)
-            QtPressure = float(rawPressure)
+            # decode request
+            dataRequest = self.conn.recv(self.__BUFFER_SIZE)
+            dataRequestString = dataRequest.decode("utf-8")
+            # print(dataRequestString)
 
-            dataList = [QtXCoord, QtYCoord, QtPressure]
-            self.sigOut.emit(dataList)
+            # transmit pen data upon valid request
+            if dataRequestString == "data":
+                #print("Received request for pen data")
+                # assemble pen data string
+                self.penDataLock.acquire()
+                dataTransmitString = str(self.xCoord) + ',' + str(self.yCoord) + '/' + str(self.pressure)
+                self.penDataLock.release()
+                # transmit pen data
+                #print(dataTransmitString)
+                dataTransmit = dataTransmitString.encode('utf-8')
+                self.conn.send(dataTransmit)
+
+        print("WIFI server exited")
+        return
             
 

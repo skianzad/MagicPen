@@ -10,7 +10,7 @@ from PyQt4.Qt import *
 import time
 # from PyQt4.QtCore import *
 from PaintBoard import PaintBoard
-# from WiFi import WiFiThread
+from WiFi import WiFiThread
 from Bluetooth import BluetoothThread
 import math
 from Shapes import *
@@ -126,21 +126,19 @@ class MainWidget(QWidget):
 
         self.__InitData(paintSizeX, paintSizeY) #First initialize data, then initialize view/interface
         self.__InitView(mainSizeX, mainSizeY)
-        #self.__InitWiFi()
         self.__InitBluetooth()
+        self.__InitWiFi()
         #self.__InitControl()
         self.__InitSteering(indexOfDiff)
 
-    '''
     def __InitWiFi(self):
-        
-                  #initialize the tcp server
-        
-        self.WiFiThread = WiFiThread()
-        self.WiFiThread.sigOut.connect(self.free_draw_updates)
-        # self.WiFiThread.sigOut.connect(self.VP_draw_updates)
+        """
+                 initialize the tcp server;
+                 should be called after the bluetooth thread
+                 has been initialized
+        """
+        self.WiFiThread = WiFiThread(sigPenData = self.BluetoothThread.sigOut, tcpIP='192.168.0.100')
         self.WiFiThread.start()
-    '''
     
     
     def __InitBluetooth(self):
