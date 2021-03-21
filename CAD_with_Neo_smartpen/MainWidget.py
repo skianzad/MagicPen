@@ -137,7 +137,7 @@ class MainWidget(QWidget):
                  should be called after the bluetooth thread
                  has been initialized
         """
-        self.WiFiThread = WiFiThread(sigPenData = self.BluetoothThread.sigOut, tcpIP='192.168.0.100')
+        self.WiFiThread = WiFiThread(sigPenData = self.BluetoothThread.sigOut, tcpIP='192.168.0.103')
         self.WiFiThread.start()
     
     
