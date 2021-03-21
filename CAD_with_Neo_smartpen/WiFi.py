@@ -9,6 +9,41 @@ import socket
 import threading
 
 '''
+    Class to represent a stroke as a sequence of pen-tip positions
+    when the pen is pressed against paper.
+'''
+class Stroke():
+
+    # arguments:
+    # index - indicate the order of this stroke;
+    #         0 if the first stroke created since program
+    #         started
+    def __init__(self, index): 
+        self.index = index
+        self.done = False
+        self.xCoords = []
+        self.yCoords = []
+
+    
+    # append x and y coordinates to the stroke
+    def append_coord(self, xCoord, yCoord):
+        assert self.done is False
+        self.xCoords.append(xCoord)
+        self.yCoords.append(yCoord)
+        return
+
+    
+    # complete the stroke
+    def complete_stroke(self):
+        self.done =True
+        return
+
+    
+    # get the length of the stroke
+    def get_length(self):
+        return len(self.xCoords)
+
+'''
     A simple WiFi server to transmit pen data to a client upon request.
 '''
 class WiFiThread(QThread):
@@ -22,18 +57,25 @@ class WiFiThread(QThread):
         self.conn = None
         self.addr = None
 
-        self.xCoord = -1
-        self.yCoord = -1
-        self.pressure = -1
-        self.penDataLock = threading.Lock()
+        # set min pressure to be recognized as stroke point 
+        self.FORCE_STROKE_MIN = 5.0
+        
+        # stroke data protected by a conditional variable
+        # (and its associated lock)
+        self.stroke = None
+        self.strokeConVar = threading.Condition()
+
+        # index to track the index of the last stroke requested
+        # by client
+        self.strokeReqCounter = -1
 
         assert sigPenData is not None
-        sigPenData.connect(self.updatePenData)
+        sigPenData.connect(self.update_stroke_state)
         return
 
         
     # Initialize WiFi connection
-    def socketInit(self):
+    def socket_init(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.__TCP_IP, self.__TCP_PORT))
         s.listen(1)
@@ -44,41 +86,84 @@ class WiFiThread(QThread):
         return
 
 
-    # update pen x, y coordinate and pressure upon being called
-    # from the bluetooth thread
-    def updatePenData(self, penDataList):
+    # update stroke state upon being called from the bluetooth thread
+    def update_stroke_state(self, penDataList):
         #print("Updating pen data")
-        self.penDataLock.acquire()
-        self.xCoord = penDataList[0]
-        self.yCoord = penDataList[1]
-        self.pressure = penDataList[2]
-        self.penDataLock.release()
+
+        # extract point data
+        xCoord = penDataList[0]
+        yCoord = penDataList[1]
+        pressure = penDataList[2]
+
+        # update stroke state
+        with self.strokeConVar:
+            # if the last stroke does not exist or is done, then
+            # create a new stroke
+            if (self.stroke is None) or (self.stroke.done is True):
+                if pressure >= self.FORCE_STROKE_MIN:
+                    # create the first stroke since program started
+                    if self.stroke is None:
+                        self.stroke = Stroke(0)
+                        self.stroke.append_coord(xCoord, yCoord)
+                    # define a new stroke with index incremented by 1
+                    else:
+                        self.stroke = Stroke(self.stroke.index + 1)
+                        self.stroke.append_coord(xCoord, yCoord)
+                else:
+                    pass
+            # if the last stroke is not done, then either add a point
+            # or terminate the stroke
+            else:
+                if pressure >= self.FORCE_STROKE_MIN:
+                    self.stroke.append_coord(xCoord, yCoord)
+                else:
+                    self.stroke.complete_stroke()
+                    self.strokeConVar.notify()
+
         return
 
 
-    # Overwrite the run method to monitor request from client. Upon request, transmit
-    # pen data (pressure, etc.) to client 
+    # The overwritten run method monitors requests from client.
+    # Upon a valid request, wait until a new stroke is completed,
+    # then transmit the stroke to the client
     def run(self):
-        self.socketInit()
+        self.socket_init()
         
         # monitor request and transmit data upon request
         while(self.addr is not None and self.conn is not None):
             # decode request
             dataRequest = self.conn.recv(self.__BUFFER_SIZE)
             dataRequestString = dataRequest.decode("utf-8")
-            # print(dataRequestString)
+            #print(dataRequestString)
 
             # transmit pen data upon valid request
             if dataRequestString == "data":
-                #print("Received request for pen data")
-                # assemble pen data string
-                self.penDataLock.acquire()
-                dataTransmitString = str(self.xCoord) + ',' + str(self.yCoord) + '/' + str(self.pressure)
-                self.penDataLock.release()
-                # transmit pen data
-                #print(dataTransmitString)
-                dataTransmit = dataTransmitString.encode('utf-8')
-                self.conn.send(dataTransmit)
+                #print("Received request for stroke data")
+                
+                with self.strokeConVar:
+                    # sleep until a new stroke is completed
+                    while (
+                        (self.stroke is None) or
+                        (self.stroke.done is False) or 
+                        (self.strokeReqCounter>=self.stroke.index)
+                    ):
+                        #print("waiting for new stroke")
+                        self.strokeConVar.wait()
+                    
+                    # update last-seen stroke index
+                    self.strokeReqCounter = self.stroke.index
+
+                    # assemble pen stroke data string
+                    # string formatted as x_0,y_0/x_1,y_1/.../x_(N-1),y_(N-1)/
+                    # for a stroke of N points
+                    dataTransmitString = ''
+                    for i in range(0, self.stroke.get_length()):
+                        dataTransmitString = dataTransmitString + str(self.stroke.xCoords[i]) + ',' + str(self.stroke.yCoords[i]) + '/'
+                    
+                    # transmit pen data
+                    #print(dataTransmitString)
+                    dataTransmit = dataTransmitString.encode('utf-8')
+                    self.conn.send(dataTransmit)
 
         print("WIFI server exited")
         return
