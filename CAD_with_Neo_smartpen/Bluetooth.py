@@ -3,8 +3,8 @@ from bluepy.btle import *
 #import bluepy.btle
 import struct
 import time
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,10 @@ global lifted
 lifted= False
 flag = 	False
 
-FORCE_HOVERING_MAX = 5.0 # max force a user can apply on pen tip while hovering 
+FORCE_HOVERING_MAX = 5.0 # max force a user can apply on pen tip while hovering
+
+def asUtf8(s):
+	return bytes(s, 'utf8')
 
 def isNeoPen(dev):
 	for adtype, desc, value in dev.getScanData():
@@ -27,9 +30,9 @@ def isNeoPen(dev):
 	
 		
 def make_packet(opcode, contents):
-		contents = chr(opcode) + struct.pack('<h', len(contents)) + contents
-		contents.replace('\x7d', '\x7d\x5d').replace('\xc0', '\x7d\xe0').replace('\xc1', '\x7d\xe1')
-		return '\xc0' + contents + '\xc1'
+                contents = chr(opcode) + str(struct.pack('<h', len(contents))) + contents
+                contents.replace('\x7d', '\x7d\x5d').replace('\xc0', '\x7d\xe0').replace('\xc1', '\x7d\xe1')
+                return '\xc0' + contents + '\xc1'
 		
 def send_packet(Msg, outchar):
 	div_Pack=5
@@ -37,13 +40,14 @@ def send_packet(Msg, outchar):
 	Msg_p=[Msg[i:i+chunck_size]for i in range(0,chunck,chunck_size)]
 	#outchar.write(Msg, withResponse=True)
 	for i in range(0,div_Pack-1):
-		outchar.write(Msg_p[i])
-	outchar.write(Msg_p[div_Pack], withResponse=True)
+		outchar.write(bytes(Msg_p[i], 'utf8'))
+	outchar.write(bytes(Msg_p[div_Pack], 'utf8'), withResponse=True)
 
 
 class NotificationHandler(DefaultDelegate):
 	def handleNotification(self, cHandle, data):
 		global lifted , flag
+		print("Notification")
 
 		# print("Notification: %s %s" % (cHandle,data.encode('hex'))) #len(data)))# data.encode('hex')))
 		packets = data.split(b'\xc1')
@@ -102,13 +106,13 @@ class BluetoothThread(QThread):
 			elif svc.uuid.getCommonName() == '19f1':
 				print("Found NeoPen vendor service")
 				chars = {char.uuid.getCommonName(): char for char in svc.getCharacteristics()}
-				self.chars=chars
+				self.chars = chars
 		if chars is None:
 			raise Exception("Did not find vendor service!")
 		# print("chars:",chars,"type",type(chars))
 		# enable notifications
 		self.inchar = chars['2ba1']
-		self.p.writeCharacteristic(self.inchar.valHandle + 1, '\x01\x00', withResponse=True)
+		self.p.writeCharacteristic(self.inchar.valHandle + 1, bytes('\x01\x00', 'utf8'), withResponse=True)
 		self.outchar = chars['2ba0']
 		self.beepflag=True
 		# setup: VERSION_REQUEST
@@ -119,52 +123,55 @@ class BluetoothThread(QThread):
 		time.sleep(0.50)
 		# setup: SETTING_INFO_REQUEST (pre-authentication)
 		msg = make_packet(0x04, '')
-		self.outchar.write(msg, withResponse=True)
+		self.outchar.write(asUtf8(msg), withResponse=True)
 		time.sleep(0.50)
 
-		self.outchar.write(make_packet(0x05, '\x08\xf0\x6b\x3c\x00'), withResponse=True)
+		self.outchar.write(asUtf8(make_packet(0x05, '\x08\xf0\x6b\x3c\x00')), withResponse=True)
 		# self.outchar.write(make_packet(0x05, '\x08\x00\x00\x00\x00\x00'), withResponse=True)
-		self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
+		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
 
-		self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
-		self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
+		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x00')), withResponse=True)
+		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
 
 		# hover mode enable
-		self.outchar.write(make_packet(0x05, '\x06\x01'), withResponse=True)
+		self.outchar.write(asUtf8(make_packet(0x05, '\x06\x01')), withResponse=True)
 		# setup: ONLINE_DATA_REQUEST
-		self.outchar.write(make_packet(0x11, '\xff\xff'), withResponse=True)
+		self.outchar.write(asUtf8(make_packet(0x11, '\xff\xff')), withResponse=True)
 		# setup: OFFLINE_NOTE_LIST_REQUEST
-		#	outchar.write(make_packet(0x21, '\xff\xff\xff\xff'), withResponse=True)
-		#	time.sleep(0.50)
+		# self.outchar.write(asUtf8(make_packet(0x21, '\xff\xff\xff\xff')), withResponse=True)
+		# time.sleep(0.50)
 			# setup: SETTING_INFO_REQUEST (post-authentication - real status request)
-		#	msg = make_packet(0x04, '')
-		#	outchar.write(msg, withResponse=True)
-		#	time.sleep(0.50)
+		# msg = asUtf8(make_packet(0x04, ''))
+		# self.outchar.write(msg, withResponse=True)
+		# time.sleep(0.50)
 			# SETTING_CHANGE_REQUEST: DataTransmissionType (14) = Event (0)
-		#	outchar.write(make_packet(0x05, '\x0e\x00'), withResponse=True)
-		#	time.sleep(0.50)
+		# self.outchar.write(asUtf8(make_packet(0x05, '\x0e\x00')), withResponse=True)
+		# time.sleep(0.50)
 		
 		##beping at start
-		self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
-		self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
+		self.beep()
+		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x00')), withResponse=True)
+		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
 
 	def runNeoPen(self, dev):
 		global X_coord, Y_coord, force ,lifted
 		self.initPen(dev)
 
 		while True:
+			print("loop")
 			# wait for notification from the pen, if there is a new notification, send it out as a signal 
 			try:
-				if(self.p.waitForNotifications(10.0)):
+				if(self.p.waitForNotifications(5.0)):
 					if(self.beepflag==False):
 						dataList = [X_coord, Y_coord, force, lifted]
 						self.sigOut.emit(dataList)
 					elif (self.beepflag==True):
-						self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
-						self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
+						self.outchar.write(asUtf8(make_packet(0x05, '\x05\x00')), withResponse=True)
+						self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
 						lifted=0
 						self.beepflag=False
-					# print(dataList)
+					print("Notification")
+				print([X_coord, Y_coord, force, lifted])
 			except BTLEDisconnectError:
 				print("Pen disconnected!")
 				return
@@ -172,14 +179,14 @@ class BluetoothThread(QThread):
 	def beep(self):
 			logger.debug("beep")
 			self.beepflag=True
-			# outchar = self.chars['2ba0']
-			# outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
-			# #self.p.waitForNotifications(10.0)
-			# outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
+			outchar = self.chars['2ba0']
+			outchar.write(asUtf8(make_packet(0x05, '\x05\x00')), withResponse=True)
+			# self.p.waitForNotifications(10.0)
+			outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
 	
-			#self.p.waitForNotifications(10.0)
-			#time.sleep(0.5)
-			#self.pw_response_char.write('0000' + '\x00' * 12, withResponse=True) # creating the beep sound
+			# self.p.waitForNotifications(10.0)
+			time.sleep(0.5)
+			outchar.write(asUtf8('0000' + '\x00' * 12), withResponse=True) # creating the beep sound
 
 
     # overwrite  the run method to continously receive data from the socket

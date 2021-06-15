@@ -4,8 +4,8 @@ Created on 2029-07-10 00:00
 @author: Soheil 
 '''
 import collections
-from PyQt4 import QtGui
-from PyQt4.Qt import *
+from PyQt5 import QtGui
+from PyQt5.Qt import *
 import time
 # from PyQt4.QtCore import *
 from PaintBoard import PaintBoard
@@ -15,7 +15,7 @@ import math
 from Shapes import *
 from Relations import *
 from MainWidget import MainWidget
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 import sys
 
