@@ -158,13 +158,14 @@ class BluetoothThread(QThread):
 				if(self.p.waitForNotifications(10.0)):
 					if(self.beepflag==False):
 						dataList = [X_coord, Y_coord, force, lifted]
+						print("x:", X_coord, "y:", Y_coord)
+						print("force:", force)
 						self.sigOut.emit(dataList)
 					elif (self.beepflag==True):
 						self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
 						self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 						lifted=0
 						self.beepflag=False
-					# print(dataList)
 			except BTLEDisconnectError:
 				print("Pen disconnected!")
 				return
