@@ -10,7 +10,7 @@ import time
 # from PyQt4.QtCore import *
 from PaintBoard import PaintBoard
 # from WiFi import WiFiThread
-from Bluetooth import BluetoothThread
+from UdpBluetooth import BluetoothThread
 import math
 from Shapes import *
 from Relations import *

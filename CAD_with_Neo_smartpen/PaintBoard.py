@@ -5,7 +5,7 @@ Created on 2019-01-01
 @author: Yuxiang, Guanxiong
 '''
 from PyQt4 import QtGui
-from PyQt4.QtGui import QWidget
+from PyQt4.QtGui import *
 from PyQt4.Qt import QPixmap, QPainter, QPoint, QPaintEvent, QMouseEvent, QPen,\
     QColor, QSize
 from PyQt4.QtCore import Qt, QTimer, QRectF
