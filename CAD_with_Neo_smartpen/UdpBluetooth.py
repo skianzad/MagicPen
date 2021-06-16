@@ -34,7 +34,6 @@ def isNeoPen(dev):
 			return True
 	return False
 
-# """
 def make_packet(opcode,	contents):
 	contents = bytes([opcode]) + struct.pack('<h', len(contents)) + asUtf8(contents)
 	contents.replace( asUtf8('\x7d')
@@ -44,15 +43,6 @@ def make_packet(opcode,	contents):
 	contents = asUtf8('\xc0') + contents + asUtf8('\xc1')
 	# print(binascii.hexlify(contents))
 	return contents
-"""
-def make_packet(opcode, contents):
-	contents = chr(opcode) + str(struct.pack('<h', len(contents))) + contents
-	contents.replace('\x7d', '\x7d\x5d').replace('\xc0', '\x7d\xe0').replace('\xc1', '\x7d\xe1')
-	contents = asUtf8('\xc0' + contents + '\xc1')
-	print(binascii.hexlify(contents))
-	return contents
-"""
-
 		
 def send_packet(Msg, outchar):
 	div_Pack=4
@@ -191,8 +181,6 @@ class BluetoothThread(QThread):
 						print("lifted?: ", lifted)
 						self.sigOut.emit(dataList)
 
-						# msg = str(X_coord) + " " + str(Y_coord) + "\n"
-						# msg = asUtf8(msg)
 						msg = struct.pack("<ff?", X_coord, Y_coord, lifted)
 
 						sock.sendto(msg, (ip, port))

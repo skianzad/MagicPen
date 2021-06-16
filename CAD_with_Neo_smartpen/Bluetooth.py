@@ -22,7 +22,7 @@ FORCE_HOVERING_MAX = 5.0 # max force a user can	apply on pen tip while hovering
 
 def asUtf8(s):
 	return bytes(s, 'raw_unicode_escape')
-	# return bytes(s)
+	# return bytes(s) # python2
 
 def isNeoPen(dev):
 	for adtype, desc, value	in dev.getScanData():
@@ -30,7 +30,6 @@ def isNeoPen(dev):
 			return True
 	return False
 
-# """
 def make_packet(opcode,	contents):
 	contents = bytes([opcode]) + struct.pack('<h', len(contents)) + asUtf8(contents)
 	contents.replace( asUtf8('\x7d')
@@ -38,16 +37,8 @@ def make_packet(opcode,	contents):
 	                , asUtf8('\x7d\xe0')).replace(asUtf8('\xc1')
 	                , asUtf8('\x7d\xe1') )
 	contents = asUtf8('\xc0') + contents + asUtf8('\xc1')
-	# print(binascii.hexlify(contents))
+	# print(binascii.hexlify(contents)) # debug
 	return contents
-"""
-def make_packet(opcode, contents):
-	contents = chr(opcode) + str(struct.pack('<h', len(contents))) + contents
-	contents.replace('\x7d', '\x7d\x5d').replace('\xc0', '\x7d\xe0').replace('\xc1', '\x7d\xe1')
-	contents = asUtf8('\xc0' + contents + '\xc1')
-	print(binascii.hexlify(contents))
-	return contents
-"""
 
 		
 def send_packet(Msg, outchar):
@@ -75,7 +66,7 @@ class NotificationHandler(DefaultDelegate):
 			pkt = pkt.rstrip(b'\xc1')
 			pkt = pkt.replace(asUtf8('\x7d\xe1'), asUtf8('\xc1')).replace(asUtf8('\x7d\xe0'), asUtf8('\xc0')).replace(asUtf8('\x7d\x5d'), asUtf8('\x7d'))
 			pen_Msg = pkt.hex()
-			# pen_Msg = pkt.encode('hex')
+			# pen_Msg = pkt.encode('hex') # python2
 			# print(pen_Msg)
 			if (pen_Msg[0:2]=='c0' and pen_Msg[2:4]=='6c' or pen_Msg[2:4]=='65'):
 				self.Dot_Decod(pen_Msg,pkt)
