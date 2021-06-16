@@ -6,6 +6,8 @@ import time
 from PyQt4.QtGui import	*
 from PyQt4.QtCore import *
 import logging
+import binascii
+import socket
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -17,51 +19,68 @@ global lifted
 lifted=	False
 flag =	False
 
+ip = "127.0.0.1"
+port = 3141
+
 FORCE_HOVERING_MAX = 5.0 # max force a user can	apply on pen tip while hovering
 
 def asUtf8(s):
-	return bytes(s, 'utf-8')
+	return bytes(s, 'raw_unicode_escape')
+	# return bytes(s)
 
 def isNeoPen(dev):
 	for adtype, desc, value	in dev.getScanData():
 		if desc	== 'Complete Local Name' and (value == 'Neosmartpen_M1'	or value == 'Neosmartpen_N2'):
 			return True
 	return False
-	
-		
+
+# """
 def make_packet(opcode,	contents):
-		contents = chr(opcode) + str(struct.pack('<h', len(contents))) + contents
-		contents.replace('\x7d', '\x7d\x5d').replace('\xc0', '\x7d\xe0').replace('\xc1', '\x7d\xe1')
-		return '\xc0' +	contents + '\xc1'
+	contents = bytes([opcode]) + struct.pack('<h', len(contents)) + asUtf8(contents)
+	contents.replace( asUtf8('\x7d')
+	                , asUtf8('\x7d\x5d')).replace(asUtf8('\xc0')
+	                , asUtf8('\x7d\xe0')).replace(asUtf8('\xc1')
+	                , asUtf8('\x7d\xe1') )
+	contents = asUtf8('\xc0') + contents + asUtf8('\xc1')
+	# print(binascii.hexlify(contents))
+	return contents
+"""
+def make_packet(opcode, contents):
+	contents = chr(opcode) + str(struct.pack('<h', len(contents))) + contents
+	contents.replace('\x7d', '\x7d\x5d').replace('\xc0', '\x7d\xe0').replace('\xc1', '\x7d\xe1')
+	contents = asUtf8('\xc0' + contents + '\xc1')
+	print(binascii.hexlify(contents))
+	return contents
+"""
+
 		
 def send_packet(Msg, outchar):
-	div_Pack=5
+	div_Pack=4
 	chunck,	chunck_size=len(Msg),len(Msg)//div_Pack
 	Msg_p=[Msg[i:i+chunck_size]for i in range(0,chunck,chunck_size)]
 	#outchar.write(Msg, withResponse=True)
 	for i in range(0,div_Pack-1):
-		outchar.write(asUtf8(Msg_p[i]))
-	outchar.write(asUtf8(Msg_p[div_Pack]), withResponse=True)
+		outchar.write(Msg_p[i])
+	outchar.write(Msg_p[div_Pack], withResponse=True)
 
 
 class NotificationHandler(DefaultDelegate):
 	def handleNotification(self, cHandle, data):
 		global lifted ,	flag
 
-		print("Notification")
-
 		# print("Notification: %s %s" %	(cHandle,data.encode('hex'))) #len(data)))# data.encode('hex')))
 		packets	= data.split(b'\xc1')
 		for pkt	in packets:
 			if not pkt:
 				continue
-			if not pkt.startswith('\xc0'):
+			if not pkt.startswith(asUtf8('\xc0')):
 				print("Possible	malformed packet %s?" %	pkt.encode('hex'))
 				continue
 			pkt = pkt.rstrip(b'\xc1')
-			pkt = pkt.replace('\x7d\xe1', '\xc1').replace('\x7d\xe0', '\xc0').replace('\x7d\x5d', '\x7d')
-			pen_Msg	= pkt.encode('hex')
-			#print(pen_Msg)
+			pkt = pkt.replace(asUtf8('\x7d\xe1'), asUtf8('\xc1')).replace(asUtf8('\x7d\xe0'), asUtf8('\xc0')).replace(asUtf8('\x7d\x5d'), asUtf8('\x7d'))
+			pen_Msg = pkt.hex()
+			# pen_Msg = pkt.encode('hex')
+			# print(pen_Msg)
 			if (pen_Msg[0:2]=='c0' and pen_Msg[2:4]=='6c' or pen_Msg[2:4]=='65'):
 				self.Dot_Decod(pen_Msg,pkt)
 			if (pen_Msg[0:2]=='c0' and pen_Msg[2:4]=='63'):
@@ -110,36 +129,37 @@ class BluetoothThread(QThread):
 				self.chars = chars
 		if chars is None:
 			raise Exception("Did not find vendor service!")
-		# print("chars:",chars,"type",type(chars))
+		print("chars:",chars,"type",type(chars))
 		# enable notifications
 		self.inchar = chars['2ba1']
+		print(self.inchar.valHandle)
 		self.p.writeCharacteristic(self.inchar.valHandle + 1, asUtf8('\x01\x00'), withResponse=True)
 		self.outchar = chars['2ba0']
 		self.beepflag=True
 		# setup: VERSION_REQUEST
 		print("Sending version message...")
 		msg = make_packet(0x01,	'\x00' * 16 + '\x12\x01' + '2.1.8.0'.ljust(16, '\0') + '2.12'.ljust(8, '\0'))
-		send_packet(msg,self.outchar)
-		#outchar.write(msg, withResponse=True)
+		send_packet(msg, self.outchar)
+		# self.outchar.write(msg, withResponse=True)
 		time.sleep(0.50)
 		# setup: SETTING_INFO_REQUEST (pre-authentication)
 		msg = make_packet(0x04,	'')
-		self.outchar.write(asUtf8(msg),	withResponse=True)
+		self.outchar.write(msg, withResponse=True)
 		time.sleep(0.50)
 
-		self.outchar.write(asUtf8(make_packet(0x05, '\x08\xf0\x6b\x3c\x00')), withResponse=True)
+		self.outchar.write(make_packet(0x05, '\x08\xf0\x6b\x3c\x00'), withResponse=True)
 		# self.outchar.write(make_packet(0x05, '\x08\x00\x00\x00\x00\x00'), withResponse=True)
-		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
+		self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 
-		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x00')), withResponse=True)
-		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
+		self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
+		self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 
 		# hover	mode enable
-		self.outchar.write(asUtf8(make_packet(0x05, '\x06\x01')), withResponse=True)
+		self.outchar.write(make_packet(0x05, '\x06\x01'), withResponse=True)
 		# setup: ONLINE_DATA_REQUEST
-		self.outchar.write(asUtf8(make_packet(0x11, '\xff\xff')), withResponse=True)
+		self.outchar.write(make_packet(0x11, '\xff\xff'), withResponse=True)
 		# setup: OFFLINE_NOTE_LIST_REQUEST
-		# self.outchar.write(asUtf8(make_packet(0x21, '\xff\xff\xff\xff')), withResponse=True)
+		# self.outchar.write(make_packet(0x21, '\xff\xff\xff\xff'), withResponse=True)
 		# time.sleep(0.50)
 			# setup: SETTING_INFO_REQUEST (post-authentication - real status request)
 		# msg =	asUtf8(make_packet(0x04, ''))
@@ -151,12 +171,14 @@ class BluetoothThread(QThread):
 		
 		##beping at start
 		self.beep()
-		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x00')), withResponse=True)
-		self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
+		self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
+		self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 
 	def runNeoPen(self, dev):
 		global X_coord,	Y_coord, force ,lifted
 		self.initPen(dev)
+
+		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 		while True:
 			# wait for notification	from the pen, if there is a new	notification, send it out as a signal 
@@ -166,10 +188,17 @@ class BluetoothThread(QThread):
 						dataList = [X_coord, Y_coord, force, lifted]
 						print("x:", X_coord, "y:", Y_coord)
 						print("force:",	force)
+						print("lifted?: ", lifted)
 						self.sigOut.emit(dataList)
+
+						# msg = str(X_coord) + " " + str(Y_coord) + "\n"
+						# msg = asUtf8(msg)
+						msg = struct.pack("<ff?", X_coord, Y_coord, lifted)
+
+						sock.sendto(msg, (ip, port))
 					elif (self.beepflag==True):
-						self.outchar.write(asUtf8(make_packet(0x05, '\x05\x00')), withResponse=True)
-						self.outchar.write(asUtf8(make_packet(0x05, '\x05\x01')), withResponse=True)
+						self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
+						self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 						lifted=0
 						self.beepflag=False
 			except BTLEDisconnectError:
