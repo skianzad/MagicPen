@@ -4,7 +4,7 @@ Created on 2021-02-28
 
 @author: Guanxiong, Yuxiang
 '''
-from PyQt5.QtCore import *
+from PyQt4.QtCore import *
 import socket
 import threading
 

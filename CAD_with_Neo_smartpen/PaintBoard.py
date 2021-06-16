@@ -4,11 +4,11 @@ Created on 2019-01-01
 
 @author: Yuxiang, Guanxiong
 '''
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import QWidget
-from PyQt5.Qt import QPixmap, QPainter, QPoint, QPaintEvent, QMouseEvent, QPen,\
+from PyQt4 import QtGui
+from PyQt4.QtGui import *
+from PyQt4.Qt import QPixmap, QPainter, QPoint, QPaintEvent, QMouseEvent, QPen,\
     QColor, QSize
-from PyQt5.QtCore import Qt, QTimer, QRectF
+from PyQt4.QtCore import Qt, QTimer, QRectF
 import threading
 import socket
 import sys

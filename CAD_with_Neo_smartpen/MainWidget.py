@@ -5,8 +5,8 @@ Created on 2019-01-01
 @author: Yuxiang, Guanxiong, Soheil
 '''
 import collections
-from PyQt5 import QtGui
-from PyQt5.Qt import *
+from PyQt4 import QtGui
+from PyQt4.Qt import *
 import time
 # from PyQt4.QtCore import *
 from PaintBoard import PaintBoard
