@@ -26,7 +26,8 @@ def asUtf8(s):
 
 def isNeoPen(dev):
 	for adtype, desc, value in dev.getScanData():
-		if desc == 'Complete Local Name' and (value == 'Neosmartpen_M1' or value == 'Neosmartpen_N2'):
+		# if desc == 'Complete Local Name' and (value == 'Neosmartpen_M1' or value == 'Neosmartpen_N2'):
+		if dev.addr == "f4:5e:c5:a9:b5:39":
 			return True
 	return False
 
@@ -181,17 +182,23 @@ def runNeoPen(dev):
 # overwrite the run method to continously receive data from the socket
 def run():
 	scanner = Scanner()
+	# scanner.start()
 	while 1:
 		print("Scanning...")
+		# scanner.process(2)
 		devices = scanner.scan(2.0)
 
 		generator = None
 
-		for dev in devices:
+		for dev in devices: # scanner.getDevices():
+			"""
+			print(dev.addr)
+			for _, desc, val in dev.getScanData():
+				if desc == 'Complete Local Name':
+					10
+				print("{0} : {1}".format(desc, val))
+			"""
 			if isNeoPen(dev):
 				print("Found available NeoPen %s, connecting..." % (dev.addr))
 				generator = runNeoPen(dev)
-				break
-		scanner.clear()
-
-		return generator
+				return generator
