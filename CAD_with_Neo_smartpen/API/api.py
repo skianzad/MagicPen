@@ -26,8 +26,7 @@ def asUtf8(s):
 
 def isNeoPen(dev):
 	for adtype, desc, value in dev.getScanData():
-		# if desc == 'Complete Local Name' and (value == 'Neosmartpen_M1' or value == 'Neosmartpen_N2'):
-		if dev.addr == "f4:5e:c5:a9:b5:39":
+		if desc == 'Complete Local Name' and (value == 'Neosmartpen_M1' or value == 'Neosmartpen_N2'):
 			return True
 	return False
 
@@ -55,6 +54,7 @@ def send_packet(Msg, outchar):
 class NotificationHandler(DefaultDelegate):
 	def handleNotification(self, cHandle, data):
 		global lifted , flag
+		print("Notification")
 
 		# print("Notification: %s %s" % (cHandle,data.encode('hex'))) #len(data)))# data.encode('hex')))
 		packets = data.split(b'\xc1')
@@ -191,13 +191,11 @@ def run():
 		generator = None
 
 		for dev in devices: # scanner.getDevices():
-			"""
 			print(dev.addr)
 			for _, desc, val in dev.getScanData():
 				if desc == 'Complete Local Name':
 					10
 				print("{0} : {1}".format(desc, val))
-			"""
 			if isNeoPen(dev):
 				print("Found available NeoPen %s, connecting..." % (dev.addr))
 				generator = runNeoPen(dev)
