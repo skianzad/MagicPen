@@ -42,7 +42,7 @@ func main() {
 				panic(err)
 			}
 
-			err = initPen(adapter, device, stateChan)
+			go initPen(adapter, device, stateChan)
 			if err != nil {
 				panic(err)
 			}
