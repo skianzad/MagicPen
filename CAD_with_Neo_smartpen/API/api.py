@@ -37,7 +37,7 @@ def make_packet(opcode, contents):
 			, asUtf8('\x7d\xe0')).replace(asUtf8('\xc1')
 			, asUtf8('\x7d\xe1') )
 	contents = asUtf8('\xc0') + contents + asUtf8('\xc1')
-	# print(binascii.hexlify(contents)) # debug
+	print("Encoded packet: ", binascii.hexlify(contents)) # debug
 	return contents
 
 		
@@ -48,15 +48,15 @@ def send_packet(Msg, outchar):
 	#outchar.write(Msg, withResponse=True)
 	for i in range(0,div_Pack-1):
 		outchar.write(Msg_p[i])
-	outchar.write(Msg_p[div_Pack], withResponse=True)
+	outchar.write(Msg_p[div_Pack], withResponse=False)
 
 
 class NotificationHandler(DefaultDelegate):
 	def handleNotification(self, cHandle, data):
 		global lifted , flag
-		print("Notification")
+		# print("Notification")
 
-		# print("Notification: %s %s" % (cHandle,data.encode('hex'))) #len(data)))# data.encode('hex')))
+		print("Notification: %s %s" % (cHandle,data.hex())) #len(data)))# data.encode('hex')))
 		packets = data.split(b'\xc1')
 		for pkt in packets:
 			if not pkt:
@@ -80,6 +80,7 @@ class NotificationHandler(DefaultDelegate):
 			
 	def Dot_Decod(self, msg,pkt):
 		global X_coord, Y_coord, force
+		print("Packet:", binascii.hexlify(pkt))
 		if (len(pkt)==17):
 			read_out = (struct.unpack('<BBBBBHHHBBBBH',pkt))
 			x = read_out[6]*100+read_out[8]
@@ -117,16 +118,20 @@ def initPen(dev):
 	# enable notifications
 	inchar = chars['2ba1']
 
-	print(inchar.valHandle)
+	print("Handles:")
+	print(chars['2ba0'].getHandle())
+	print(chars['2ba1'].getHandle())
 
-	p.writeCharacteristic(inchar.valHandle + 1, asUtf8('\x01\x00'), withResponse=True)
+	print(type(inchar.valHandle))
+
+	# p.writeCharacteristic(inchar.valHandle + 1, asUtf8('\x01\x00'), withResponse=True)
 
 	outchar = chars['2ba0']
 
 	# setup: VERSION_REQUEST
 	print("Sending version message...")
-	msg = make_packet(0x01, '\x00' * 16 + '\x12\x01' + '2.1.8.0'.ljust(16, '\0') + '2.12'.ljust(8, '\0'))
-	send_packet(msg, outchar)
+	# msg = make_packet(0x01, '\x00' * 16 + '\x12\x01' + '2.1.8.0'.ljust(16, '\0') + '2.12'.ljust(8, '\0'))
+	# send_packet(msg, outchar)
 	# self.outchar.write(msg, withResponse=True)
 	time.sleep(0.50)
 	# setup: SETTING_INFO_REQUEST (pre-authentication)
@@ -156,7 +161,7 @@ def initPen(dev):
 	# self.outchar.write(asUtf8(make_packet(0x05, '\x0e\x00')), withResponse=True)
 	# time.sleep(0.50)
 	
-	##beping at start
+	##beeping at start
 	outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
 	outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
 
