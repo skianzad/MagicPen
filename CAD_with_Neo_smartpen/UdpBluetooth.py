@@ -7,6 +7,7 @@ from PyQt4.QtGui import	*
 from PyQt4.QtCore import *
 import logging
 import binascii
+import socket
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -18,11 +19,14 @@ global lifted
 lifted=	False
 flag =	False
 
+ip = "127.0.0.1"
+port = 3141
+
 FORCE_HOVERING_MAX = 5.0 # max force a user can	apply on pen tip while hovering
 
 def asUtf8(s):
 	return bytes(s, 'raw_unicode_escape')
-	# return bytes(s) # python2
+	# return bytes(s)
 
 def isNeoPen(dev):
 	for adtype, desc, value	in dev.getScanData():
@@ -37,9 +41,8 @@ def make_packet(opcode,	contents):
 	                , asUtf8('\x7d\xe0')).replace(asUtf8('\xc1')
 	                , asUtf8('\x7d\xe1') )
 	contents = asUtf8('\xc0') + contents + asUtf8('\xc1')
-	# print(binascii.hexlify(contents)) # debug
+	# print(binascii.hexlify(contents))
 	return contents
-
 		
 def send_packet(Msg, outchar):
 	div_Pack=4
@@ -66,7 +69,7 @@ class NotificationHandler(DefaultDelegate):
 			pkt = pkt.rstrip(b'\xc1')
 			pkt = pkt.replace(asUtf8('\x7d\xe1'), asUtf8('\xc1')).replace(asUtf8('\x7d\xe0'), asUtf8('\xc0')).replace(asUtf8('\x7d\x5d'), asUtf8('\x7d'))
 			pen_Msg = pkt.hex()
-			# pen_Msg = pkt.encode('hex') # python2
+			# pen_Msg = pkt.encode('hex')
 			# print(pen_Msg)
 			if (pen_Msg[0:2]=='c0' and pen_Msg[2:4]=='6c' or pen_Msg[2:4]=='65'):
 				self.Dot_Decod(pen_Msg,pkt)
@@ -165,6 +168,8 @@ class BluetoothThread(QThread):
 		global X_coord,	Y_coord, force ,lifted
 		self.initPen(dev)
 
+		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
 		while True:
 			# wait for notification	from the pen, if there is a new	notification, send it out as a signal 
 			try:
@@ -175,6 +180,10 @@ class BluetoothThread(QThread):
 						print("force:",	force)
 						print("lifted?: ", lifted)
 						self.sigOut.emit(dataList)
+
+						msg = struct.pack("<ff?", X_coord, Y_coord, lifted)
+
+						sock.sendto(msg, (ip, port))
 					elif (self.beepflag==True):
 						self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
 						self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)

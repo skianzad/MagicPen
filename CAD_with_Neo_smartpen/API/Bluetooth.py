@@ -3,8 +3,8 @@ from bluepy.btle import	*
 #import	bluepy.btle
 import struct
 import time
-from PyQt4.QtGui import	*
-from PyQt4.QtCore import *
+# from PyQt4.QtGui import	*
+# from PyQt4.QtCore import *
 import logging
 import binascii
 
@@ -94,8 +94,8 @@ class NotificationHandler(DefaultDelegate):
 			#print("x:%i y:%i force: %i" % (x/4.375,y/4.375,force))	
 			
 		
-class BluetoothThread(QThread):	
-	sigOut = pyqtSignal(list)
+class BluetoothThread():	
+	# sigOut = pyqtSignal(list)
 	# initialize the pen
 	chars =	None
 	beepflag= False
@@ -174,7 +174,7 @@ class BluetoothThread(QThread):
 						print("x:", X_coord, "y:", Y_coord)
 						print("force:",	force)
 						print("lifted?: ", lifted)
-						self.sigOut.emit(dataList)
+						# self.sigOut.emit(dataList)
 					elif (self.beepflag==True):
 						self.outchar.write(make_packet(0x05, '\x05\x00'), withResponse=True)
 						self.outchar.write(make_packet(0x05, '\x05\x01'), withResponse=True)
